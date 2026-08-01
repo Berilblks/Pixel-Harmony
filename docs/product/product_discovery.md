@@ -4,7 +4,7 @@
 
 # 1. Executive Summary
 
-PROJECT_NAME is a premium relaxing mobile puzzle game built for players who want a calm, beautiful experience instead of stressful competition.
+Pixel Harmony is a premium relaxing mobile puzzle game built for players who want a calm, beautiful experience instead of stressful competition.
 
 The product targets the growing "mindful gaming" market by combining satisfying color-based puzzles with elegant visuals, soft audio, and daily progression.
 
@@ -21,7 +21,7 @@ Most casual puzzle games suffer from one or more of these problems:
 - Stressful timers
 - Poor long-term retention
 
-PROJECT_NAME aims to solve these issues by creating a premium-first experience.
+Pixel Harmony aims to solve these issues by creating a premium-first experience.
 
 ---
 
@@ -102,7 +102,7 @@ Needs:
 
 # 8. Value Proposition
 
-PROJECT_NAME provides a calm, beautiful puzzle experience without pressure.
+Pixel Harmony provides a calm, beautiful puzzle experience without pressure.
 
 ---
 
@@ -150,7 +150,6 @@ Mitigation:
 
 # 12. Open Questions
 
-- Final brand name
 - Art direction
 - Premium pricing
 - Theme roadmap

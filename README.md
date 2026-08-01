@@ -1,4 +1,4 @@
- # 🌈 PROJECT_NAME
+ # 🌈 Pixel Harmony
 
 > *A premium, relaxing color puzzle experience built with Flutter & Flame.*
 
@@ -16,9 +16,9 @@
 
 # 📖 About
 
-PROJECT_NAME is a premium mobile puzzle game designed to help players relax through beautiful color harmony, smooth animations, calming sounds, and satisfying interactions.
+Pixel Harmony is a premium mobile puzzle game designed to help players relax through beautiful color harmony, smooth animations, calming sounds, and satisfying interactions.
 
-Unlike traditional puzzle games that focus on pressure and competition, PROJECT_NAME focuses on mindfulness, aesthetics, and short relaxing sessions.
+Unlike traditional puzzle games that focus on pressure and competition, Pixel Harmony focuses on mindfulness, aesthetics, and short relaxing sessions.
 
 The long-term vision is to build a recognizable puzzle game franchise rather than a single mobile application.
 
@@ -77,7 +77,7 @@ Play Again
 
 # 🧠 Design Philosophy
 
-PROJECT_NAME is **not** designed to maximize addiction.
+Pixel Harmony is **not** designed to maximize addiction.
 
 Instead it aims to maximize:
 
