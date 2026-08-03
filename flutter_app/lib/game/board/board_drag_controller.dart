@@ -1,23 +1,42 @@
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
+import 'package:pixel_harmony/game/board/board_target_detector.dart';
 
 class BoardDragController {
+  BoardDragController({BoardTargetDetector? targetDetector})
+    : _targetDetector = targetDetector ?? const BoardTargetDetector();
+
+  final BoardTargetDetector _targetDetector;
+
   Vector2 _boardSize = Vector2.zero();
   Map<String, Vector2> _originalPositions = const {};
+  List<String> _tileIds = const [];
+  int _boardDimension = 0;
+  double _tileExtent = 0;
+  double _spacing = 0;
   String? _activeTileId;
+  String? _activeTargetTileId;
 
   String? get activeTileId => _activeTileId;
+  String? get activeTargetTileId => _activeTargetTileId;
 
   void updateLayout({
     required Vector2 boardSize,
     required Map<String, Vector2> originalPositions,
+    required int boardDimension,
+    required double tileExtent,
+    required double spacing,
   }) {
     _boardSize = boardSize.clone();
     _originalPositions = {
       for (final entry in originalPositions.entries)
         entry.key: entry.value.clone(),
     };
+    _tileIds = List.unmodifiable(originalPositions.keys);
+    _boardDimension = boardDimension;
+    _tileExtent = tileExtent;
+    _spacing = spacing;
   }
 
   bool tryStartDrag(String tileId) {
@@ -26,6 +45,7 @@ class BoardDragController {
     }
 
     _activeTileId = tileId;
+    _activeTargetTileId = null;
     return true;
   }
 
@@ -39,19 +59,40 @@ class BoardDragController {
       return currentPosition.clone();
     }
 
-    return clampToBoard(
+    final nextPosition = clampToBoard(
       position: currentPosition + delta,
       tileSize: tileSize,
       boardSize: _boardSize,
     );
+    _updateTarget(tileId: tileId, tilePosition: nextPosition);
+    return nextPosition;
   }
 
   Vector2 endDrag(String tileId) {
     final originalPosition = originalPositionFor(tileId);
     if (_activeTileId == tileId) {
       _activeTileId = null;
+      _activeTargetTileId = null;
     }
     return originalPosition;
+  }
+
+  void _updateTarget({required String tileId, required Vector2 tilePosition}) {
+    final sourceIndex = _tileIds.indexOf(tileId);
+    if (sourceIndex == -1 || _boardDimension == 0) {
+      _activeTargetTileId = null;
+      return;
+    }
+
+    final center = tilePosition + Vector2.all(_tileExtent / 2);
+    final targetIndex = _targetDetector.detect(
+      draggedCenter: math.Point(center.x, center.y),
+      sourceIndex: sourceIndex,
+      boardSize: _boardDimension,
+      tileSize: _tileExtent,
+      spacing: _spacing,
+    );
+    _activeTargetTileId = targetIndex == null ? null : _tileIds[targetIndex];
   }
 
   Vector2 originalPositionFor(String tileId) {

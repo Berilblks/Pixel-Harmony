@@ -30,9 +30,11 @@ class TileComponent extends PositionComponent with DragCallbacks {
   static const _cornerRadiusRatio = 0.12;
   static const _shadowColor = Color(0x33000000);
   static const _shadowElevation = 5.0;
+  static const _targetOutlineColor = Color(0xB3FFFFFF);
   static const _returnDuration = 0.18;
 
   bool _participatesInDrag = false;
+  bool isDropTarget = false;
   MoveEffect? _returnEffect;
 
   @override
@@ -90,5 +92,14 @@ class TileComponent extends PositionComponent with DragCallbacks {
 
     canvas.drawShadow(tilePath, _shadowColor, _shadowElevation, false);
     canvas.drawRRect(tile, Paint()..color = model.color);
+    if (isDropTarget) {
+      canvas.drawRRect(
+        tile,
+        Paint()
+          ..color = _targetOutlineColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.x * 0.025,
+      );
+    }
   }
 }

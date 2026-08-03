@@ -62,7 +62,11 @@ class BoardComponent extends PositionComponent {
     _dragController.updateLayout(
       boardSize: result.boardSize,
       originalPositions: originalPositions,
+      boardDimension: state.boardSize,
+      tileExtent: result.tileSize,
+      spacing: config.spacing,
     );
+    _syncTargetHighlight();
   }
 
   bool _onTileDragStarted(TileComponent tile) {
@@ -74,20 +78,31 @@ class BoardComponent extends PositionComponent {
   }
 
   Vector2 _onTileDragUpdated(TileComponent tile, Vector2 delta) {
-    return _dragController.updateDrag(
+    final position = _dragController.updateDrag(
       tileId: tile.model.id,
       currentPosition: tile.position,
       delta: delta,
       tileSize: tile.size,
     );
+    _syncTargetHighlight();
+    return position;
   }
 
   Vector2 _onTileDragFinished(TileComponent tile) {
     tile.priority = _restingPriority;
-    return _dragController.endDrag(tile.model.id);
+    final originalPosition = _dragController.endDrag(tile.model.id);
+    _syncTargetHighlight();
+    return originalPosition;
   }
 
   void _onTileReturnCompleted(TileComponent tile) {
     tile.priority = _restingPriority;
+  }
+
+  void _syncTargetHighlight() {
+    final activeTargetId = _dragController.activeTargetTileId;
+    for (final tile in children.whereType<TileComponent>()) {
+      tile.isDropTarget = tile.model.id == activeTargetId;
+    }
   }
 }

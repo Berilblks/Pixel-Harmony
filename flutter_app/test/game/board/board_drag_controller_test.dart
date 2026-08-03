@@ -13,7 +13,12 @@ void main() {
           originalPositions: {
             'first': Vector2.zero(),
             'second': Vector2(110, 0),
+            'third': Vector2(0, 110),
+            'fourth': Vector2(110, 110),
           },
+          boardDimension: 2,
+          tileExtent: 90,
+          spacing: 20,
         );
   });
 
@@ -47,6 +52,49 @@ void main() {
     controller.endDrag('first');
 
     expect(controller.tryStartDrag('second'), isTrue);
+  });
+
+  test('changes and clears the active target while dragging', () {
+    expect(controller.tryStartDrag('first'), isTrue);
+
+    var position = controller.updateDrag(
+      tileId: 'first',
+      currentPosition: Vector2.zero(),
+      delta: Vector2(110, 0),
+      tileSize: Vector2.all(90),
+    );
+    expect(controller.activeTargetTileId, 'second');
+
+    position = controller.updateDrag(
+      tileId: 'first',
+      currentPosition: position,
+      delta: Vector2(-110, 110),
+      tileSize: Vector2.all(90),
+    );
+    expect(controller.activeTargetTileId, 'third');
+
+    controller.updateDrag(
+      tileId: 'first',
+      currentPosition: position,
+      delta: Vector2(55, -55),
+      tileSize: Vector2.all(90),
+    );
+    expect(controller.activeTargetTileId, isNull);
+  });
+
+  test('clears the active target when drag ends', () {
+    expect(controller.tryStartDrag('first'), isTrue);
+    controller.updateDrag(
+      tileId: 'first',
+      currentPosition: Vector2.zero(),
+      delta: Vector2(110, 0),
+      tileSize: Vector2.all(90),
+    );
+    expect(controller.activeTargetTileId, 'second');
+
+    controller.endDrag('first');
+
+    expect(controller.activeTargetTileId, isNull);
   });
 
   test('visual dragging leaves BoardState unchanged', () {
