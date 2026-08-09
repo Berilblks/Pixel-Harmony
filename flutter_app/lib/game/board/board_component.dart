@@ -8,12 +8,14 @@ import 'package:pixel_harmony/game/state/board_state.dart';
 
 typedef BoardDropRequestCallback =
     BoardState Function(BoardDropRequest request);
+typedef BoardCompletedCallback = void Function(BoardState state);
 
 class BoardComponent extends PositionComponent {
   BoardComponent({
     required BoardState state,
     required this.config,
     required this.onDropRequested,
+    this.onCompleted,
     BoardDragController? dragController,
   }) : _state = state,
        _layout = BoardLayout(config),
@@ -34,10 +36,12 @@ class BoardComponent extends PositionComponent {
   BoardState _state;
   final BoardConfig config;
   final BoardDropRequestCallback onDropRequested;
+  final BoardCompletedCallback? onCompleted;
   final BoardLayout _layout;
   final BoardDragController _dragController;
 
   bool _isSwapAnimating = false;
+  bool _didNotifyCompletion = false;
   double _tileExtent = 0;
 
   bool get acceptsDragInput => !_isSwapAnimating && !_state.completed;
@@ -149,6 +153,7 @@ class BoardComponent extends PositionComponent {
             remainingAnimations--;
             if (remainingAnimations == 0) {
               _isSwapAnimating = false;
+              _finishCompletionIfNeeded();
             }
           },
         );
@@ -164,6 +169,22 @@ class BoardComponent extends PositionComponent {
       tileExtent: _tileExtent,
       spacing: config.spacing,
     );
+  }
+
+  void _finishCompletionIfNeeded() {
+    if (!_state.completed) {
+      return;
+    }
+
+    for (final tile in children.whereType<TileComponent>()) {
+      tile.isCompleted = true;
+    }
+    if (_didNotifyCompletion) {
+      return;
+    }
+
+    _didNotifyCompletion = true;
+    onCompleted?.call(_state);
   }
 
   void _onTileDragCancelled(TileComponent tile) {

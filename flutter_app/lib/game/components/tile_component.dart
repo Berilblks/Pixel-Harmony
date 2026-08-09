@@ -36,6 +36,7 @@ class TileComponent extends PositionComponent with DragCallbacks {
   bool _participatesInDrag = false;
   bool _isCancellingDrag = false;
   bool isDropTarget = false;
+  bool isCompleted = false;
   MoveEffect? _returnEffect;
 
   @override
@@ -109,6 +110,9 @@ class TileComponent extends PositionComponent with DragCallbacks {
 
     canvas.drawShadow(tilePath, _shadowColor, _shadowElevation, false);
     canvas.drawRRect(tile, Paint()..color = model.color);
+    if (isCompleted) {
+      canvas.drawRRect(tile, Paint()..color = const Color(0x0DFFFFFF));
+    }
     if (isDropTarget) {
       canvas.drawRRect(
         tile,

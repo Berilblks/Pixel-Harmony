@@ -19,4 +19,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get gameplayTitle => 'Oyun';
+
+  @override
+  String get completionTitle => 'Uyum Tamamlandı';
+
+  @override
+  String get completionSubtitle => 'Harika tamamladın.';
+
+  @override
+  String completionMoves(int count) {
+    return 'Hamle: $count';
+  }
+
+  @override
+  String get completionContinue => 'Devam Et';
 }

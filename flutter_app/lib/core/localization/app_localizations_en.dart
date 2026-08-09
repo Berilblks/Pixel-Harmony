@@ -19,4 +19,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get gameplayTitle => 'Gameplay';
+
+  @override
+  String get completionTitle => 'Harmony Restored';
+
+  @override
+  String get completionSubtitle => 'Beautifully done.';
+
+  @override
+  String completionMoves(int count) {
+    return 'Moves: $count';
+  }
+
+  @override
+  String get completionContinue => 'Continue';
 }

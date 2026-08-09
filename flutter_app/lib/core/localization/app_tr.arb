@@ -3,5 +3,16 @@
   "appTitle": "Pixel Harmony",
   "homeWelcome": "Renklerle huzur bul.",
   "playButton": "Oyna",
-  "gameplayTitle": "Oyun"
+  "gameplayTitle": "Oyun",
+  "completionTitle": "Uyum Tamamlandı",
+  "completionSubtitle": "Harika tamamladın.",
+  "completionMoves": "Hamle: {count}",
+  "@completionMoves": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "completionContinue": "Devam Et"
 }

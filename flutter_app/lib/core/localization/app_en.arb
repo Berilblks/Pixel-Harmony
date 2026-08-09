@@ -3,5 +3,16 @@
   "appTitle": "Pixel Harmony",
   "homeWelcome": "Find calm through color.",
   "playButton": "Play",
-  "gameplayTitle": "Gameplay"
+  "gameplayTitle": "Gameplay",
+  "completionTitle": "Harmony Restored",
+  "completionSubtitle": "Beautifully done.",
+  "completionMoves": "Moves: {count}",
+  "@completionMoves": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "completionContinue": "Continue"
 }

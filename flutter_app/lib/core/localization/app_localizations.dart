@@ -121,6 +121,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gameplay'**
   String get gameplayTitle;
+
+  /// No description provided for @completionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Harmony Restored'**
+  String get completionTitle;
+
+  /// No description provided for @completionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beautifully done.'**
+  String get completionSubtitle;
+
+  /// No description provided for @completionMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Moves: {count}'**
+  String completionMoves(int count);
+
+  /// No description provided for @completionContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get completionContinue;
 }
 
 class _AppLocalizationsDelegate
