@@ -14,5 +14,8 @@
       }
     }
   },
-  "completionContinue": "Continue"
+  "completionContinue": "Continue",
+  "level1Label": "Level 1",
+  "level2Label": "Level 2",
+  "level3Label": "Level 3"
 }

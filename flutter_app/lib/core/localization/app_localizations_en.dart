@@ -33,4 +33,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get completionContinue => 'Continue';
+
+  @override
+  String get level1Label => 'Level 1';
+
+  @override
+  String get level2Label => 'Level 2';
+
+  @override
+  String get level3Label => 'Level 3';
 }

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/models/tile_model.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
@@ -23,7 +24,7 @@ void main() {
     Locale locale = const Locale('en'),
   }) {
     final router = GoRouter(
-      initialLocation: '/gameplay',
+      initialLocation: '/gameplay/level_001',
       routes: [
         GoRoute(
           path: '/',
@@ -32,11 +33,13 @@ void main() {
               (context, state) => const Scaffold(body: Text('home-marker')),
         ),
         GoRoute(
-          path: '/gameplay',
+          path: '/gameplay/:levelId',
           name: 'gameplay',
           builder:
-              (context, state) =>
-                  GameplayScreen(completionController: controller),
+              (context, state) => GameplayScreen(
+                level: LevelCatalog.byId(state.pathParameters['levelId']!),
+                completionController: controller,
+              ),
         ),
       ],
     );

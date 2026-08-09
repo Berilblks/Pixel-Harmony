@@ -14,5 +14,8 @@
       }
     }
   },
-  "completionContinue": "Devam Et"
+  "completionContinue": "Devam Et",
+  "level1Label": "Seviye 1",
+  "level2Label": "Seviye 2",
+  "level3Label": "Seviye 3"
 }

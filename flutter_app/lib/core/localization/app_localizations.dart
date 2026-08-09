@@ -145,6 +145,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get completionContinue;
+
+  /// No description provided for @level1Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 1'**
+  String get level1Label;
+
+  /// No description provided for @level2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 2'**
+  String get level2Label;
+
+  /// No description provided for @level3Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 3'**
+  String get level3Label;
 }
 
 class _AppLocalizationsDelegate

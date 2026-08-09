@@ -4,11 +4,17 @@ import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
+import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
 class GameplayScreen extends StatefulWidget {
-  const GameplayScreen({super.key, this.completionController});
+  const GameplayScreen({
+    super.key,
+    required this.level,
+    this.completionController,
+  });
 
+  final LevelDefinition level;
   final GameplayCompletionController? completionController;
 
   @override
@@ -26,7 +32,10 @@ class _GameplayScreenState extends State<GameplayScreen> {
     _ownsCompletionController = widget.completionController == null;
     _completionController =
         widget.completionController ?? GameplayCompletionController();
-    _game = PixelHarmonyGame(onCompleted: _completionController.showCompletion);
+    _game = PixelHarmonyGame(
+      level: widget.level,
+      onCompleted: _completionController.showCompletion,
+    );
   }
 
   @override

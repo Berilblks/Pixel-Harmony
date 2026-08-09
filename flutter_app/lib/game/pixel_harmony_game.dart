@@ -3,12 +3,13 @@ import 'dart:ui';
 import 'package:flame/game.dart';
 import 'package:pixel_harmony/game/board/board_component.dart';
 import 'package:pixel_harmony/game/board/board_config.dart';
+import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 import 'package:pixel_harmony/game/state/game_session.dart';
 
 class PixelHarmonyGame extends FlameGame {
-  PixelHarmonyGame({GameSession? session, this.onCompleted})
-    : session = session ?? GameSession.initial();
+  PixelHarmonyGame({required LevelDefinition level, this.onCompleted})
+    : session = GameSession(level: level);
 
   final GameSession session;
   final void Function(BoardState state)? onCompleted;

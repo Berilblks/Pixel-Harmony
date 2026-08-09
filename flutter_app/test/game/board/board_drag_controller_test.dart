@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/game/board/board_drag_controller.dart';
+import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/state/game_session.dart';
 
 void main() {
@@ -100,7 +101,7 @@ void main() {
   });
 
   test('visual dragging leaves BoardState unchanged', () {
-    final session = GameSession.initial();
+    final session = GameSession(level: LevelCatalog.levels.first);
     final originalTiles = List.of(session.boardState.tiles);
 
     expect(controller.tryStartDrag('first'), isTrue);

@@ -33,4 +33,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get completionContinue => 'Devam Et';
+
+  @override
+  String get level1Label => 'Seviye 1';
+
+  @override
+  String get level2Label => 'Seviye 2';
+
+  @override
+  String get level3Label => 'Seviye 3';
 }
