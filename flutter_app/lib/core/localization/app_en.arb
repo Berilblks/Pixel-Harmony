@@ -23,5 +23,7 @@
   "levelNotFound": "Level not found",
   "backToLevels": "Back to Levels",
   "completedLabel": "Completed",
-  "progressLoadError": "Progress is unavailable. Levels remain playable."
+  "progressLoadError": "Progress is unavailable. Levels remain playable.",
+  "lockedLabel": "Locked",
+  "lockedMessage": "Complete the previous level to unlock this one."
 }

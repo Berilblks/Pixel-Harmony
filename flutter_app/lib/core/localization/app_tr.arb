@@ -23,5 +23,7 @@
   "levelNotFound": "Seviye bulunamadı",
   "backToLevels": "Seviyelere Dön",
   "completedLabel": "Tamamlandı",
-  "progressLoadError": "İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin."
+  "progressLoadError": "İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin.",
+  "lockedLabel": "Kilitli",
+  "lockedMessage": "Bu seviyeyi açmak için önceki seviyeyi tamamla."
 }

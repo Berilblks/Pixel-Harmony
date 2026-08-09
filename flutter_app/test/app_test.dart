@@ -63,16 +63,23 @@ void main() {
     expect(find.text('Level 3'), findsOneWidget);
     expect(find.text('Board Size: 2 × 2'), findsNWidgets(2));
     expect(find.text('Board Size: 3 × 3'), findsOneWidget);
+    expect(find.byKey(const Key('levelLocked_level_002')), findsOneWidget);
+    expect(find.byKey(const Key('levelLocked_level_003')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  for (final (label, levelId) in const [
-    ('Level 1', 'level_001'),
-    ('Level 2', 'level_002'),
-    ('Level 3', 'level_003'),
+  for (final (label, levelId, completedLevelIds) in const [
+    ('Level 1', 'level_001', <String>{}),
+    ('Level 2', 'level_002', {'level_001'}),
+    ('Level 3', 'level_003', {'level_001', 'level_002'}),
   ]) {
     testWidgets('$label card opens gameplay for $levelId', (tester) async {
-      await openLevelSelect(tester, repository: FakeLevelProgressRepository());
+      await openLevelSelect(
+        tester,
+        repository: FakeLevelProgressRepository(
+          completedLevelIds: completedLevelIds,
+        ),
+      );
 
       await tester.tap(find.byKey(Key('levelCard_$levelId')));
       await tester.pump();
@@ -123,6 +130,45 @@ void main() {
     expect(find.text('Completed'), findsOneWidget);
     expect(find.byKey(const Key('levelCompleted_level_002')), findsNothing);
     expect(find.byKey(const Key('levelCompleted_level_003')), findsNothing);
+    expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
+    expect(find.byKey(const Key('levelLocked_level_003')), findsOneWidget);
+  });
+
+  testWidgets('tapping a locked level does not open Gameplay', (tester) async {
+    await openLevelSelect(tester, repository: FakeLevelProgressRepository());
+
+    await tester.tap(find.byKey(const Key('levelCard_level_002')));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
+    expect(find.byType(GameplayScreen), findsNothing);
+  });
+
+  testWidgets('direct navigation to a locked level is rejected safely', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+    final context = tester.element(find.byType(HomeScreen));
+
+    GoRouter.of(context).go('/gameplay/level_003');
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(GameplayScreen), findsOneWidget);
+    expect(find.text('Locked'), findsOneWidget);
+    expect(
+      find.text('Complete the previous level to unlock this one.'),
+      findsOneWidget,
+    );
+    expect(find.byType(GameWidget<PixelHarmonyGame>), findsNothing);
+
+    await tester.tap(find.byKey(const Key('lockedBackToLevelsButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
   });
 
   testWidgets('progress failure keeps Level Select usable', (tester) async {
@@ -157,5 +203,13 @@ void main() {
 
     expect(repository.completedLevelIds, contains('level_001'));
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('completionContinueButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
+    expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
+    expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
   });
 }

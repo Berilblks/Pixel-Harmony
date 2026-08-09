@@ -199,6 +199,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Progress is unavailable. Levels remain playable.'**
   String get progressLoadError;
+
+  /// No description provided for @lockedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get lockedLabel;
+
+  /// No description provided for @lockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the previous level to unlock this one.'**
+  String get lockedMessage;
 }
 
 class _AppLocalizationsDelegate

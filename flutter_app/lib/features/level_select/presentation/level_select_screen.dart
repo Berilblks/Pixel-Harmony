@@ -6,6 +6,7 @@ import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
+import 'package:pixel_harmony/game/levels/level_progression.dart';
 
 class LevelSelectScreen extends ConsumerWidget {
   const LevelSelectScreen({super.key});
@@ -15,6 +16,7 @@ class LevelSelectScreen extends ConsumerWidget {
     final localizations = AppLocalizations.of(context);
     final progress = ref.watch(levelProgressControllerProvider);
     final completedLevelIds = progress.asData?.value ?? const <String>{};
+    final progression = LevelProgression(levels: LevelCatalog.levels);
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.chooseLevel)),
@@ -52,17 +54,26 @@ class LevelSelectScreen extends ConsumerWidget {
                   itemCount: LevelCatalog.levels.length,
                   itemBuilder: (context, index) {
                     final level = LevelCatalog.levels[index];
+                    final completed = completedLevelIds.contains(level.id);
+                    final unlocked = progression.isUnlocked(
+                      level.id,
+                      completedLevelIds,
+                    );
                     return _LevelCard(
                       level: level,
                       label: _localizedLevelName(localizations, level),
                       boardSizeLabel: localizations.boardSizeLabel,
                       completedLabel: localizations.completedLabel,
-                      completed: completedLevelIds.contains(level.id),
+                      lockedLabel: localizations.lockedLabel,
+                      completed: completed,
+                      unlocked: unlocked,
                       onTap:
-                          () => context.pushNamed(
-                            AppRoutes.gameplay,
-                            pathParameters: {'levelId': level.id},
-                          ),
+                          unlocked
+                              ? () => context.pushNamed(
+                                AppRoutes.gameplay,
+                                pathParameters: {'levelId': level.id},
+                              )
+                              : null,
                     );
                   },
                 );
@@ -93,7 +104,9 @@ class _LevelCard extends StatelessWidget {
     required this.label,
     required this.boardSizeLabel,
     required this.completedLabel,
+    required this.lockedLabel,
     required this.completed,
+    required this.unlocked,
     required this.onTap,
   });
 
@@ -101,50 +114,68 @@ class _LevelCard extends StatelessWidget {
   final String label;
   final String boardSizeLabel;
   final String completedLabel;
+  final String lockedLabel;
   final bool completed;
-  final VoidCallback onTap;
+  final bool unlocked;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 1,
-      child: InkWell(
-        key: Key('levelCard_${level.id}'),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              _LevelColorPreview(level: level),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(label, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 8),
-                    Text(
-                      '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
-                      key: Key('levelBoardSize_${level.id}'),
-                    ),
-                    if (completed) ...[
-                      const SizedBox(height: 8),
-                      Row(
-                        key: Key('levelCompleted_${level.id}'),
-                        children: [
-                          const Icon(Icons.check_circle_outline, size: 18),
-                          const SizedBox(width: 6),
-                          Text(completedLabel),
-                        ],
+    return Opacity(
+      opacity: unlocked ? 1 : 0.55,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        elevation: unlocked ? 1 : 0,
+        child: InkWell(
+          key: Key('levelCard_${level.id}'),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                _LevelColorPreview(level: level),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
+                        key: Key('levelBoardSize_${level.id}'),
+                      ),
+                      if (completed) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          key: Key('levelCompleted_${level.id}'),
+                          children: [
+                            const Icon(Icons.check_circle_outline, size: 18),
+                            const SizedBox(width: 6),
+                            Text(completedLabel),
+                          ],
+                        ),
+                      ] else if (!unlocked) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          key: Key('levelLocked_${level.id}'),
+                          children: [
+                            const Icon(Icons.lock_outline, size: 18),
+                            const SizedBox(width: 6),
+                            Text(lockedLabel),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right),
-            ],
+                Icon(unlocked ? Icons.chevron_right : Icons.lock_outline),
+              ],
+            ),
           ),
         ),
       ),

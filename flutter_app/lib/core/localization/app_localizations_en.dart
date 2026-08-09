@@ -61,4 +61,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get progressLoadError =>
       'Progress is unavailable. Levels remain playable.';
+
+  @override
+  String get lockedLabel => 'Locked';
+
+  @override
+  String get lockedMessage => 'Complete the previous level to unlock this one.';
 }

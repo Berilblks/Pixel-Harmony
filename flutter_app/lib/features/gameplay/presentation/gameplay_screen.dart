@@ -6,7 +6,9 @@ import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
+import 'package:pixel_harmony/game/levels/level_progression.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
 class GameplayScreen extends ConsumerStatefulWidget {
@@ -26,7 +28,7 @@ class GameplayScreen extends ConsumerStatefulWidget {
 class _GameplayScreenState extends ConsumerState<GameplayScreen> {
   late final GameplayCompletionController _completionController;
   late final bool _ownsCompletionController;
-  late final PixelHarmonyGame? _game;
+  PixelHarmonyGame? _game;
 
   @override
   void initState() {
@@ -43,13 +45,6 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
                       .read(levelProgressControllerProvider.notifier)
                       .markCompleted(level.id),
         );
-    _game =
-        level == null
-            ? null
-            : PixelHarmonyGame(
-              level: level,
-              onCompleted: _completionController.showCompletion,
-            );
   }
 
   @override
@@ -62,12 +57,31 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final game = _game;
-    if (game == null) {
+    final level = widget.level;
+    if (level == null) {
       return _LevelNotFoundView(
         onBackToLevels: () => context.goNamed(AppRoutes.levelSelect),
       );
     }
+
+    final progress = ref.watch(levelProgressControllerProvider);
+    if (progress.isLoading) {
+      return const _GameplayLoadingView();
+    }
+
+    final completedLevelIds = progress.asData?.value ?? const <String>{};
+    final progression = LevelProgression(levels: LevelCatalog.levels);
+    if (!progression.isUnlocked(level.id, completedLevelIds)) {
+      return _LevelLockedView(
+        onBackToLevels: () => context.goNamed(AppRoutes.levelSelect),
+      );
+    }
+
+    final game =
+        _game ??= PixelHarmonyGame(
+          level: level,
+          onCompleted: _completionController.showCompletion,
+        );
 
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).gameplayTitle)),
@@ -97,6 +111,56 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GameplayLoadingView extends StatelessWidget {
+  const _GameplayLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context).gameplayTitle)),
+      body: const Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _LevelLockedView extends StatelessWidget {
+  const _LevelLockedView({required this.onBackToLevels});
+
+  final VoidCallback onBackToLevels;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(localizations.gameplayTitle)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.lock_outline, size: 40),
+              const SizedBox(height: 16),
+              Text(
+                localizations.lockedLabel,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(localizations.lockedMessage, textAlign: TextAlign.center),
+              const SizedBox(height: 24),
+              FilledButton(
+                key: const Key('lockedBackToLevelsButton'),
+                onPressed: onBackToLevels,
+                child: Text(localizations.backToLevels),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

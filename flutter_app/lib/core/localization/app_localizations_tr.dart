@@ -61,4 +61,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get progressLoadError =>
       'İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin.';
+
+  @override
+  String get lockedLabel => 'Kilitli';
+
+  @override
+  String get lockedMessage => 'Bu seviyeyi açmak için önceki seviyeyi tamamla.';
 }

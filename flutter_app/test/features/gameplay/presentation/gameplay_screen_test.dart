@@ -6,9 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/models/tile_model.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
+
+import '../../../support/fake_level_progress_repository.dart';
 
 void main() {
   BoardState completedState({int moveCount = 1}) {
@@ -46,6 +49,11 @@ void main() {
     );
 
     return ProviderScope(
+      overrides: [
+        levelProgressRepositoryProvider.overrideWithValue(
+          FakeLevelProgressRepository(),
+        ),
+      ],
       child: MaterialApp.router(
         locale: locale,
         localizationsDelegates: const [
