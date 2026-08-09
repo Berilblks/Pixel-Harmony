@@ -20,6 +20,14 @@ class PixelHarmonyGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await add(BoardComponent(state: session.boardState, config: _boardConfig));
+    await add(
+      BoardComponent(
+        state: session.boardState,
+        config: _boardConfig,
+        onDropRequested: (request) {
+          return session.swapTiles(request.sourceIndex, request.targetIndex);
+        },
+      ),
+    );
   }
 }

@@ -38,9 +38,10 @@ void main() {
   test('returns the registered original position', () {
     expect(controller.tryStartDrag('second'), isTrue);
 
-    final originalPosition = controller.endDrag('second');
+    final result = controller.endDrag('second');
 
-    expect(originalPosition, Vector2(110, 0));
+    expect(result.originalPosition, Vector2(110, 0));
+    expect(result.targetTileId, isNull);
     expect(controller.activeTileId, isNull);
   });
 
@@ -92,8 +93,9 @@ void main() {
     );
     expect(controller.activeTargetTileId, 'second');
 
-    controller.endDrag('first');
+    final result = controller.endDrag('first');
 
+    expect(result.targetTileId, 'second');
     expect(controller.activeTargetTileId, isNull);
   });
 
@@ -108,8 +110,9 @@ void main() {
       delta: Vector2(40, 50),
       tileSize: Vector2.all(90),
     );
-    controller.endDrag('first');
+    final result = controller.endDrag('first');
 
+    expect(result.targetTileId, isNull);
     expect(session.boardState.tiles, orderedEquals(originalTiles));
     expect(session.boardState.moveCount, 0);
     expect(session.boardState.completed, isFalse);

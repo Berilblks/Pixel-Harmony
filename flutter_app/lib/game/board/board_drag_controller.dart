@@ -68,13 +68,18 @@ class BoardDragController {
     return nextPosition;
   }
 
-  Vector2 endDrag(String tileId) {
+  BoardDragEndResult endDrag(String tileId) {
     final originalPosition = originalPositionFor(tileId);
+    final targetTileId = _activeTileId == tileId ? _activeTargetTileId : null;
     if (_activeTileId == tileId) {
       _activeTileId = null;
       _activeTargetTileId = null;
     }
-    return originalPosition;
+    return BoardDragEndResult(
+      sourceTileId: tileId,
+      targetTileId: targetTileId,
+      originalPosition: originalPosition,
+    );
   }
 
   void _updateTarget({required String tileId, required Vector2 tilePosition}) {
@@ -116,4 +121,16 @@ class BoardDragController {
       position.y.clamp(0.0, maxY).toDouble(),
     );
   }
+}
+
+class BoardDragEndResult {
+  const BoardDragEndResult({
+    required this.sourceTileId,
+    required this.targetTileId,
+    required this.originalPosition,
+  });
+
+  final String sourceTileId;
+  final String? targetTileId;
+  final Vector2 originalPosition;
 }
