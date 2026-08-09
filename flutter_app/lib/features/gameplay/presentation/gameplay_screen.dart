@@ -14,7 +14,7 @@ class GameplayScreen extends StatefulWidget {
     this.completionController,
   });
 
-  final LevelDefinition level;
+  final LevelDefinition? level;
   final GameplayCompletionController? completionController;
 
   @override
@@ -24,7 +24,7 @@ class GameplayScreen extends StatefulWidget {
 class _GameplayScreenState extends State<GameplayScreen> {
   late final GameplayCompletionController _completionController;
   late final bool _ownsCompletionController;
-  late final PixelHarmonyGame _game;
+  late final PixelHarmonyGame? _game;
 
   @override
   void initState() {
@@ -32,10 +32,14 @@ class _GameplayScreenState extends State<GameplayScreen> {
     _ownsCompletionController = widget.completionController == null;
     _completionController =
         widget.completionController ?? GameplayCompletionController();
-    _game = PixelHarmonyGame(
-      level: widget.level,
-      onCompleted: _completionController.showCompletion,
-    );
+    final level = widget.level;
+    _game =
+        level == null
+            ? null
+            : PixelHarmonyGame(
+              level: level,
+              onCompleted: _completionController.showCompletion,
+            );
   }
 
   @override
@@ -48,13 +52,20 @@ class _GameplayScreenState extends State<GameplayScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final game = _game;
+    if (game == null) {
+      return _LevelNotFoundView(
+        onBackToLevels: () => context.goNamed(AppRoutes.levelSelect),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context).gameplayTitle)),
       body: Stack(
         children: [
           GameWidget<PixelHarmonyGame>(
             key: const Key('gameplayGameWidget'),
-            game: _game,
+            game: game,
           ),
           AnimatedBuilder(
             animation: _completionController,
@@ -69,12 +80,48 @@ class _GameplayScreenState extends State<GameplayScreen> {
                         : _LevelCompleteOverlay(
                           key: const Key('levelCompleteOverlay'),
                           moveCount: completion.moveCount,
-                          onContinue: () => context.goNamed(AppRoutes.home),
+                          onContinue:
+                              () => context.goNamed(AppRoutes.levelSelect),
                         ),
               );
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LevelNotFoundView extends StatelessWidget {
+  const _LevelNotFoundView({required this.onBackToLevels});
+
+  final VoidCallback onBackToLevels;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(localizations.gameplayTitle)),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                localizations.levelNotFound,
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                key: const Key('backToLevelsButton'),
+                onPressed: onBackToLevels,
+                child: Text(localizations.backToLevels),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -95,9 +95,19 @@ abstract final class LevelCatalog {
   ]);
 
   static LevelDefinition byId(String id) {
-    return levels.firstWhere(
-      (level) => level.id == id,
-      orElse: () => throw ArgumentError.value(id, 'id', 'Unknown level ID.'),
-    );
+    final level = findById(id);
+    if (level == null) {
+      throw ArgumentError.value(id, 'id', 'Unknown level ID.');
+    }
+    return level;
+  }
+
+  static LevelDefinition? findById(String id) {
+    for (final level in levels) {
+      if (level.id == id) {
+        return level;
+      }
+    }
+    return null;
   }
 }

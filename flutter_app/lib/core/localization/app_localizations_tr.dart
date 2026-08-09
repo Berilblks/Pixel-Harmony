@@ -42,4 +42,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get level3Label => 'Seviye 3';
+
+  @override
+  String get chooseLevel => 'Bir Seviye Seç';
+
+  @override
+  String get boardSizeLabel => 'Tahta Boyutu';
+
+  @override
+  String get levelNotFound => 'Seviye bulunamadı';
+
+  @override
+  String get backToLevels => 'Seviyelere Dön';
 }

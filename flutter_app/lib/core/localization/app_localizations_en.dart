@@ -42,4 +42,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get level3Label => 'Level 3';
+
+  @override
+  String get chooseLevel => 'Choose a Level';
+
+  @override
+  String get boardSizeLabel => 'Board Size';
+
+  @override
+  String get levelNotFound => 'Level not found';
+
+  @override
+  String get backToLevels => 'Back to Levels';
 }

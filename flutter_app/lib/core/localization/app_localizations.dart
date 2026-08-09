@@ -163,6 +163,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level 3'**
   String get level3Label;
+
+  /// No description provided for @chooseLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a Level'**
+  String get chooseLevel;
+
+  /// No description provided for @boardSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Board Size'**
+  String get boardSizeLabel;
+
+  /// No description provided for @levelNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Level not found'**
+  String get levelNotFound;
+
+  /// No description provided for @backToLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Levels'**
+  String get backToLevels;
 }
 
 class _AppLocalizationsDelegate

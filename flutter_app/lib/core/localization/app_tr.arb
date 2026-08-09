@@ -17,5 +17,9 @@
   "completionContinue": "Devam Et",
   "level1Label": "Seviye 1",
   "level2Label": "Seviye 2",
-  "level3Label": "Seviye 3"
+  "level3Label": "Seviye 3",
+  "chooseLevel": "Bir Seviye Seç",
+  "boardSizeLabel": "Tahta Boyutu",
+  "levelNotFound": "Seviye bulunamadı",
+  "backToLevels": "Seviyelere Dön"
 }

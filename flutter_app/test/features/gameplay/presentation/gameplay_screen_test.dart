@@ -27,10 +27,10 @@ void main() {
       initialLocation: '/gameplay/level_001',
       routes: [
         GoRoute(
-          path: '/',
-          name: 'home',
+          path: '/levels',
+          name: 'level-select',
           builder:
-              (context, state) => const Scaffold(body: Text('home-marker')),
+              (context, state) => const Scaffold(body: Text('levels-marker')),
         ),
         GoRoute(
           path: '/gameplay/:levelId',
@@ -103,7 +103,7 @@ void main() {
     expect(find.text('Devam Et'), findsOneWidget);
   });
 
-  testWidgets('Continue returns to Home', (tester) async {
+  testWidgets('Continue returns to Level Select', (tester) async {
     final controller = GameplayCompletionController();
     addTearDown(controller.dispose);
     await tester.pumpWidget(buildApp(controller));
@@ -115,7 +115,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 
-    expect(find.text('home-marker'), findsOneWidget);
+    expect(find.text('levels-marker'), findsOneWidget);
     expect(find.byType(GameplayScreen), findsNothing);
   });
 
