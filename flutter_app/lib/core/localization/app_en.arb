@@ -21,5 +21,7 @@
   "chooseLevel": "Choose a Level",
   "boardSizeLabel": "Board Size",
   "levelNotFound": "Level not found",
-  "backToLevels": "Back to Levels"
+  "backToLevels": "Back to Levels",
+  "completedLabel": "Completed",
+  "progressLoadError": "Progress is unavailable. Levels remain playable."
 }

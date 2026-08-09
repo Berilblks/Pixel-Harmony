@@ -54,4 +54,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get backToLevels => 'Back to Levels';
+
+  @override
+  String get completedLabel => 'Completed';
+
+  @override
+  String get progressLoadError =>
+      'Progress is unavailable. Levels remain playable.';
 }

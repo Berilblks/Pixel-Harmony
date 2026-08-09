@@ -21,5 +21,7 @@
   "chooseLevel": "Bir Seviye Seç",
   "boardSizeLabel": "Tahta Boyutu",
   "levelNotFound": "Seviye bulunamadı",
-  "backToLevels": "Seviyelere Dön"
+  "backToLevels": "Seviyelere Dön",
+  "completedLabel": "Tamamlandı",
+  "progressLoadError": "İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin."
 }

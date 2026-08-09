@@ -54,4 +54,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get backToLevels => 'Seviyelere Dön';
+
+  @override
+  String get completedLabel => 'Tamamlandı';
+
+  @override
+  String get progressLoadError =>
+      'İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin.';
 }

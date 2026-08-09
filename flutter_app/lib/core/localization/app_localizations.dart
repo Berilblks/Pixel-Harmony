@@ -187,6 +187,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to Levels'**
   String get backToLevels;
+
+  /// No description provided for @completedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completedLabel;
+
+  /// No description provided for @progressLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress is unavailable. Levels remain playable.'**
+  String get progressLoadError;
 }
 
 class _AppLocalizationsDelegate

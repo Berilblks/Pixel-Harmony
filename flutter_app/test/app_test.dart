@@ -7,13 +7,28 @@ import 'package:pixel_harmony/app/app.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
+import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/features/level_progress/domain/level_progress_repository.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
-void main() {
-  Widget buildApp() => const ProviderScope(child: PixelHarmonyApp());
+import 'support/fake_level_progress_repository.dart';
 
-  Future<void> openLevelSelect(WidgetTester tester) async {
-    await tester.pumpWidget(buildApp());
+void main() {
+  Widget buildApp({LevelProgressRepository? repository}) {
+    return ProviderScope(
+      overrides: [
+        if (repository != null)
+          levelProgressRepositoryProvider.overrideWithValue(repository),
+      ],
+      child: const PixelHarmonyApp(),
+    );
+  }
+
+  Future<void> openLevelSelect(
+    WidgetTester tester, {
+    LevelProgressRepository? repository,
+  }) async {
+    await tester.pumpWidget(buildApp(repository: repository));
     await tester.pump();
     await tester.tap(find.byKey(const Key('homePlayButton')));
     await tester.pump();
@@ -23,7 +38,9 @@ void main() {
   testWidgets('Home shows Play without temporary level buttons', (
     tester,
   ) async {
-    await tester.pumpWidget(buildApp());
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
     await tester.pump();
 
     expect(find.byType(HomeScreen), findsOneWidget);
@@ -37,7 +54,7 @@ void main() {
   testWidgets('Play opens Level Select with every catalog level', (
     tester,
   ) async {
-    await openLevelSelect(tester);
+    await openLevelSelect(tester, repository: FakeLevelProgressRepository());
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.text('Choose a Level'), findsOneWidget);
@@ -55,7 +72,7 @@ void main() {
     ('Level 3', 'level_003'),
   ]) {
     testWidgets('$label card opens gameplay for $levelId', (tester) async {
-      await openLevelSelect(tester);
+      await openLevelSelect(tester, repository: FakeLevelProgressRepository());
 
       await tester.tap(find.byKey(Key('levelCard_$levelId')));
       await tester.pump();
@@ -71,7 +88,9 @@ void main() {
   testWidgets('invalid level ID shows error and returns to Level Select', (
     tester,
   ) async {
-    await tester.pumpWidget(buildApp());
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
     await tester.pump();
     final context = tester.element(find.byType(HomeScreen));
 
@@ -89,5 +108,54 @@ void main() {
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.text('Choose a Level'), findsOneWidget);
+  });
+
+  testWidgets('Level Select marks only completed levels', (tester) async {
+    await openLevelSelect(
+      tester,
+      repository: FakeLevelProgressRepository(
+        completedLevelIds: const {'level_001'},
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
+    expect(find.text('Completed'), findsOneWidget);
+    expect(find.byKey(const Key('levelCompleted_level_002')), findsNothing);
+    expect(find.byKey(const Key('levelCompleted_level_003')), findsNothing);
+  });
+
+  testWidgets('progress failure keeps Level Select usable', (tester) async {
+    await openLevelSelect(
+      tester,
+      repository: FakeLevelProgressRepository(failReads: true),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('levelProgressError')), findsOneWidget);
+    expect(find.byKey(const Key('levelCard_level_001')), findsOneWidget);
+    expect(find.byKey(const Key('levelCard_level_002')), findsOneWidget);
+    expect(find.byKey(const Key('levelCard_level_003')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('game completion callback stores level completion', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository();
+    await openLevelSelect(tester, repository: repository);
+    await tester.tap(find.byKey(const Key('levelCard_level_001')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final gameWidget = tester.widget<GameWidget<PixelHarmonyGame>>(
+      find.byType(GameWidget<PixelHarmonyGame>),
+    );
+    final game = gameWidget.game!;
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump();
+
+    expect(repository.completedLevelIds, contains('level_001'));
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
   });
 }

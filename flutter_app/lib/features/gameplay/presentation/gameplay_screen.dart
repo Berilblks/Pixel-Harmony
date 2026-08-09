@@ -1,13 +1,15 @@
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
+import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
-class GameplayScreen extends StatefulWidget {
+class GameplayScreen extends ConsumerStatefulWidget {
   const GameplayScreen({
     super.key,
     required this.level,
@@ -18,10 +20,10 @@ class GameplayScreen extends StatefulWidget {
   final GameplayCompletionController? completionController;
 
   @override
-  State<GameplayScreen> createState() => _GameplayScreenState();
+  ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
 }
 
-class _GameplayScreenState extends State<GameplayScreen> {
+class _GameplayScreenState extends ConsumerState<GameplayScreen> {
   late final GameplayCompletionController _completionController;
   late final bool _ownsCompletionController;
   late final PixelHarmonyGame? _game;
@@ -30,9 +32,17 @@ class _GameplayScreenState extends State<GameplayScreen> {
   void initState() {
     super.initState();
     _ownsCompletionController = widget.completionController == null;
-    _completionController =
-        widget.completionController ?? GameplayCompletionController();
     final level = widget.level;
+    _completionController =
+        widget.completionController ??
+        GameplayCompletionController(
+          onCompletion:
+              level == null
+                  ? null
+                  : (_) => ref
+                      .read(levelProgressControllerProvider.notifier)
+                      .markCompleted(level.id),
+        );
     _game =
         level == null
             ? null
