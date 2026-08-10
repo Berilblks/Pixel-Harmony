@@ -9,11 +9,17 @@ import 'package:pixel_harmony/game/state/board_state.dart';
 import 'package:pixel_harmony/game/state/game_session.dart';
 
 class PixelHarmonyGame extends FlameGame {
-  PixelHarmonyGame({required LevelDefinition level, this.onCompleted})
-    : session = GameSession(level: level);
+  PixelHarmonyGame({
+    required LevelDefinition level,
+    this.onCompleted,
+    this.onTilePickedUp,
+    this.onSwapCompleted,
+  }) : session = GameSession(level: level);
 
   final GameSession session;
   final void Function(BoardState state)? onCompleted;
+  final void Function()? onTilePickedUp;
+  final void Function()? onSwapCompleted;
 
   static const _backgroundColor = AppPalette.background;
   static const _boardConfig = BoardConfig(spacing: 14, screenPadding: 32);
@@ -29,6 +35,8 @@ class PixelHarmonyGame extends FlameGame {
         state: session.boardState,
         config: _boardConfig,
         onCompleted: onCompleted,
+        onTilePickedUp: onTilePickedUp,
+        onSwapCompleted: onSwapCompleted,
         onDropRequested: (request) {
           return session.swapTiles(request.sourceIndex, request.targetIndex);
         },

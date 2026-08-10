@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/core/feedback/game_feedback_controller.dart';
+import 'package:pixel_harmony/core/feedback/game_feedback_providers.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/localization/level_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/features/settings/application/game_feedback_settings_providers.dart';
+import 'package:pixel_harmony/features/settings/domain/game_feedback_settings.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
@@ -27,14 +31,21 @@ class GameplayScreen extends ConsumerStatefulWidget {
   ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
 }
 
-class _GameplayScreenState extends ConsumerState<GameplayScreen> {
+class _GameplayScreenState extends ConsumerState<GameplayScreen>
+    with WidgetsBindingObserver {
   late final GameplayCompletionController _completionController;
   late final bool _ownsCompletionController;
   PixelHarmonyGame? _game;
+  late final GameFeedbackController _feedbackController;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _feedbackController = GameFeedbackController(
+      audioService: ref.read(gameAudioServiceProvider),
+      hapticService: ref.read(hapticServiceProvider),
+    );
     _ownsCompletionController = widget.completionController == null;
     final level = widget.level;
     _completionController =
@@ -51,10 +62,16 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     if (_ownsCompletionController) {
       _completionController.dispose();
     }
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _feedbackController.setAppActive(state == AppLifecycleState.resumed);
   }
 
   @override
@@ -67,6 +84,14 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
     }
 
     final progress = ref.watch(levelProgressControllerProvider);
+    final feedbackSettings = ref.watch(gameFeedbackSettingsControllerProvider);
+    _feedbackController.updateSettings(
+      feedbackSettings.value ??
+          const GameFeedbackSettings(
+            soundEffectsEnabled: false,
+            hapticsEnabled: false,
+          ),
+    );
     if (progress.isLoading) {
       return const _GameplayLoadingView();
     }
@@ -82,7 +107,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen> {
     final game =
         _game ??= PixelHarmonyGame(
           level: level,
-          onCompleted: _completionController.showCompletion,
+          onTilePickedUp: _feedbackController.tilePickedUp,
+          onSwapCompleted: _feedbackController.acceptedSwap,
+          onCompleted: (state) {
+            _feedbackController.levelCompleted();
+            _completionController.showCompletion(state);
+          },
         );
 
     final localizations = AppLocalizations.of(context);

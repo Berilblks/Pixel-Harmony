@@ -34,5 +34,8 @@
   "completedLabel": "Tamamlandı",
   "progressLoadError": "İlerleme bilgisi kullanılamıyor. Seviyeleri oynamaya devam edebilirsin.",
   "lockedLabel": "Kilitli",
-  "lockedMessage": "Bu seviyeyi açmak için önceki seviyeyi tamamla."
+  "lockedMessage": "Bu seviyeyi açmak için önceki seviyeyi tamamla.",
+  "settingsTitle": "Ayarlar",
+  "soundEffectsLabel": "Ses Efektleri",
+  "hapticsLabel": "Titreşim"
 }

@@ -94,4 +94,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lockedMessage => 'Complete the previous level to unlock this one.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get soundEffectsLabel => 'Sound Effects';
+
+  @override
+  String get hapticsLabel => 'Haptics';
 }

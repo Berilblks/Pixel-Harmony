@@ -265,6 +265,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Complete the previous level to unlock this one.'**
   String get lockedMessage;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @soundEffectsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sound Effects'**
+  String get soundEffectsLabel;
+
+  /// No description provided for @hapticsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptics'**
+  String get hapticsLabel;
 }
 
 class _AppLocalizationsDelegate

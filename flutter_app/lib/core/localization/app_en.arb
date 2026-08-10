@@ -34,5 +34,8 @@
   "completedLabel": "Completed",
   "progressLoadError": "Progress is unavailable. Levels remain playable.",
   "lockedLabel": "Locked",
-  "lockedMessage": "Complete the previous level to unlock this one."
+  "lockedMessage": "Complete the previous level to unlock this one.",
+  "settingsTitle": "Settings",
+  "soundEffectsLabel": "Sound Effects",
+  "hapticsLabel": "Haptics"
 }

@@ -9,12 +9,16 @@ import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/features/level_progress/domain/level_progress_repository.dart';
+import 'package:pixel_harmony/features/settings/presentation/settings_screen.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fake_level_progress_repository.dart';
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
   Widget buildApp({LevelProgressRepository? repository}) {
     return ProviderScope(
       overrides: [
@@ -68,6 +72,20 @@ void main() {
     expect(find.text('Level 1'), findsNothing);
     expect(find.text('Level 2'), findsNothing);
     expect(find.text('Level 3'), findsNothing);
+  });
+
+  testWidgets('Home opens Settings', (tester) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('homeSettingsButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
   });
 
   testWidgets('Play opens Level Select with every catalog level', (

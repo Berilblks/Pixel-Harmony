@@ -9,6 +9,7 @@ import 'package:pixel_harmony/game/state/board_state.dart';
 typedef BoardDropRequestCallback =
     BoardState Function(BoardDropRequest request);
 typedef BoardCompletedCallback = void Function(BoardState state);
+typedef BoardFeedbackCallback = void Function();
 
 class BoardComponent extends PositionComponent {
   BoardComponent({
@@ -16,6 +17,8 @@ class BoardComponent extends PositionComponent {
     required this.config,
     required this.onDropRequested,
     this.onCompleted,
+    this.onTilePickedUp,
+    this.onSwapCompleted,
     BoardDragController? dragController,
   }) : _state = state,
        _layout = BoardLayout(config),
@@ -37,6 +40,8 @@ class BoardComponent extends PositionComponent {
   final BoardConfig config;
   final BoardDropRequestCallback onDropRequested;
   final BoardCompletedCallback? onCompleted;
+  final BoardFeedbackCallback? onTilePickedUp;
+  final BoardFeedbackCallback? onSwapCompleted;
   final BoardLayout _layout;
   final BoardDragController _dragController;
 
@@ -73,6 +78,7 @@ class BoardComponent extends PositionComponent {
     final accepted = _dragController.tryStartDrag(tile.model.id);
     if (accepted) {
       tile.priority = _draggedPriority;
+      onTilePickedUp?.call();
     }
     return accepted;
   }
@@ -153,6 +159,7 @@ class BoardComponent extends PositionComponent {
             remainingAnimations--;
             if (remainingAnimations == 0) {
               _isSwapAnimating = false;
+              onSwapCompleted?.call();
               _finishCompletionIfNeeded();
             }
           },

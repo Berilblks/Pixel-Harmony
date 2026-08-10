@@ -12,6 +12,17 @@ class HomeScreen extends StatelessWidget {
     final localizations = AppLocalizations.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            key: const Key('homeSettingsButton'),
+            tooltip: localizations.settingsTitle,
+            onPressed: () => context.pushNamed(AppRoutes.settings),
+            icon: const Icon(Icons.settings_outlined),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

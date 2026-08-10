@@ -94,4 +94,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get lockedMessage => 'Bu seviyeyi açmak için önceki seviyeyi tamamla.';
+
+  @override
+  String get settingsTitle => 'Ayarlar';
+
+  @override
+  String get soundEffectsLabel => 'Ses Efektleri';
+
+  @override
+  String get hapticsLabel => 'Titreşim';
 }
