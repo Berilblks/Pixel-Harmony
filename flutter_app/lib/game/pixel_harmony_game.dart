@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flame/game.dart';
+import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/game/board/board_component.dart';
 import 'package:pixel_harmony/game/board/board_config.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
@@ -14,8 +15,8 @@ class PixelHarmonyGame extends FlameGame {
   final GameSession session;
   final void Function(BoardState state)? onCompleted;
 
-  static const _backgroundColor = Color(0xFFF1F4F2);
-  static const _boardConfig = BoardConfig(spacing: 14);
+  static const _backgroundColor = AppPalette.background;
+  static const _boardConfig = BoardConfig(spacing: 14, screenPadding: 32);
 
   @override
   Color backgroundColor() => _backgroundColor;

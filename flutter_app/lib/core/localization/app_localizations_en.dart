@@ -12,7 +12,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Pixel Harmony';
 
   @override
-  String get homeWelcome => 'Find calm through color.';
+  String get homeWelcome => 'Find calm in color.';
 
   @override
   String get playButton => 'Play';

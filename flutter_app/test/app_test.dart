@@ -45,6 +45,7 @@ void main() {
 
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.text('Play'), findsOneWidget);
+    expect(find.text('Find calm in color.'), findsOneWidget);
     expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
     expect(find.text('Level 1'), findsNothing);
     expect(find.text('Level 2'), findsNothing);
@@ -87,6 +88,8 @@ void main() {
 
       final screen = tester.widget<GameplayScreen>(find.byType(GameplayScreen));
       expect(screen.level?.id, levelId);
+      expect(find.byKey(const Key('gameplayLevelTitle')), findsOneWidget);
+      expect(find.text(label), findsOneWidget);
       expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -115,6 +118,46 @@ void main() {
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.text('Choose a Level'), findsOneWidget);
+  });
+
+  testWidgets('primary navigation retains accessible tap semantics', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+
+    expect(find.bySemanticsLabel('Play'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('homePlayButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+    final lockedCardSemantics = tester.widget<Semantics>(
+      find.byKey(const Key('levelCard_level_002')),
+    );
+    expect(lockedCardSemantics.properties.label, contains('Locked'));
+    expect(lockedCardSemantics.properties.enabled, isFalse);
+    expect(lockedCardSemantics.properties.button, isTrue);
+    semantics.dispose();
+  });
+
+  testWidgets('Home and Level Select avoid overflow at narrow and wide sizes', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+
+    for (final size in const [Size(320, 640), Size(1200, 800)]) {
+      tester.view.physicalSize = size;
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await openLevelSelect(tester, repository: FakeLevelProgressRepository());
+      expect(find.byType(LevelSelectScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
   });
 
   testWidgets('Level Select marks only completed levels', (tester) async {

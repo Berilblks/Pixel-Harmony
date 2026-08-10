@@ -12,7 +12,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get appTitle => 'Pixel Harmony';
 
   @override
-  String get homeWelcome => 'Renklerle huzur bul.';
+  String get homeWelcome => 'Renklerin içinde huzuru bul.';
 
   @override
   String get playButton => 'Oyna';

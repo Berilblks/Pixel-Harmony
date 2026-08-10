@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
+import 'package:pixel_harmony/core/localization/level_localizations.dart';
+import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
@@ -26,7 +28,12 @@ class LevelSelectScreen extends ConsumerWidget {
           if (progress.hasError)
             Padding(
               key: const Key('levelProgressError'),
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
               child: Text(
                 localizations.progressLoadError,
                 textAlign: TextAlign.center,
@@ -44,12 +51,12 @@ class LevelSelectScreen extends ConsumerWidget {
 
                 return GridView.builder(
                   key: const Key('levelSelectGrid'),
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columnCount,
-                    mainAxisExtent: 176,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
+                    mainAxisExtent: 184,
+                    mainAxisSpacing: AppSpacing.md,
+                    crossAxisSpacing: AppSpacing.md,
                   ),
                   itemCount: LevelCatalog.levels.length,
                   itemBuilder: (context, index) {
@@ -61,7 +68,7 @@ class LevelSelectScreen extends ConsumerWidget {
                     );
                     return _LevelCard(
                       level: level,
-                      label: _localizedLevelName(localizations, level),
+                      label: localizedLevelName(localizations, level),
                       boardSizeLabel: localizations.boardSizeLabel,
                       completedLabel: localizations.completedLabel,
                       lockedLabel: localizations.lockedLabel,
@@ -83,18 +90,6 @@ class LevelSelectScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _localizedLevelName(
-    AppLocalizations localizations,
-    LevelDefinition level,
-  ) {
-    return switch (level.nameKey) {
-      LevelNameKeys.level1 => localizations.level1Label,
-      LevelNameKeys.level2 => localizations.level2Label,
-      LevelNameKeys.level3 => localizations.level3Label,
-      _ => throw StateError('Unknown level name key: ${level.nameKey}'),
-    };
   }
 }
 
@@ -121,60 +116,90 @@ class _LevelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: unlocked ? 1 : 0.55,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        elevation: unlocked ? 1 : 0,
-        child: InkWell(
-          key: Key('levelCard_${level.id}'),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                _LevelColorPreview(level: level),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        label,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
-                        key: Key('levelBoardSize_${level.id}'),
-                      ),
-                      if (completed) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          key: Key('levelCompleted_${level.id}'),
-                          children: [
-                            const Icon(Icons.check_circle_outline, size: 18),
-                            const SizedBox(width: 6),
-                            Text(completedLabel),
-                          ],
+    final colorScheme = Theme.of(context).colorScheme;
+    final cardColor =
+        completed
+            ? colorScheme.tertiaryContainer.withValues(alpha: 0.28)
+            : unlocked
+            ? AppPalette.surface
+            : AppPalette.surfaceMuted;
+    final statusColor = completed ? AppPalette.completed : AppPalette.mutedInk;
+
+    return Semantics(
+      key: Key('levelCard_${level.id}'),
+      container: true,
+      button: true,
+      enabled: unlocked,
+      label:
+          '$label, $boardSizeLabel ${level.boardSize} × ${level.boardSize}'
+          '${completed
+              ? ', $completedLabel'
+              : !unlocked
+              ? ', $lockedLabel'
+              : ''}',
+      child: Opacity(
+        opacity: unlocked ? 1 : 0.66,
+        child: Card(
+          color: cardColor,
+          clipBehavior: Clip.antiAlias,
+          elevation: 0,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Row(
+                children: [
+                  _LevelColorPreview(level: level),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          label,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
-                      ] else if (!unlocked) ...[
-                        const SizedBox(height: 8),
-                        Row(
-                          key: Key('levelLocked_${level.id}'),
-                          children: [
-                            const Icon(Icons.lock_outline, size: 18),
-                            const SizedBox(width: 6),
-                            Text(lockedLabel),
-                          ],
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
+                          key: Key('levelBoardSize_${level.id}'),
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
                         ),
+                        if (completed) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Row(
+                            key: Key('levelCompleted_${level.id}'),
+                            children: [
+                              const Icon(Icons.check_circle_outline, size: 18),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                completedLabel,
+                                style: TextStyle(
+                                  color: statusColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ] else if (!unlocked) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Row(
+                            key: Key('levelLocked_${level.id}'),
+                            children: [
+                              const Icon(Icons.lock_outline, size: 18),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(lockedLabel),
+                            ],
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                Icon(unlocked ? Icons.chevron_right : Icons.lock_outline),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -196,20 +221,20 @@ class _LevelColorPreview extends StatelessWidget {
     ];
 
     return SizedBox.square(
-      dimension: 72,
+      dimension: 64,
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: level.boardSize,
-          mainAxisSpacing: 3,
-          crossAxisSpacing: 3,
+          mainAxisSpacing: AppSpacing.xs,
+          crossAxisSpacing: AppSpacing.xs,
         ),
         itemCount: orderedTiles.length,
         itemBuilder: (context, index) {
           return DecoratedBox(
             decoration: BoxDecoration(
               color: Color(orderedTiles[index].colorValue),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(AppRadii.sm / 2),
             ),
           );
         },

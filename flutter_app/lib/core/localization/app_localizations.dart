@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWelcome.
   ///
   /// In en, this message translates to:
-  /// **'Find calm through color.'**
+  /// **'Find calm in color.'**
   String get homeWelcome;
 
   /// No description provided for @playButton.
