@@ -164,6 +164,60 @@ abstract class AppLocalizations {
   /// **'Level 3'**
   String get level3Label;
 
+  /// No description provided for @level4Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 4'**
+  String get level4Label;
+
+  /// No description provided for @level5Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 5'**
+  String get level5Label;
+
+  /// No description provided for @level6Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 6'**
+  String get level6Label;
+
+  /// No description provided for @level7Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 7'**
+  String get level7Label;
+
+  /// No description provided for @level8Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 8'**
+  String get level8Label;
+
+  /// No description provided for @level9Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 9'**
+  String get level9Label;
+
+  /// No description provided for @level10Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 10'**
+  String get level10Label;
+
+  /// No description provided for @level11Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 11'**
+  String get level11Label;
+
+  /// No description provided for @level12Label.
+  ///
+  /// In en, this message translates to:
+  /// **'Level 12'**
+  String get level12Label;
+
   /// No description provided for @chooseLevel.
   ///
   /// In en, this message translates to:

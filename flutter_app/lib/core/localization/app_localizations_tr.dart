@@ -44,6 +44,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get level3Label => 'Seviye 3';
 
   @override
+  String get level4Label => 'Seviye 4';
+
+  @override
+  String get level5Label => 'Seviye 5';
+
+  @override
+  String get level6Label => 'Seviye 6';
+
+  @override
+  String get level7Label => 'Seviye 7';
+
+  @override
+  String get level8Label => 'Seviye 8';
+
+  @override
+  String get level9Label => 'Seviye 9';
+
+  @override
+  String get level10Label => 'Seviye 10';
+
+  @override
+  String get level11Label => 'Seviye 11';
+
+  @override
+  String get level12Label => 'Seviye 12';
+
+  @override
   String get chooseLevel => 'Bir Seviye Seç';
 
   @override

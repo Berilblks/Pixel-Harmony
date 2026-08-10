@@ -3,36 +3,53 @@ import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
 
 void main() {
-  final progression = LevelProgression(levels: LevelCatalog.levels);
+  final levels = LevelCatalog.levels;
+  final progression = LevelProgression(levels: levels);
 
   test('only Level 1 is unlocked with empty progress', () {
-    expect(progression.isUnlocked('level_001', const {}), isTrue);
-    expect(progression.isUnlocked('level_002', const {}), isFalse);
-    expect(progression.isUnlocked('level_003', const {}), isFalse);
+    for (var index = 0; index < levels.length; index++) {
+      expect(
+        progression.isUnlocked(levels[index].id, const {}),
+        index == 0,
+        reason: levels[index].id,
+      );
+    }
   });
 
-  test('completing Level 1 unlocks Level 2 but not Level 3', () {
-    const completed = {'level_001'};
+  test('completing each level unlocks exactly the next catalog level', () {
+    for (var index = 0; index < levels.length - 1; index++) {
+      final completed = {levels[index].id};
+      final next = levels[index + 1];
 
-    expect(progression.isUnlocked('level_002', completed), isTrue);
-    expect(progression.isUnlocked('level_003', completed), isFalse);
+      expect(progression.isUnlocked(next.id, completed), isTrue);
+      if (index + 2 < levels.length) {
+        expect(
+          progression.isUnlocked(levels[index + 2].id, completed),
+          isFalse,
+        );
+      }
+    }
   });
 
-  test('completing Level 2 unlocks Level 3', () {
-    expect(progression.isUnlocked('level_003', const {'level_002'}), isTrue);
+  test('Level 12 requires Level 11 completion', () {
+    expect(progression.isUnlocked('level_012', const {}), isFalse);
+    expect(progression.isUnlocked('level_012', const {'level_010'}), isFalse);
+    expect(progression.isUnlocked('level_012', const {'level_011'}), isTrue);
   });
 
-  test(
-    'a completed level remains playable even with out-of-order progress',
-    () {
-      expect(progression.isUnlocked('level_003', const {'level_003'}), isTrue);
-    },
-  );
+  test('completed levels remain playable even with out-of-order progress', () {
+    for (final level in levels) {
+      expect(progression.isUnlocked(level.id, {level.id}), isTrue);
+    }
+  });
 
-  test('previous and next levels follow catalog order', () {
-    expect(progression.previousLevel('level_001'), isNull);
-    expect(progression.previousLevel('level_003')?.id, 'level_002');
-    expect(progression.nextLevel('level_001')?.id, 'level_002');
-    expect(progression.nextLevel('level_003'), isNull);
+  test('previous and next levels follow the complete catalog order', () {
+    expect(progression.previousLevel(levels.first.id), isNull);
+    expect(progression.nextLevel(levels.last.id), isNull);
+
+    for (var index = 0; index < levels.length - 1; index++) {
+      expect(progression.nextLevel(levels[index].id), levels[index + 1]);
+      expect(progression.previousLevel(levels[index + 1].id), levels[index]);
+    }
   });
 }

@@ -44,6 +44,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get level3Label => 'Level 3';
 
   @override
+  String get level4Label => 'Level 4';
+
+  @override
+  String get level5Label => 'Level 5';
+
+  @override
+  String get level6Label => 'Level 6';
+
+  @override
+  String get level7Label => 'Level 7';
+
+  @override
+  String get level8Label => 'Level 8';
+
+  @override
+  String get level9Label => 'Level 9';
+
+  @override
+  String get level10Label => 'Level 10';
+
+  @override
+  String get level11Label => 'Level 11';
+
+  @override
+  String get level12Label => 'Level 12';
+
+  @override
   String get chooseLevel => 'Choose a Level';
 
   @override

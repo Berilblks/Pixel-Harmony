@@ -61,24 +61,26 @@ void main() {
   });
 
   test('all catalog levels complete using their own solution', () {
-    final swapsByLevel = {
-      'level_001': const [(0, 1)],
-      'level_002': const [(0, 1), (2, 3)],
-      'level_003': const [(0, 1), (6, 7)],
-    };
-
     for (final level in LevelCatalog.levels) {
       final session = GameSession(level: level);
-      for (final (source, target) in swapsByLevel[level.id]!) {
+      final currentOrder = List<String>.of(level.initialTileOrder);
+      var moveCount = 0;
+
+      for (var target = 0; target < currentOrder.length; target++) {
+        final expectedTileId = level.solutionTileOrder[target];
+        if (currentOrder[target] == expectedTileId) {
+          continue;
+        }
+        final source = currentOrder.indexOf(expectedTileId);
+        final displacedTileId = currentOrder[target];
+        currentOrder[target] = currentOrder[source];
+        currentOrder[source] = displacedTileId;
         session.swapTiles(source, target);
+        moveCount++;
       }
 
       expect(session.boardState.completed, isTrue, reason: level.id);
-      expect(
-        session.boardState.moveCount,
-        swapsByLevel[level.id]!.length,
-        reason: level.id,
-      );
+      expect(session.boardState.moveCount, moveCount, reason: level.id);
       expect(session.boardState.elapsedTime, Duration.zero);
     }
   });

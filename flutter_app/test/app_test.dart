@@ -9,6 +9,7 @@ import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/features/level_progress/domain/level_progress_repository.dart';
+import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
 import 'support/fake_level_progress_repository.dart';
@@ -35,6 +36,23 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
   }
 
+  Future<void> scrollToLevel(WidgetTester tester, String levelId) async {
+    final cardFinder = find.byKey(Key('levelCard_$levelId'));
+    await tester.scrollUntilVisible(
+      cardFinder,
+      260,
+      scrollable:
+          find
+              .descendant(
+                of: find.byKey(const Key('levelSelectGrid')),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+    );
+    await tester.ensureVisible(cardFinder);
+    await tester.pump();
+  }
+
   testWidgets('Home shows Play without temporary level buttons', (
     tester,
   ) async {
@@ -59,13 +77,12 @@ void main() {
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.text('Choose a Level'), findsOneWidget);
-    expect(find.text('Level 1'), findsOneWidget);
-    expect(find.text('Level 2'), findsOneWidget);
-    expect(find.text('Level 3'), findsOneWidget);
-    expect(find.text('Board Size: 2 × 2'), findsNWidgets(2));
-    expect(find.text('Board Size: 3 × 3'), findsOneWidget);
-    expect(find.byKey(const Key('levelLocked_level_002')), findsOneWidget);
-    expect(find.byKey(const Key('levelLocked_level_003')), findsOneWidget);
+    for (var index = 0; index < LevelCatalog.levels.length; index++) {
+      final level = LevelCatalog.levels[index];
+      await scrollToLevel(tester, level.id);
+      expect(find.text('Level ${index + 1}'), findsOneWidget);
+      expect(find.byKey(Key('levelBoardSize_${level.id}')), findsOneWidget);
+    }
     expect(tester.takeException(), isNull);
   });
 
@@ -94,6 +111,31 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Level 12 opens when the preceding levels are completed', (
+    tester,
+  ) async {
+    final completedLevelIds = {
+      for (final level in LevelCatalog.levels.take(11)) level.id,
+    };
+    await openLevelSelect(
+      tester,
+      repository: FakeLevelProgressRepository(
+        completedLevelIds: completedLevelIds,
+      ),
+    );
+    await scrollToLevel(tester, 'level_012');
+
+    await tester.tap(find.byKey(const Key('levelCard_level_012')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final screen = tester.widget<GameplayScreen>(find.byType(GameplayScreen));
+    expect(screen.level?.id, 'level_012');
+    expect(find.text('Level 12'), findsOneWidget);
+    expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('invalid level ID shows error and returns to Level Select', (
     tester,
@@ -156,6 +198,8 @@ void main() {
       await tester.pump();
       await openLevelSelect(tester, repository: FakeLevelProgressRepository());
       expect(find.byType(LevelSelectScreen), findsOneWidget);
+      await scrollToLevel(tester, 'level_012');
+      expect(find.byKey(const Key('levelCard_level_012')), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });
