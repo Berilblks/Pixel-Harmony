@@ -309,7 +309,7 @@ void main() {
     expect(repository.completedLevelIds, contains('level_001'));
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('completionContinueButton')));
+    await tester.tap(find.byKey(const Key('completionBackToLevelsButton')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
 

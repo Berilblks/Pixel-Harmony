@@ -103,4 +103,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get hapticsLabel => 'Titreşim';
+
+  @override
+  String get restartLevel => 'Seviyeyi Yeniden Başlat';
+
+  @override
+  String get nextLevel => 'Sonraki Seviye';
+
+  @override
+  String get allLevelsCompleteTitle => 'Tüm Seviyeler Tamamlandı';
+
+  @override
+  String get allLevelsCompleteSubtitle => 'Tüm uyumları yeniden oluşturdun.';
 }

@@ -283,6 +283,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Haptics'**
   String get hapticsLabel;
+
+  /// No description provided for @restartLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart Level'**
+  String get restartLevel;
+
+  /// No description provided for @nextLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Level'**
+  String get nextLevel;
+
+  /// No description provided for @allLevelsCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All Levels Complete'**
+  String get allLevelsCompleteTitle;
+
+  /// No description provided for @allLevelsCompleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You restored every harmony.'**
+  String get allLevelsCompleteSubtitle;
 }
 
 class _AppLocalizationsDelegate

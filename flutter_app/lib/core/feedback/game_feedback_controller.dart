@@ -27,6 +27,10 @@ class GameFeedbackController {
     _isAppActive = active;
   }
 
+  void resetSession() {
+    _didComplete = false;
+  }
+
   void tilePickedUp() {
     if (!_isAppActive) return;
     if (_settings.soundEffectsEnabled) {

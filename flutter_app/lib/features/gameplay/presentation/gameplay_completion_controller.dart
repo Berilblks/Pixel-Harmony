@@ -8,8 +8,10 @@ class GameplayCompletionController extends ChangeNotifier {
 
   final Future<void> Function(BoardState state)? onCompletion;
   BoardState? _completion;
+  Future<void> _completionPersistence = Future.value();
 
   BoardState? get completion => _completion;
+  Future<void> get completionPersistence => _completionPersistence;
 
   void showCompletion(BoardState state) {
     if (!state.completed || _completion != null) {
@@ -19,8 +21,15 @@ class GameplayCompletionController extends ChangeNotifier {
     _completion = state;
     final completionCallback = onCompletion;
     if (completionCallback != null) {
-      unawaited(completionCallback(state));
+      _completionPersistence = completionCallback(state);
+      unawaited(_completionPersistence);
     }
+    notifyListeners();
+  }
+
+  void reset() {
+    _completion = null;
+    _completionPersistence = Future.value();
     notifyListeners();
   }
 }

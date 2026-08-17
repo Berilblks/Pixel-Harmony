@@ -103,4 +103,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hapticsLabel => 'Haptics';
+
+  @override
+  String get restartLevel => 'Restart Level';
+
+  @override
+  String get nextLevel => 'Next Level';
+
+  @override
+  String get allLevelsCompleteTitle => 'All Levels Complete';
+
+  @override
+  String get allLevelsCompleteSubtitle => 'You restored every harmony.';
 }

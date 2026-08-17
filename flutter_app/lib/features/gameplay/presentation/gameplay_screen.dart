@@ -37,6 +37,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   late final bool _ownsCompletionController;
   PixelHarmonyGame? _game;
   late final GameFeedbackController _feedbackController;
+  int _sessionGeneration = 0;
+  bool _isNavigatingToNextLevel = false;
 
   @override
   void initState() {
@@ -74,6 +76,52 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     _feedbackController.setAppActive(state == AppLifecycleState.resumed);
   }
 
+  PixelHarmonyGame _createGame(LevelDefinition level) {
+    return PixelHarmonyGame(
+      level: level,
+      onTilePickedUp: _feedbackController.tilePickedUp,
+      onSwapCompleted: _feedbackController.acceptedSwap,
+      onCompleted: (state) {
+        _feedbackController.levelCompleted();
+        _completionController.showCompletion(state);
+      },
+    );
+  }
+
+  void _restartLevel() {
+    final level = widget.level;
+    if (level == null) return;
+
+    setState(() {
+      _sessionGeneration++;
+      _game = _createGame(level);
+      _completionController.reset();
+      _feedbackController.resetSession();
+      _isNavigatingToNextLevel = false;
+    });
+  }
+
+  Future<void> _openNextLevel(LevelDefinition nextLevel) async {
+    if (_isNavigatingToNextLevel) return;
+    setState(() => _isNavigatingToNextLevel = true);
+
+    await _completionController.completionPersistence;
+    if (!mounted) return;
+
+    final completedLevelIds =
+        ref.read(levelProgressControllerProvider).value ?? const <String>{};
+    final progression = LevelProgression(levels: LevelCatalog.levels);
+    if (!progression.isUnlocked(nextLevel.id, completedLevelIds)) {
+      setState(() => _isNavigatingToNextLevel = false);
+      return;
+    }
+
+    context.pushReplacementNamed(
+      AppRoutes.gameplay,
+      pathParameters: {'levelId': nextLevel.id},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final level = widget.level;
@@ -104,22 +152,24 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       );
     }
 
-    final game =
-        _game ??= PixelHarmonyGame(
-          level: level,
-          onTilePickedUp: _feedbackController.tilePickedUp,
-          onSwapCompleted: _feedbackController.acceptedSwap,
-          onCompleted: (state) {
-            _feedbackController.levelCompleted();
-            _completionController.showCompletion(state);
-          },
-        );
+    final game = _game ??= _createGame(level);
+    final nextLevel = progression.nextLevel(level.id);
 
     final localizations = AppLocalizations.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            key: const Key('restartLevelButton'),
+            tooltip: localizations.restartLevel,
+            onPressed: _restartLevel,
+            icon: const Icon(Icons.restart_alt),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ),
       body: Stack(
         children: [
           Column(
@@ -141,9 +191,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                 ),
               ),
               Expanded(
-                child: GameWidget<PixelHarmonyGame>(
+                child: SizedBox.expand(
                   key: const Key('gameplayGameWidget'),
-                  game: game,
+                  child: GameWidget<PixelHarmonyGame>(
+                    key: ValueKey(_sessionGeneration),
+                    game: game,
+                  ),
                 ),
               ),
             ],
@@ -161,7 +214,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                         : _LevelCompleteOverlay(
                           key: const Key('levelCompleteOverlay'),
                           moveCount: completion.moveCount,
-                          onContinue:
+                          isFinalLevel: nextLevel == null,
+                          onNextLevel:
+                              nextLevel == null || _isNavigatingToNextLevel
+                                  ? null
+                                  : () => _openNextLevel(nextLevel),
+                          onBackToLevels:
                               () => context.goNamed(AppRoutes.levelSelect),
                         ),
               );
@@ -262,11 +320,15 @@ class _LevelCompleteOverlay extends StatelessWidget {
   const _LevelCompleteOverlay({
     super.key,
     required this.moveCount,
-    required this.onContinue,
+    required this.isFinalLevel,
+    required this.onNextLevel,
+    required this.onBackToLevels,
   });
 
   final int moveCount;
-  final VoidCallback onContinue;
+  final bool isFinalLevel;
+  final VoidCallback? onNextLevel;
+  final VoidCallback onBackToLevels;
 
   @override
   Widget build(BuildContext context) {
@@ -300,23 +362,43 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      localizations.completionTitle,
+                      isFinalLevel
+                          ? localizations.allLevelsCompleteTitle
+                          : localizations.completionTitle,
                       style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      localizations.completionSubtitle,
+                      isFinalLevel
+                          ? localizations.allLevelsCompleteSubtitle
+                          : localizations.completionSubtitle,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(localizations.completionMoves(moveCount)),
                     const SizedBox(height: AppSpacing.lg),
                     FilledButton(
-                      key: const Key('completionContinueButton'),
-                      onPressed: onContinue,
-                      child: Text(localizations.completionContinue),
+                      key: Key(
+                        isFinalLevel
+                            ? 'finalBackToLevelsButton'
+                            : 'nextLevelButton',
+                      ),
+                      onPressed: isFinalLevel ? onBackToLevels : onNextLevel,
+                      child: Text(
+                        isFinalLevel
+                            ? localizations.backToLevels
+                            : localizations.nextLevel,
+                      ),
                     ),
+                    if (!isFinalLevel) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      TextButton(
+                        key: const Key('completionBackToLevelsButton'),
+                        onPressed: onBackToLevels,
+                        child: Text(localizations.backToLevels),
+                      ),
+                    ],
                   ],
                 ),
               ),

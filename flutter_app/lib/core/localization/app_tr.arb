@@ -37,5 +37,9 @@
   "lockedMessage": "Bu seviyeyi açmak için önceki seviyeyi tamamla.",
   "settingsTitle": "Ayarlar",
   "soundEffectsLabel": "Ses Efektleri",
-  "hapticsLabel": "Titreşim"
+  "hapticsLabel": "Titreşim",
+  "restartLevel": "Seviyeyi Yeniden Başlat",
+  "nextLevel": "Sonraki Seviye",
+  "allLevelsCompleteTitle": "Tüm Seviyeler Tamamlandı",
+  "allLevelsCompleteSubtitle": "Tüm uyumları yeniden oluşturdun."
 }

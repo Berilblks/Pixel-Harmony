@@ -37,5 +37,9 @@
   "lockedMessage": "Complete the previous level to unlock this one.",
   "settingsTitle": "Settings",
   "soundEffectsLabel": "Sound Effects",
-  "hapticsLabel": "Haptics"
+  "hapticsLabel": "Haptics",
+  "restartLevel": "Restart Level",
+  "nextLevel": "Next Level",
+  "allLevelsCompleteTitle": "All Levels Complete",
+  "allLevelsCompleteSubtitle": "You restored every harmony."
 }
