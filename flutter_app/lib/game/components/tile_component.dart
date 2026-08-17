@@ -30,14 +30,8 @@ class TileComponent extends PositionComponent with DragCallbacks {
   final TileDragCancelCallback onDragCancelled;
 
   static const _cornerRadiusRatio = 0.12;
-  static const _shadowColor = Color(0x26000000);
-  static const _dragShadowColor = Color(0x3D000000);
-  static const _shadowElevation = 4.0;
-  static const _dragShadowElevation = 8.0;
-  static const _targetOutlineColor = Color(0xE6FFFFFF);
-  static const _targetOverlayColor = Color(0x14FFFFFF);
-  static const _hintSourceColor = Color(0xCCFFF2B2);
-  static const _hintDestinationColor = Color(0xCC536F67);
+  static const _shadowElevation = 3.0;
+  static const _dragShadowElevation = 7.0;
   static const _dragScale = 1.045;
   static const defaultMovementDuration = 0.2;
 
@@ -183,13 +177,13 @@ class TileComponent extends PositionComponent with DragCallbacks {
 
     canvas.drawShadow(
       tilePath,
-      _isDragFeedbackActive ? _dragShadowColor : _shadowColor,
+      _isDragFeedbackActive ? AppPalette.tileDragShadow : AppPalette.tileShadow,
       _isDragFeedbackActive ? _dragShadowElevation : _shadowElevation,
       false,
     );
     canvas.drawRRect(tile, Paint()..color = model.color);
     if (isCompleted) {
-      canvas.drawRRect(tile, Paint()..color = const Color(0x18FFFFFF));
+      canvas.drawRRect(tile, Paint()..color = const Color(0x1FFFFFFF));
       canvas.drawRRect(
         tile,
         Paint()
@@ -199,11 +193,11 @@ class TileComponent extends PositionComponent with DragCallbacks {
       );
     }
     if (isDropTarget) {
-      canvas.drawRRect(tile, Paint()..color = _targetOverlayColor);
+      canvas.drawRRect(tile, Paint()..color = AppPalette.tileDropOverlay);
       canvas.drawRRect(
         tile,
         Paint()
-          ..color = _targetOutlineColor
+          ..color = AppPalette.tileDropTarget
           ..style = PaintingStyle.stroke
           ..strokeWidth = size.x * 0.028,
       );
@@ -212,7 +206,7 @@ class TileComponent extends PositionComponent with DragCallbacks {
       canvas.drawRRect(
         tile,
         Paint()
-          ..color = _hintSourceColor
+          ..color = AppPalette.tileHintSource
           ..style = PaintingStyle.stroke
           ..strokeWidth = size.x * 0.024,
       );
@@ -222,7 +216,9 @@ class TileComponent extends PositionComponent with DragCallbacks {
       canvas.drawRRect(
         tile,
         Paint()
-          ..color = _hintDestinationColor.withValues(alpha: 0.55 + pulse * 0.3)
+          ..color = AppPalette.tileHintDestination.withValues(
+            alpha: 0.55 + pulse * 0.3,
+          )
           ..style = PaintingStyle.stroke
           ..strokeWidth = size.x * (0.022 + pulse * 0.009),
       );

@@ -29,36 +29,75 @@ abstract final class AppTheme {
         ),
         headlineSmall: TextStyle(
           color: AppPalette.ink,
+          fontSize: 24,
           fontWeight: FontWeight.w600,
+          height: 1.2,
         ),
         titleLarge: TextStyle(
           color: AppPalette.ink,
+          fontSize: 20,
           fontWeight: FontWeight.w600,
+          height: 1.25,
+        ),
+        titleMedium: TextStyle(
+          color: AppPalette.ink,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          height: 1.3,
         ),
         bodyLarge: TextStyle(color: AppPalette.mutedInk, height: 1.45),
         bodyMedium: TextStyle(color: AppPalette.mutedInk, height: 1.4),
+        labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: AppPalette.ink,
         elevation: 0,
         centerTitle: false,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
       ),
       cardTheme: CardThemeData(
         color: AppPalette.surface,
-        elevation: 0,
+        elevation: 1,
+        shadowColor: AppPalette.shadow,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadii.md),
-          side: const BorderSide(color: Color(0x1A263330)),
+          side: const BorderSide(color: AppPalette.border),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(48, 54),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          shape: const StadiumBorder(),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.md),
+          ),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(48, 48),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.md),
+          ),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          minimumSize: const Size.square(48),
+          foregroundColor: AppPalette.mutedInk,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.sm),
+          ),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppPalette.border,
+        space: 1,
+        thickness: 1,
       ),
     );
   }

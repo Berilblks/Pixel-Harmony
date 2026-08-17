@@ -160,52 +160,50 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
 
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          IconButton(
-            key: const Key('hintButton'),
-            tooltip: localizations.hint,
-            onPressed: () => game.requestHint(),
-            icon: const Icon(Icons.lightbulb_outline),
+        title: Semantics(
+          header: true,
+          child: Text(
+            localizedLevelName(localizations, level),
+            key: const Key('gameplayLevelTitle'),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(color: AppPalette.mutedInk),
           ),
-          IconButton(
-            key: const Key('restartLevelButton'),
-            tooltip: localizations.restartLevel,
-            onPressed: _restartLevel,
-            icon: const Icon(Icons.restart_alt),
+        ),
+        actions: [
+          Semantics(
+            label: localizations.hint,
+            button: true,
+            excludeSemantics: true,
+            child: IconButton(
+              key: const Key('hintButton'),
+              tooltip: localizations.hint,
+              onPressed: () => game.requestHint(),
+              icon: const Icon(Icons.lightbulb_outline),
+            ),
+          ),
+          Semantics(
+            label: localizations.restartLevel,
+            button: true,
+            excludeSemantics: true,
+            child: IconButton(
+              key: const Key('restartLevelButton'),
+              tooltip: localizations.restartLevel,
+              onPressed: _restartLevel,
+              icon: const Icon(Icons.restart_alt),
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
         ],
       ),
       body: Stack(
         children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  0,
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                ),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    localizedLevelName(localizations, level),
-                    key: const Key('gameplayLevelTitle'),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox.expand(
-                  key: const Key('gameplayGameWidget'),
-                  child: GameWidget<PixelHarmonyGame>(
-                    key: ValueKey(_sessionGeneration),
-                    game: game,
-                  ),
-                ),
-              ),
-            ],
+          SizedBox.expand(
+            key: const Key('gameplayGameWidget'),
+            child: GameWidget<PixelHarmonyGame>(
+              key: ValueKey(_sessionGeneration),
+              game: game,
+            ),
           ),
           AnimatedBuilder(
             animation: _completionController,
@@ -345,28 +343,38 @@ class _LevelCompleteOverlay extends StatelessWidget {
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 420),
-            child: Card(
-              color: AppPalette.surface.withValues(alpha: 0.97),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppRadii.lg),
-                side: BorderSide(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.7),
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppPalette.surface.withValues(alpha: 0.98),
+                borderRadius: BorderRadius.circular(AppRadii.xl),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.65),
                 ),
+                boxShadow: AppShadows.floating,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      size: 32,
-                      color: AppPalette.completed,
+                    DecoratedBox(
+                      decoration: const BoxDecoration(
+                        color: AppPalette.surfaceCompleted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(AppSpacing.sm),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 24,
+                          color: AppPalette.completed,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.md),
+                    const SizedBox(height: AppSpacing.compact),
                     Text(
                       isFinalLevel
                           ? localizations.allLevelsCompleteTitle
@@ -382,19 +390,37 @@ class _LevelCompleteOverlay extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    Text(localizations.completionMoves(moveCount)),
-                    const SizedBox(height: AppSpacing.lg),
-                    FilledButton(
-                      key: Key(
-                        isFinalLevel
-                            ? 'finalBackToLevelsButton'
-                            : 'nextLevelButton',
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: AppPalette.surfaceMuted,
+                        borderRadius: BorderRadius.circular(AppRadii.sm),
                       ),
-                      onPressed: isFinalLevel ? onBackToLevels : onNextLevel,
-                      child: Text(
-                        isFinalLevel
-                            ? localizations.backToLevels
-                            : localizations.nextLevel,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        child: Text(
+                          localizations.completionMoves(moveCount),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        key: Key(
+                          isFinalLevel
+                              ? 'finalBackToLevelsButton'
+                              : 'nextLevelButton',
+                        ),
+                        onPressed: isFinalLevel ? onBackToLevels : onNextLevel,
+                        child: Text(
+                          isFinalLevel
+                              ? localizations.backToLevels
+                              : localizations.nextLevel,
+                        ),
                       ),
                     ),
                     if (!isFinalLevel) ...[

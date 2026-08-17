@@ -170,6 +170,49 @@ void main() {
     expect(button.tooltip, 'İpucu');
   });
 
+  testWidgets('Hint and Restart remain accessible secondary controls', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(buildApp());
+    await tester.pump(const Duration(seconds: 1));
+
+    final hint = find.byKey(const Key('hintButton'));
+    final restart = find.byKey(const Key('restartLevelButton'));
+    expect(tester.widget<IconButton>(hint).tooltip, 'Hint');
+    expect(tester.widget<IconButton>(restart).tooltip, 'Restart Level');
+    expect(tester.getSize(hint).width, greaterThanOrEqualTo(48));
+    expect(tester.getSize(hint).height, greaterThanOrEqualTo(48));
+    expect(tester.getSize(restart).width, greaterThanOrEqualTo(48));
+    expect(find.bySemanticsLabel('Hint'), findsOneWidget);
+    expect(find.bySemanticsLabel('Restart Level'), findsOneWidget);
+    semantics.dispose();
+  });
+
+  testWidgets('completion overlay remains usable on a narrow phone', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 640);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    final controller = GameplayCompletionController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(buildApp(controller: controller));
+    await tester.pump();
+    controller.showCompletion(completedState(moveCount: 3));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
+    expect(find.byKey(const Key('nextLevelButton')), findsOneWidget);
+    expect(
+      find.byKey(const Key('completionBackToLevelsButton')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('restart preserves persisted completion', (tester) async {
     final repository = FakeLevelProgressRepository(
       completedLevelIds: const {'level_001'},

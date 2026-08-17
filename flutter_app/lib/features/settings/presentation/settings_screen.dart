@@ -19,22 +19,55 @@ class SettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.settingsTitle)),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          SwitchListTile(
-            key: const Key('soundEffectsSwitch'),
-            title: Text(localizations.soundEffectsLabel),
-            value: settings.soundEffectsEnabled,
-            onChanged: controller.setSoundEffectsEnabled,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppSpacing.xl,
           ),
-          SwitchListTile(
-            key: const Key('hapticsSwitch'),
-            title: Text(localizations.hapticsLabel),
-            value: settings.hapticsEnabled,
-            onChanged: controller.setHapticsEnabled,
-          ),
-        ],
+          children: [
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppRadii.lg),
+                    side: const BorderSide(color: AppPalette.border),
+                  ),
+                  child: Column(
+                    children: [
+                      SwitchListTile(
+                        key: const Key('soundEffectsSwitch'),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.xs,
+                        ),
+                        title: Text(localizations.soundEffectsLabel),
+                        value: settings.soundEffectsEnabled,
+                        onChanged: controller.setSoundEffectsEnabled,
+                      ),
+                      const Divider(indent: AppSpacing.lg),
+                      SwitchListTile(
+                        key: const Key('hapticsSwitch'),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.xs,
+                        ),
+                        title: Text(localizations.hapticsLabel),
+                        value: settings.hapticsEnabled,
+                        onChanged: controller.setHapticsEnabled,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

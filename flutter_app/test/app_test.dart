@@ -190,6 +190,7 @@ void main() {
     await tester.pump();
 
     expect(find.bySemanticsLabel('Play'), findsOneWidget);
+    expect(find.bySemanticsLabel('Settings'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('homePlayButton')));
     await tester.pump();
@@ -210,7 +211,14 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
 
-    for (final size in const [Size(320, 640), Size(1200, 800)]) {
+    for (final size in const [
+      Size(320, 640),
+      Size(360, 800),
+      Size(412, 915),
+      Size(600, 960),
+      Size(800, 1280),
+      Size(1200, 800),
+    ]) {
       tester.view.physicalSize = size;
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
@@ -218,6 +226,41 @@ void main() {
       expect(find.byType(LevelSelectScreen), findsOneWidget);
       await scrollToLevel(tester, 'level_012');
       expect(find.byKey(const Key('levelCard_level_012')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('gameplay renders every supported board size', (tester) async {
+    final completedLevelIds = {
+      for (final level in LevelCatalog.levels) level.id,
+    };
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: completedLevelIds,
+    );
+
+    for (final (levelId, boardSize) in const [
+      ('level_001', 2),
+      ('level_003', 3),
+      ('level_007', 4),
+      ('level_012', 5),
+    ]) {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await tester.pumpWidget(buildApp(repository: repository));
+      await tester.pump();
+      final context = tester.element(find.byType(HomeScreen));
+
+      GoRouter.of(context).go('/gameplay/$levelId');
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      final game =
+          tester
+              .widget<GameWidget<PixelHarmonyGame>>(
+                find.byType(GameWidget<PixelHarmonyGame>),
+              )
+              .game!;
+      expect(game.session.boardState.boardSize, boardSize);
       expect(tester.takeException(), isNull);
     }
   });

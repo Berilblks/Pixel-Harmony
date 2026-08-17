@@ -51,10 +51,15 @@ class LevelSelectScreen extends ConsumerWidget {
 
                 return GridView.builder(
                   key: const Key('levelSelectGrid'),
-                  padding: const EdgeInsets.all(AppSpacing.md),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.md,
+                    AppSpacing.sm,
+                    AppSpacing.md,
+                    AppSpacing.xl,
+                  ),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: columnCount,
-                    mainAxisExtent: 184,
+                    mainAxisExtent: 180,
                     mainAxisSpacing: AppSpacing.md,
                     crossAxisSpacing: AppSpacing.md,
                   ),
@@ -116,14 +121,19 @@ class _LevelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final cardColor =
         completed
-            ? colorScheme.tertiaryContainer.withValues(alpha: 0.28)
+            ? AppPalette.surfaceCompleted
             : unlocked
             ? AppPalette.surface
-            : AppPalette.surfaceMuted;
+            : AppPalette.surfaceLocked;
     final statusColor = completed ? AppPalette.completed : AppPalette.mutedInk;
+    final borderColor =
+        completed
+            ? AppPalette.completed.withValues(alpha: 0.28)
+            : unlocked
+            ? AppPalette.border
+            : AppPalette.borderStrong;
 
     return Semantics(
       key: Key('levelCard_${level.id}'),
@@ -137,69 +147,61 @@ class _LevelCard extends StatelessWidget {
               : !unlocked
               ? ', $lockedLabel'
               : ''}',
-      child: Opacity(
-        opacity: unlocked ? 1 : 0.66,
-        child: Card(
-          color: cardColor,
-          clipBehavior: Clip.antiAlias,
-          elevation: 0,
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Row(
-                children: [
-                  _LevelColorPreview(level: level),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          label,
-                          style: Theme.of(context).textTheme.titleLarge,
+      child: Card(
+        color: cardColor,
+        clipBehavior: Clip.antiAlias,
+        elevation: unlocked ? 1 : 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+          side: BorderSide(color: borderColor),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Row(
+              children: [
+                _LevelColorPreview(level: level, muted: !unlocked),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color:
+                              unlocked ? AppPalette.ink : AppPalette.mutedInk,
                         ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
-                          key: Key('levelBoardSize_${level.id}'),
-                          maxLines: 1,
-                          overflow: TextOverflow.fade,
-                          softWrap: false,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        '$boardSizeLabel: ${level.boardSize} × ${level.boardSize}',
+                        key: Key('levelBoardSize_${level.id}'),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.compact),
+                      if (completed)
+                        _LevelStatus(
+                          key: Key('levelCompleted_${level.id}'),
+                          icon: Icons.check_circle_outline,
+                          label: completedLabel,
+                          color: statusColor,
+                        )
+                      else if (!unlocked)
+                        _LevelStatus(
+                          key: Key('levelLocked_${level.id}'),
+                          icon: Icons.lock_outline,
+                          label: lockedLabel,
+                          color: statusColor,
                         ),
-                        if (completed) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          Row(
-                            key: Key('levelCompleted_${level.id}'),
-                            children: [
-                              const Icon(Icons.check_circle_outline, size: 18),
-                              const SizedBox(width: AppSpacing.sm),
-                              Text(
-                                completedLabel,
-                                style: TextStyle(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ] else if (!unlocked) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          Row(
-                            key: Key('levelLocked_${level.id}'),
-                            children: [
-                              const Icon(Icons.lock_outline, size: 18),
-                              const SizedBox(width: AppSpacing.sm),
-                              Text(lockedLabel),
-                            ],
-                          ),
-                        ],
-                      ],
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -208,10 +210,45 @@ class _LevelCard extends StatelessWidget {
   }
 }
 
+class _LevelStatus extends StatelessWidget {
+  const _LevelStatus({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: color),
+        const SizedBox(width: AppSpacing.sm),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _LevelColorPreview extends StatelessWidget {
-  const _LevelColorPreview({required this.level});
+  const _LevelColorPreview({required this.level, required this.muted});
 
   final LevelDefinition level;
+  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -220,24 +257,34 @@ class _LevelColorPreview extends StatelessWidget {
       for (final id in level.solutionTileOrder) tilesById[id]!,
     ];
 
-    return SizedBox.square(
-      dimension: 64,
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: level.boardSize,
-          mainAxisSpacing: AppSpacing.xs,
-          crossAxisSpacing: AppSpacing.xs,
+    return Opacity(
+      opacity: muted ? 0.58 : 1,
+      child: Container(
+        width: 76,
+        height: 76,
+        padding: const EdgeInsets.all(AppSpacing.xs),
+        decoration: BoxDecoration(
+          color: AppPalette.surface,
+          borderRadius: BorderRadius.circular(AppRadii.sm),
+          border: Border.all(color: AppPalette.border),
         ),
-        itemCount: orderedTiles.length,
-        itemBuilder: (context, index) {
-          return DecoratedBox(
-            decoration: BoxDecoration(
-              color: Color(orderedTiles[index].colorValue),
-              borderRadius: BorderRadius.circular(AppRadii.sm / 2),
-            ),
-          );
-        },
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: level.boardSize,
+            mainAxisSpacing: AppSpacing.xs,
+            crossAxisSpacing: AppSpacing.xs,
+          ),
+          itemCount: orderedTiles.length,
+          itemBuilder: (context, index) {
+            return DecoratedBox(
+              decoration: BoxDecoration(
+                color: Color(orderedTiles[index].colorValue),
+                borderRadius: BorderRadius.circular(AppSpacing.xs),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
