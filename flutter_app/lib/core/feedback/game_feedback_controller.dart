@@ -25,6 +25,10 @@ class GameFeedbackController {
 
   void setAppActive(bool active) {
     _isAppActive = active;
+    final audioService = _audioService;
+    if (audioService is LifecycleAwareGameAudioService) {
+      unawaited(audioService.setAudioActive(active));
+    }
   }
 
   void resetSession() {

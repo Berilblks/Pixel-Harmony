@@ -101,6 +101,24 @@ void main() {
     expect(audio.totalCalls, 0);
     expect(haptics.totalCalls, 0);
   });
+
+  test('lifecycle state is forwarded only to lifecycle-aware audio', () async {
+    final audio = _LifecycleAudioService();
+    final haptics = _FakeHapticService();
+    final controller = GameFeedbackController(
+      audioService: audio,
+      hapticService: haptics,
+    );
+
+    controller.setAppActive(false);
+    await Future<void>.delayed(Duration.zero);
+    controller.setAppActive(true);
+    await Future<void>.delayed(Duration.zero);
+
+    expect(audio.activeStates, [false, true]);
+    expect(audio.totalCalls, 0);
+    expect(haptics.totalCalls, 0);
+  });
 }
 
 class _FakeAudioService implements GameAudioService {
@@ -135,4 +153,15 @@ class _FakeHapticService implements HapticService {
 
   @override
   Future<void> tilePickup() async => pickupCalls++;
+}
+
+class _LifecycleAudioService extends _FakeAudioService
+    implements LifecycleAwareGameAudioService {
+  final List<bool> activeStates = [];
+
+  @override
+  Future<void> setAudioActive(bool active) async => activeStates.add(active);
+
+  @override
+  Future<void> dispose() async {}
 }
