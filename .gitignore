@@ -18,6 +18,8 @@ doc/api/
 **/android/.gradle/
 **/android/local.properties
 **/android/key.properties
+**/android/signing.properties
+**/android/signing/
 **/android/captures/
 **/android/app/debug/
 **/android/app/profile/

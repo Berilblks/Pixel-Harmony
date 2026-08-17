@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,10 +7,30 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val releaseKeystorePropertiesFile = rootProject.file("key.properties")
+val releaseKeystoreProperties = Properties()
+val requiredSigningProperties = listOf(
+    "storePassword",
+    "keyPassword",
+    "keyAlias",
+    "storeFile",
+)
+
+if (releaseKeystorePropertiesFile.exists()) {
+    releaseKeystorePropertiesFile.inputStream().use(releaseKeystoreProperties::load)
+}
+
+val hasCompleteReleaseSigning =
+    releaseKeystorePropertiesFile.exists() &&
+        requiredSigningProperties.all { key ->
+            releaseKeystoreProperties.getProperty(key)?.isNotBlank() == true
+        } &&
+        rootProject.file(releaseKeystoreProperties.getProperty("storeFile", "")).exists()
+
 android {
     namespace = "com.berilblks.pixelharmony"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -30,12 +52,39 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasCompleteReleaseSigning) {
+            create("release") {
+                keyAlias = releaseKeystoreProperties.getProperty("keyAlias")
+                keyPassword = releaseKeystoreProperties.getProperty("keyPassword")
+                storeFile = rootProject.file(releaseKeystoreProperties.getProperty("storeFile"))
+                storePassword = releaseKeystoreProperties.getProperty("storePassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = false
+            isMinifyEnabled = false
+            isShrinkResources = false
+            if (hasCompleteReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
+    }
+}
+
+gradle.taskGraph.whenReady {
+    val requestsReleaseArtifact = allTasks.any { task ->
+        task.path.startsWith(":app:") && task.name.contains("Release", ignoreCase = true)
+    }
+    if (requestsReleaseArtifact && !hasCompleteReleaseSigning) {
+        throw GradleException(
+            "Release signing is not configured. Create android/key.properties with " +
+                "storePassword, keyPassword, keyAlias, and storeFile values. " +
+                "Keep that file and the upload keystore outside Git.",
+        )
     }
 }
 
