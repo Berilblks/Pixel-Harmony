@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math' as math;
 
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -35,6 +36,8 @@ class TileComponent extends PositionComponent with DragCallbacks {
   static const _dragShadowElevation = 8.0;
   static const _targetOutlineColor = Color(0xE6FFFFFF);
   static const _targetOverlayColor = Color(0x14FFFFFF);
+  static const _hintSourceColor = Color(0xCCFFF2B2);
+  static const _hintDestinationColor = Color(0xCC536F67);
   static const _dragScale = 1.045;
   static const defaultMovementDuration = 0.2;
 
@@ -42,12 +45,15 @@ class TileComponent extends PositionComponent with DragCallbacks {
   bool _isCancellingDrag = false;
   bool isDropTarget = false;
   bool isCompleted = false;
+  bool isHintSource = false;
+  bool isHintDestination = false;
   MoveEffect? _returnEffect;
   bool _isDragFeedbackActive = false;
   double _visualScale = 1;
   double _scaleAnimationStart = 1;
   double _scaleAnimationTarget = 1;
   double _scaleAnimationElapsed = 0;
+  double _hintPulseElapsed = 0;
 
   bool get isDragFeedbackActive => _isDragFeedbackActive;
   double get visualScale => _visualScale;
@@ -133,22 +139,30 @@ class TileComponent extends PositionComponent with DragCallbacks {
   @override
   void update(double dt) {
     super.update(dt);
-    if (_visualScale == _scaleAnimationTarget) {
-      return;
+    if (isHintDestination) {
+      _hintPulseElapsed = (_hintPulseElapsed + dt) % 1.2;
+    } else {
+      _hintPulseElapsed = 0;
     }
 
-    final durationSeconds = AppMotion.quick.inMilliseconds / 1000;
-    _scaleAnimationElapsed = (_scaleAnimationElapsed + dt).clamp(
-      0,
-      durationSeconds,
-    );
-    final progress =
-        (_scaleAnimationElapsed / durationSeconds).clamp(0, 1).toDouble();
-    final easedProgress = Curves.easeOut.transform(progress);
-    _visualScale =
-        lerpDouble(_scaleAnimationStart, _scaleAnimationTarget, easedProgress)!;
-    if (progress == 1) {
-      _visualScale = _scaleAnimationTarget;
+    if (_visualScale != _scaleAnimationTarget) {
+      final durationSeconds = AppMotion.quick.inMilliseconds / 1000;
+      _scaleAnimationElapsed = (_scaleAnimationElapsed + dt).clamp(
+        0,
+        durationSeconds,
+      );
+      final progress =
+          (_scaleAnimationElapsed / durationSeconds).clamp(0, 1).toDouble();
+      final easedProgress = Curves.easeOut.transform(progress);
+      _visualScale =
+          lerpDouble(
+            _scaleAnimationStart,
+            _scaleAnimationTarget,
+            easedProgress,
+          )!;
+      if (progress == 1) {
+        _visualScale = _scaleAnimationTarget;
+      }
     }
   }
 
@@ -192,6 +206,25 @@ class TileComponent extends PositionComponent with DragCallbacks {
           ..color = _targetOutlineColor
           ..style = PaintingStyle.stroke
           ..strokeWidth = size.x * 0.028,
+      );
+    }
+    if (isHintSource) {
+      canvas.drawRRect(
+        tile,
+        Paint()
+          ..color = _hintSourceColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.x * 0.024,
+      );
+    }
+    if (isHintDestination) {
+      final pulse = (math.sin((_hintPulseElapsed / 1.2) * math.pi * 2) + 1) / 2;
+      canvas.drawRRect(
+        tile,
+        Paint()
+          ..color = _hintDestinationColor.withValues(alpha: 0.55 + pulse * 0.3)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = size.x * (0.022 + pulse * 0.009),
       );
     }
     canvas.restore();

@@ -39,6 +39,7 @@
   "soundEffectsLabel": "Ses Efektleri",
   "hapticsLabel": "Titreşim",
   "restartLevel": "Seviyeyi Yeniden Başlat",
+  "hint": "İpucu",
   "nextLevel": "Sonraki Seviye",
   "allLevelsCompleteTitle": "Tüm Seviyeler Tamamlandı",
   "allLevelsCompleteSubtitle": "Tüm uyumları yeniden oluşturdun."

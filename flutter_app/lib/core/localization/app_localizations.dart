@@ -290,6 +290,12 @@ abstract class AppLocalizations {
   /// **'Restart Level'**
   String get restartLevel;
 
+  /// No description provided for @hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hint'**
+  String get hint;
+
   /// No description provided for @nextLevel.
   ///
   /// In en, this message translates to:

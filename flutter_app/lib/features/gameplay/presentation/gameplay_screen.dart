@@ -162,6 +162,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       appBar: AppBar(
         actions: [
           IconButton(
+            key: const Key('hintButton'),
+            tooltip: localizations.hint,
+            onPressed: () => game.requestHint(),
+            icon: const Icon(Icons.lightbulb_outline),
+          ),
+          IconButton(
             key: const Key('restartLevelButton'),
             tooltip: localizations.restartLevel,
             onPressed: _restartLevel,

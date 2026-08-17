@@ -1,14 +1,19 @@
 import 'dart:ui';
 
 import 'package:pixel_harmony/game/levels/level_definition.dart';
+import 'package:pixel_harmony/game/hints/puzzle_hint.dart';
+import 'package:pixel_harmony/game/hints/puzzle_hint_evaluator.dart';
 import 'package:pixel_harmony/game/models/tile_model.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 import 'package:pixel_harmony/game/state/puzzle_solution.dart';
 
 class GameSession {
-  GameSession({required this.level})
-    : solution = PuzzleSolution(tileIds: level.solutionTileOrder),
-      _boardState = _buildInitialState(level) {
+  GameSession({
+    required this.level,
+    PuzzleHintEvaluator hintEvaluator = const PuzzleHintEvaluator(),
+  }) : _hintEvaluator = hintEvaluator,
+       solution = PuzzleSolution(tileIds: level.solutionTileOrder),
+       _boardState = _buildInitialState(level) {
     _boardState = _boardState.withCompleted(
       solution.matches(_boardState.tiles.map((tile) => tile.id)),
     );
@@ -16,9 +21,21 @@ class GameSession {
 
   final LevelDefinition level;
   final PuzzleSolution solution;
+  final PuzzleHintEvaluator _hintEvaluator;
   BoardState _boardState;
 
   BoardState get boardState => _boardState;
+
+  PuzzleHint? evaluateHint() {
+    if (_boardState.completed) {
+      return null;
+    }
+
+    return _hintEvaluator.evaluate(
+      currentTileIds: _boardState.tiles.map((tile) => tile.id).toList(),
+      solutionTileIds: solution.tileIds,
+    );
+  }
 
   static BoardState _buildInitialState(LevelDefinition level) {
     final tilesById = {

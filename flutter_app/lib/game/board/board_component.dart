@@ -4,6 +4,7 @@ import 'package:pixel_harmony/game/board/board_drag_controller.dart';
 import 'package:pixel_harmony/game/board/board_drop_request.dart';
 import 'package:pixel_harmony/game/board/board_layout.dart';
 import 'package:pixel_harmony/game/components/tile_component.dart';
+import 'package:pixel_harmony/game/hints/puzzle_hint.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
 typedef BoardDropRequestCallback =
@@ -47,12 +48,50 @@ class BoardComponent extends PositionComponent {
 
   bool _isSwapAnimating = false;
   bool _didNotifyCompletion = false;
+  PuzzleHint? _activeHint;
+  double _hintElapsed = 0;
   double _tileExtent = 0;
 
   bool get acceptsDragInput => !_isSwapAnimating && !_state.completed;
+  bool get hasActiveHint => _activeHint != null;
+
+  static const hintPresentationDuration = 1.8;
 
   static const _restingPriority = 0;
   static const _draggedPriority = 100;
+
+  bool showHint(PuzzleHint hint) {
+    if (!acceptsDragInput) {
+      return false;
+    }
+
+    _activeHint = hint;
+    _hintElapsed = 0;
+    _syncHintHighlight();
+    return true;
+  }
+
+  void clearHint() {
+    if (_activeHint == null) {
+      return;
+    }
+    _activeHint = null;
+    _hintElapsed = 0;
+    _syncHintHighlight();
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    if (_activeHint == null) {
+      return;
+    }
+
+    _hintElapsed += dt;
+    if (_hintElapsed >= hintPresentationDuration) {
+      clearHint();
+    }
+  }
 
   @override
   void onGameResize(Vector2 size) {
@@ -77,6 +116,7 @@ class BoardComponent extends PositionComponent {
 
     final accepted = _dragController.tryStartDrag(tile.model.id);
     if (accepted) {
+      clearHint();
       tile.priority = _draggedPriority;
       onTilePickedUp?.call();
     }
@@ -118,6 +158,19 @@ class BoardComponent extends PositionComponent {
     final activeTargetId = _dragController.activeTargetTileId;
     for (final tile in children.whereType<TileComponent>()) {
       tile.isDropTarget = tile.model.id == activeTargetId;
+    }
+  }
+
+  void _syncHintHighlight() {
+    final hint = _activeHint;
+    String? destinationTileId;
+    if (hint != null && hint.targetIndex < _state.tiles.length) {
+      destinationTileId = _state.tiles[hint.targetIndex].id;
+    }
+
+    for (final tile in children.whereType<TileComponent>()) {
+      tile.isHintSource = tile.model.id == hint?.tileId;
+      tile.isHintDestination = tile.model.id == destinationTileId;
     }
   }
 
@@ -183,6 +236,7 @@ class BoardComponent extends PositionComponent {
       return;
     }
 
+    clearHint();
     for (final tile in children.whereType<TileComponent>()) {
       tile.isCompleted = true;
     }

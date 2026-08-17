@@ -144,6 +144,32 @@ void main() {
     expect(haptics.completionCalls, 0);
   });
 
+  testWidgets('restart clears an active hint', (tester) async {
+    await tester.pumpWidget(buildApp());
+    await tester.pump(const Duration(seconds: 1));
+    final originalGame = currentGame(tester);
+
+    await tester.tap(find.byKey(const Key('hintButton')));
+    await tester.pump();
+    expect(originalGame.hasActiveHint, isTrue);
+
+    await tester.tap(find.byKey(const Key('restartLevelButton')));
+    await tester.pump();
+
+    expect(currentGame(tester), isNot(same(originalGame)));
+    expect(currentGame(tester).hasActiveHint, isFalse);
+  });
+
+  testWidgets('Hint action has a localized Turkish tooltip', (tester) async {
+    await tester.pumpWidget(buildApp(locale: const Locale('tr')));
+    await tester.pump(const Duration(seconds: 1));
+
+    final button = tester.widget<IconButton>(
+      find.byKey(const Key('hintButton')),
+    );
+    expect(button.tooltip, 'İpucu');
+  });
+
   testWidgets('restart preserves persisted completion', (tester) async {
     final repository = FakeLevelProgressRepository(
       completedLevelIds: const {'level_001'},

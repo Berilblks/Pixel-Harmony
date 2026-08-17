@@ -93,6 +93,25 @@ void main() {
     expect(session.boardState, same(solved));
   });
 
+  test('evaluating a hint does not mutate gameplay state', () {
+    final session = GameSession(level: createLevel());
+    final initialState = session.boardState;
+
+    final hint = session.evaluateHint();
+
+    expect(hint?.tileId, 'b');
+    expect(session.boardState, same(initialState));
+    expect(session.boardState.moveCount, 0);
+    expect(session.boardState.completed, isFalse);
+  });
+
+  test('completed session returns no hint', () {
+    final session = GameSession(level: createLevel());
+    session.swapTiles(0, 1);
+
+    expect(session.evaluateHint(), isNull);
+  });
+
   test('two consecutive non-solving swaps remain supported', () {
     final session = GameSession(
       level: createLevel(solutionOrder: const ['d', 'c', 'b', 'a']),

@@ -108,6 +108,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restartLevel => 'Restart Level';
 
   @override
+  String get hint => 'Hint';
+
+  @override
   String get nextLevel => 'Next Level';
 
   @override

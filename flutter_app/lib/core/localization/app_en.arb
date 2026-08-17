@@ -39,6 +39,7 @@
   "soundEffectsLabel": "Sound Effects",
   "hapticsLabel": "Haptics",
   "restartLevel": "Restart Level",
+  "hint": "Hint",
   "nextLevel": "Next Level",
   "allLevelsCompleteTitle": "All Levels Complete",
   "allLevelsCompleteSubtitle": "You restored every harmony."

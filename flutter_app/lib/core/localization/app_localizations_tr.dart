@@ -108,6 +108,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get restartLevel => 'Seviyeyi Yeniden Başlat';
 
   @override
+  String get hint => 'İpucu';
+
+  @override
   String get nextLevel => 'Sonraki Seviye';
 
   @override

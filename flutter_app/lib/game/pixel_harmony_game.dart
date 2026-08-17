@@ -20,6 +20,18 @@ class PixelHarmonyGame extends FlameGame {
   final void Function(BoardState state)? onCompleted;
   final void Function()? onTilePickedUp;
   final void Function()? onSwapCompleted;
+  BoardComponent? _board;
+
+  bool get hasActiveHint => _board?.hasActiveHint ?? false;
+
+  bool requestHint() {
+    final board = _board;
+    final hint = session.evaluateHint();
+    if (board == null || hint == null) {
+      return false;
+    }
+    return board.showHint(hint);
+  }
 
   static const _backgroundColor = AppPalette.background;
   static const _boardConfig = BoardConfig(spacing: 14, screenPadding: 32);
@@ -30,17 +42,17 @@ class PixelHarmonyGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await add(
-      BoardComponent(
-        state: session.boardState,
-        config: _boardConfig,
-        onCompleted: onCompleted,
-        onTilePickedUp: onTilePickedUp,
-        onSwapCompleted: onSwapCompleted,
-        onDropRequested: (request) {
-          return session.swapTiles(request.sourceIndex, request.targetIndex);
-        },
-      ),
+    final board = BoardComponent(
+      state: session.boardState,
+      config: _boardConfig,
+      onCompleted: onCompleted,
+      onTilePickedUp: onTilePickedUp,
+      onSwapCompleted: onSwapCompleted,
+      onDropRequested: (request) {
+        return session.swapTiles(request.sourceIndex, request.targetIndex);
+      },
     );
+    _board = board;
+    await add(board);
   }
 }
