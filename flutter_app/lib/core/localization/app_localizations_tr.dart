@@ -21,6 +21,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get journeyMode => 'Yolculuk';
 
   @override
+  String get dailyPuzzle => 'Günün Bulmacası';
+
+  @override
+  String get dailyCompleteTitle => 'Günün Bulmacası Tamamlandı';
+
+  @override
+  String get dailyCompleteSubtitle => 'Bugünün uyumu tamamlandı.';
+
+  @override
   String get endlessMode => 'Sonsuz';
 
   @override

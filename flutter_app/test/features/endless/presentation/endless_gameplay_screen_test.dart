@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
@@ -11,6 +12,7 @@ import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_endless_progress_repository.dart';
+import '../../../support/fake_daily_progress_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
 
 void main() {
@@ -19,12 +21,16 @@ void main() {
   Widget buildApp({
     required FakeEndlessProgressRepository endlessRepository,
     FakeLevelProgressRepository? journeyRepository,
+    FakeDailyProgressRepository? dailyRepository,
   }) {
     return ProviderScope(
       overrides: [
         endlessProgressRepositoryProvider.overrideWithValue(endlessRepository),
         levelProgressRepositoryProvider.overrideWithValue(
           journeyRepository ?? FakeLevelProgressRepository(),
+        ),
+        dailyProgressRepositoryProvider.overrideWithValue(
+          dailyRepository ?? FakeDailyProgressRepository(),
         ),
       ],
       child: const PixelHarmonyApp(),
@@ -35,11 +41,13 @@ void main() {
     WidgetTester tester,
     FakeEndlessProgressRepository repository, {
     FakeLevelProgressRepository? journeyRepository,
+    FakeDailyProgressRepository? dailyRepository,
   }) async {
     await tester.pumpWidget(
       buildApp(
         endlessRepository: repository,
         journeyRepository: journeyRepository,
+        dailyRepository: dailyRepository,
       ),
     );
     await tester.pump();
@@ -128,14 +136,17 @@ void main() {
   ) async {
     final endlessRepository = FakeEndlessProgressRepository();
     final journeyRepository = FakeLevelProgressRepository();
+    final dailyRepository = FakeDailyProgressRepository();
     await openEndless(
       tester,
       endlessRepository,
       journeyRepository: journeyRepository,
+      dailyRepository: dailyRepository,
     );
     await complete(tester);
     expect(journeyRepository.completedLevelIds, isEmpty);
     expect(journeyRepository.markCompletedCallCount, 0);
+    expect(dailyRepository.completeCallCount, 0);
   });
 
   testWidgets('Back Home returns from Endless completion', (tester) async {

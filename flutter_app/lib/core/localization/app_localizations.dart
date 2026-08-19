@@ -122,6 +122,24 @@ abstract class AppLocalizations {
   /// **'Journey'**
   String get journeyMode;
 
+  /// No description provided for @dailyPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Puzzle'**
+  String get dailyPuzzle;
+
+  /// No description provided for @dailyCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Complete'**
+  String get dailyCompleteTitle;
+
+  /// No description provided for @dailyCompleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s harmony is restored.'**
+  String get dailyCompleteSubtitle;
+
   /// No description provided for @endlessMode.
   ///
   /// In en, this message translates to:

@@ -18,7 +18,7 @@ import 'package:pixel_harmony/game/levels/level_progression.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
-enum GameplayContentSource { journey, endless }
+enum GameplayContentSource { journey, daily, endless }
 
 class GameplayScreen extends ConsumerStatefulWidget {
   const GameplayScreen({
@@ -28,6 +28,8 @@ class GameplayScreen extends ConsumerStatefulWidget {
   }) : contentSource = GameplayContentSource.journey,
        puzzleNumber = null,
        onEndlessCompleted = null,
+       onDailyCompleted = null,
+       dailyDateKey = null,
        onNextPuzzle = null,
        onBackHome = null;
 
@@ -39,13 +41,29 @@ class GameplayScreen extends ConsumerStatefulWidget {
     required this.onNextPuzzle,
     required this.onBackHome,
     this.completionController,
-  }) : contentSource = GameplayContentSource.endless;
+  }) : contentSource = GameplayContentSource.endless,
+       onDailyCompleted = null,
+       dailyDateKey = null;
+
+  const GameplayScreen.daily({
+    super.key,
+    required this.level,
+    required this.dailyDateKey,
+    required this.onDailyCompleted,
+    required this.onBackHome,
+    this.completionController,
+  }) : contentSource = GameplayContentSource.daily,
+       puzzleNumber = null,
+       onEndlessCompleted = null,
+       onNextPuzzle = null;
 
   final LevelDefinition? level;
   final GameplayCompletionController? completionController;
   final GameplayContentSource contentSource;
   final int? puzzleNumber;
   final Future<void> Function(BoardState state)? onEndlessCompleted;
+  final Future<void> Function(BoardState state)? onDailyCompleted;
+  final String? dailyDateKey;
   final VoidCallback? onNextPuzzle;
   final VoidCallback? onBackHome;
 
@@ -80,6 +98,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                   ? null
                   : widget.contentSource == GameplayContentSource.endless
                   ? widget.onEndlessCompleted
+                  : widget.contentSource == GameplayContentSource.daily
+                  ? widget.onDailyCompleted
                   : (_) => ref
                       .read(levelProgressControllerProvider.notifier)
                       .markCompleted(level.id),
@@ -205,6 +225,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
           child: Text(
             widget.contentSource == GameplayContentSource.endless
                 ? localizations.puzzleLabel(widget.puzzleNumber!)
+                : widget.contentSource == GameplayContentSource.daily
+                ? localizations.dailyPuzzle
                 : localizedLevelName(localizations, level),
             key: const Key('gameplayLevelTitle'),
             style: Theme.of(
@@ -264,6 +286,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                           isEndless:
                               widget.contentSource ==
                               GameplayContentSource.endless,
+                          isDaily:
+                              widget.contentSource ==
+                              GameplayContentSource.daily,
                           isFinalLevel: nextLevel == null,
                           onNextLevel:
                               widget.contentSource ==
@@ -276,8 +301,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                   ? null
                                   : () => _openNextLevel(nextLevel),
                           onBackToLevels:
-                              widget.contentSource ==
-                                      GameplayContentSource.endless
+                              widget.contentSource !=
+                                      GameplayContentSource.journey
                                   ? widget.onBackHome!
                                   : () =>
                                       context.goNamed(AppRoutes.levelSelect),
@@ -382,6 +407,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
     required this.moveCount,
     required this.puzzleNumber,
     required this.isEndless,
+    required this.isDaily,
     required this.isFinalLevel,
     required this.onNextLevel,
     required this.onBackToLevels,
@@ -390,6 +416,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
   final int moveCount;
   final int? puzzleNumber;
   final bool isEndless;
+  final bool isDaily;
   final bool isFinalLevel;
   final VoidCallback? onNextLevel;
   final VoidCallback onBackToLevels;
@@ -436,7 +463,9 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.compact),
                     Text(
-                      isEndless
+                      isDaily
+                          ? localizations.dailyCompleteTitle
+                          : isEndless
                           ? localizations.completionTitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteTitle
@@ -446,7 +475,9 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      isEndless
+                      isDaily
+                          ? localizations.dailyCompleteSubtitle
+                          : isEndless
                           ? localizations.completionSubtitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteSubtitle
@@ -483,18 +514,22 @@ class _LevelCompleteOverlay extends StatelessWidget {
                       width: double.infinity,
                       child: FilledButton(
                         key: Key(
-                          isEndless
+                          isDaily
+                              ? 'dailyBackHomeButton'
+                              : isEndless
                               ? 'nextPuzzleButton'
                               : isFinalLevel
                               ? 'finalBackToLevelsButton'
                               : 'nextLevelButton',
                         ),
                         onPressed:
-                            !isEndless && isFinalLevel
+                            isDaily || (!isEndless && isFinalLevel)
                                 ? onBackToLevels
                                 : onNextLevel,
                         child: Text(
-                          isEndless
+                          isDaily
+                              ? localizations.backHome
+                              : isEndless
                               ? localizations.nextPuzzle
                               : isFinalLevel
                               ? localizations.backToLevels
@@ -502,7 +537,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (isEndless || !isFinalLevel) ...[
+                    if (!isDaily && (isEndless || !isFinalLevel)) ...[
                       const SizedBox(height: AppSpacing.sm),
                       TextButton(
                         key: Key(

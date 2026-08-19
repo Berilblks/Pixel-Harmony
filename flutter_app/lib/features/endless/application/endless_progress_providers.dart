@@ -4,7 +4,6 @@ import 'package:pixel_harmony/features/endless/data/local_endless_progress_repos
 import 'package:pixel_harmony/features/endless/data/shared_preferences_endless_progress_data_source.dart';
 import 'package:pixel_harmony/features/endless/domain/endless_progress.dart';
 import 'package:pixel_harmony/features/endless/domain/endless_progress_repository.dart';
-import 'package:pixel_harmony/game/generation/procedural_level_generator.dart';
 
 final endlessProgressLocalDataSourceProvider =
     Provider<EndlessProgressLocalDataSource>((ref) {
@@ -17,12 +16,6 @@ final endlessProgressRepositoryProvider = Provider<EndlessProgressRepository>((
   return LocalEndlessProgressRepository(
     dataSource: ref.watch(endlessProgressLocalDataSourceProvider),
   );
-});
-
-final proceduralLevelGeneratorProvider = Provider<ProceduralLevelGenerator>((
-  ref,
-) {
-  return const ProceduralLevelGenerator();
 });
 
 final endlessProgressControllerProvider =

@@ -8,6 +8,7 @@ import 'package:pixel_harmony/features/endless/application/endless_progress_prov
 import 'package:pixel_harmony/features/endless/domain/endless_progress.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/game/generation/procedural_level_request.dart';
+import 'package:pixel_harmony/game/generation/procedural_level_providers.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
 class EndlessGameplayScreen extends ConsumerStatefulWidget {

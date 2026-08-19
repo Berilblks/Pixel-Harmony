@@ -5,6 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/app.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
+import 'package:pixel_harmony/features/daily/domain/daily_clock.dart';
+import 'package:pixel_harmony/features/daily/domain/daily_progress_repository.dart';
+import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
@@ -15,15 +19,24 @@ import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fake_level_progress_repository.dart';
+import 'support/fake_daily_progress_repository.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Widget buildApp({LevelProgressRepository? repository}) {
+  Widget buildApp({
+    LevelProgressRepository? repository,
+    DailyProgressRepository? dailyRepository,
+  }) {
     return ProviderScope(
       overrides: [
         if (repository != null)
           levelProgressRepositoryProvider.overrideWithValue(repository),
+        if (dailyRepository != null)
+          dailyProgressRepositoryProvider.overrideWithValue(dailyRepository),
+        dailyClockProvider.overrideWithValue(
+          _FixedDailyClock(DateTime(2026, 8, 19, 12)),
+        ),
       ],
       child: const PixelHarmonyApp(),
     );
@@ -74,7 +87,7 @@ void main() {
   }
 
   testWidgets(
-    'Home shows Journey and Endless without temporary level buttons',
+    'Home shows Journey, Daily, and Endless without temporary level buttons',
     (tester) async {
       await tester.pumpWidget(
         buildApp(repository: FakeLevelProgressRepository()),
@@ -83,6 +96,7 @@ void main() {
 
       expect(find.byType(HomeScreen), findsOneWidget);
       expect(find.text('Journey'), findsOneWidget);
+      expect(find.text('Daily Puzzle'), findsOneWidget);
       expect(find.text('Endless'), findsOneWidget);
       expect(find.text('Find calm in color.'), findsOneWidget);
       expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
@@ -91,6 +105,43 @@ void main() {
       expect(find.text('Level 3'), findsNothing);
     },
   );
+
+  testWidgets('Daily opens today deterministic puzzle and returns Home', (
+    tester,
+  ) async {
+    final dailyRepository = FakeDailyProgressRepository();
+    await tester.pumpWidget(
+      buildApp(
+        repository: FakeLevelProgressRepository(),
+        dailyRepository: dailyRepository,
+      ),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('homeDailyButton')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(DailyGameplayScreen), findsOneWidget);
+    expect(find.text('Daily Puzzle'), findsOneWidget);
+    final gameplay = tester.widget<GameplayScreen>(find.byType(GameplayScreen));
+    expect(gameplay.level?.id, 'daily_v1_2026-08-19');
+    final game =
+        tester
+            .widget<GameWidget<PixelHarmonyGame>>(
+              find.byType(GameWidget<PixelHarmonyGame>),
+            )
+            .game!;
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump();
+    expect(find.text('Daily Complete'), findsOneWidget);
+    expect(dailyRepository.completeCallCount, 1);
+
+    await tester.tap(find.byKey(const Key('dailyBackHomeButton')));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byKey(const Key('homeDailyCompleted')), findsOneWidget);
+  });
 
   testWidgets('Home opens Settings', (tester) async {
     await tester.pumpWidget(
@@ -361,7 +412,14 @@ void main() {
     tester,
   ) async {
     final repository = FakeLevelProgressRepository();
-    await openLevelSelect(tester, repository: repository);
+    final dailyRepository = FakeDailyProgressRepository();
+    await tester.pumpWidget(
+      buildApp(repository: repository, dailyRepository: dailyRepository),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('homePlayButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
     await tester.tap(find.byKey(const Key('levelCard_level_001')));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
@@ -374,6 +432,7 @@ void main() {
     await tester.pump();
 
     expect(repository.completedLevelIds, contains('level_001'));
+    expect(dailyRepository.completeCallCount, 0);
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('completionBackToLevelsButton')));
@@ -384,4 +443,13 @@ void main() {
     expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
     expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
   });
+}
+
+class _FixedDailyClock implements DailyClock {
+  const _FixedDailyClock(this.value);
+
+  final DateTime value;
+
+  @override
+  DateTime now() => value;
 }

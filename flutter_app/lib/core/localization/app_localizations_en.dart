@@ -21,6 +21,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get journeyMode => 'Journey';
 
   @override
+  String get dailyPuzzle => 'Daily Puzzle';
+
+  @override
+  String get dailyCompleteTitle => 'Daily Complete';
+
+  @override
+  String get dailyCompleteSubtitle => 'Today\'s harmony is restored.';
+
+  @override
   String get endlessMode => 'Endless';
 
   @override

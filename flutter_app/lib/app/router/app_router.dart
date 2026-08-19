@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
@@ -11,6 +12,7 @@ abstract final class AppRoutes {
   static const home = 'home';
   static const levelSelect = 'level-select';
   static const gameplay = 'gameplay';
+  static const daily = 'daily';
   static const endless = 'endless';
   static const settings = 'settings';
 }
@@ -18,6 +20,11 @@ abstract final class AppRoutes {
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     routes: [
+      GoRoute(
+        path: '/daily',
+        name: AppRoutes.daily,
+        builder: (context, state) => const DailyGameplayScreen(),
+      ),
       GoRoute(
         path: '/endless',
         name: AppRoutes.endless,

@@ -5,14 +5,44 @@ import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
+import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      ref.invalidate(dailyPuzzleIdentityProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     final endlessProgress = ref.watch(endlessProgressControllerProvider);
+    final dailyIdentity = ref.watch(dailyPuzzleIdentityProvider);
+    final dailyProgress = ref.watch(dailyProgressControllerProvider);
+    final todayCompleted =
+        dailyProgress.value?.isCompleted(dailyIdentity.dateKey) ?? false;
     final hasEndlessProgress =
         (endlessProgress.value?.completedPuzzleCount ?? 0) > 0;
 
@@ -65,6 +95,26 @@ class HomeScreen extends ConsumerWidget {
                       key: const Key('homePlayButton'),
                       onPressed: () => context.pushNamed(AppRoutes.levelSelect),
                       child: Text(localizations.journeyMode),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: 220,
+                    child: OutlinedButton(
+                      key: const Key('homeDailyButton'),
+                      onPressed: () => context.pushNamed(AppRoutes.daily),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(localizations.dailyPuzzle),
+                          if (todayCompleted)
+                            Text(
+                              localizations.completedLabel,
+                              key: const Key('homeDailyCompleted'),
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
