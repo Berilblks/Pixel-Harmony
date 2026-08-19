@@ -16,16 +16,38 @@ import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
+import 'package:pixel_harmony/game/state/board_state.dart';
+
+enum GameplayContentSource { journey, endless }
 
 class GameplayScreen extends ConsumerStatefulWidget {
   const GameplayScreen({
     super.key,
     required this.level,
     this.completionController,
-  });
+  }) : contentSource = GameplayContentSource.journey,
+       puzzleNumber = null,
+       onEndlessCompleted = null,
+       onNextPuzzle = null,
+       onBackHome = null;
+
+  const GameplayScreen.endless({
+    super.key,
+    required this.level,
+    required this.puzzleNumber,
+    required this.onEndlessCompleted,
+    required this.onNextPuzzle,
+    required this.onBackHome,
+    this.completionController,
+  }) : contentSource = GameplayContentSource.endless;
 
   final LevelDefinition? level;
   final GameplayCompletionController? completionController;
+  final GameplayContentSource contentSource;
+  final int? puzzleNumber;
+  final Future<void> Function(BoardState state)? onEndlessCompleted;
+  final VoidCallback? onNextPuzzle;
+  final VoidCallback? onBackHome;
 
   @override
   ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
@@ -56,6 +78,8 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
           onCompletion:
               level == null
                   ? null
+                  : widget.contentSource == GameplayContentSource.endless
+                  ? widget.onEndlessCompleted
                   : (_) => ref
                       .read(levelProgressControllerProvider.notifier)
                       .markCompleted(level.id),
@@ -122,6 +146,14 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     );
   }
 
+  Future<void> _openNextPuzzle() async {
+    if (_isNavigatingToNextLevel) return;
+    setState(() => _isNavigatingToNextLevel = true);
+    await _completionController.completionPersistence;
+    if (!mounted) return;
+    widget.onNextPuzzle?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final level = widget.level;
@@ -131,7 +163,10 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       );
     }
 
-    final progress = ref.watch(levelProgressControllerProvider);
+    AsyncValue<Set<String>> progress = const AsyncData({});
+    if (widget.contentSource == GameplayContentSource.journey) {
+      progress = ref.watch(levelProgressControllerProvider);
+    }
     final feedbackSettings = ref.watch(gameFeedbackSettingsControllerProvider);
     _feedbackController.updateSettings(
       feedbackSettings.value ??
@@ -144,16 +179,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       return const _GameplayLoadingView();
     }
 
-    final completedLevelIds = progress.asData?.value ?? const <String>{};
     final progression = LevelProgression(levels: LevelCatalog.levels);
-    if (!progression.isUnlocked(level.id, completedLevelIds)) {
-      return _LevelLockedView(
-        onBackToLevels: () => context.goNamed(AppRoutes.levelSelect),
-      );
+    if (widget.contentSource == GameplayContentSource.journey) {
+      final completedLevelIds = progress.asData?.value ?? const <String>{};
+      if (!progression.isUnlocked(level.id, completedLevelIds)) {
+        return _LevelLockedView(
+          onBackToLevels: () => context.goNamed(AppRoutes.levelSelect),
+        );
+      }
     }
 
     final game = _game ??= _createGame(level);
-    final nextLevel = progression.nextLevel(level.id);
+    final nextLevel =
+        widget.contentSource == GameplayContentSource.journey
+            ? progression.nextLevel(level.id)
+            : null;
 
     final localizations = AppLocalizations.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
@@ -163,7 +203,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         title: Semantics(
           header: true,
           child: Text(
-            localizedLevelName(localizations, level),
+            widget.contentSource == GameplayContentSource.endless
+                ? localizations.puzzleLabel(widget.puzzleNumber!)
+                : localizedLevelName(localizations, level),
             key: const Key('gameplayLevelTitle'),
             style: Theme.of(
               context,
@@ -218,13 +260,27 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                         : _LevelCompleteOverlay(
                           key: const Key('levelCompleteOverlay'),
                           moveCount: completion.moveCount,
+                          puzzleNumber: widget.puzzleNumber,
+                          isEndless:
+                              widget.contentSource ==
+                              GameplayContentSource.endless,
                           isFinalLevel: nextLevel == null,
                           onNextLevel:
-                              nextLevel == null || _isNavigatingToNextLevel
+                              widget.contentSource ==
+                                      GameplayContentSource.endless
+                                  ? _isNavigatingToNextLevel
+                                      ? null
+                                      : _openNextPuzzle
+                                  : nextLevel == null ||
+                                      _isNavigatingToNextLevel
                                   ? null
                                   : () => _openNextLevel(nextLevel),
                           onBackToLevels:
-                              () => context.goNamed(AppRoutes.levelSelect),
+                              widget.contentSource ==
+                                      GameplayContentSource.endless
+                                  ? widget.onBackHome!
+                                  : () =>
+                                      context.goNamed(AppRoutes.levelSelect),
                         ),
               );
             },
@@ -324,12 +380,16 @@ class _LevelCompleteOverlay extends StatelessWidget {
   const _LevelCompleteOverlay({
     super.key,
     required this.moveCount,
+    required this.puzzleNumber,
+    required this.isEndless,
     required this.isFinalLevel,
     required this.onNextLevel,
     required this.onBackToLevels,
   });
 
   final int moveCount;
+  final int? puzzleNumber;
+  final bool isEndless;
   final bool isFinalLevel;
   final VoidCallback? onNextLevel;
   final VoidCallback onBackToLevels;
@@ -376,7 +436,9 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.compact),
                     Text(
-                      isFinalLevel
+                      isEndless
+                          ? localizations.completionTitle
+                          : isFinalLevel
                           ? localizations.allLevelsCompleteTitle
                           : localizations.completionTitle,
                       style: Theme.of(context).textTheme.headlineSmall,
@@ -384,12 +446,22 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      isFinalLevel
+                      isEndless
+                          ? localizations.completionSubtitle
+                          : isFinalLevel
                           ? localizations.allLevelsCompleteSubtitle
                           : localizations.completionSubtitle,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    if (isEndless) ...[
+                      Text(
+                        localizations.puzzleLabel(puzzleNumber!),
+                        key: const Key('endlessCompletionPuzzleLabel'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppPalette.surfaceMuted,
@@ -411,24 +483,39 @@ class _LevelCompleteOverlay extends StatelessWidget {
                       width: double.infinity,
                       child: FilledButton(
                         key: Key(
-                          isFinalLevel
+                          isEndless
+                              ? 'nextPuzzleButton'
+                              : isFinalLevel
                               ? 'finalBackToLevelsButton'
                               : 'nextLevelButton',
                         ),
-                        onPressed: isFinalLevel ? onBackToLevels : onNextLevel,
+                        onPressed:
+                            !isEndless && isFinalLevel
+                                ? onBackToLevels
+                                : onNextLevel,
                         child: Text(
-                          isFinalLevel
+                          isEndless
+                              ? localizations.nextPuzzle
+                              : isFinalLevel
                               ? localizations.backToLevels
                               : localizations.nextLevel,
                         ),
                       ),
                     ),
-                    if (!isFinalLevel) ...[
+                    if (isEndless || !isFinalLevel) ...[
                       const SizedBox(height: AppSpacing.sm),
                       TextButton(
-                        key: const Key('completionBackToLevelsButton'),
+                        key: Key(
+                          isEndless
+                              ? 'endlessBackHomeButton'
+                              : 'completionBackToLevelsButton',
+                        ),
                         onPressed: onBackToLevels,
-                        child: Text(localizations.backToLevels),
+                        child: Text(
+                          isEndless
+                              ? localizations.backHome
+                              : localizations.backToLevels,
+                        ),
                       ),
                     ],
                   ],

@@ -116,6 +116,54 @@ abstract class AppLocalizations {
   /// **'Play'**
   String get playButton;
 
+  /// No description provided for @journeyMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey'**
+  String get journeyMode;
+
+  /// No description provided for @endlessMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Endless'**
+  String get endlessMode;
+
+  /// No description provided for @continueEndless.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue Endless'**
+  String get continueEndless;
+
+  /// No description provided for @puzzleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle {number}'**
+  String puzzleLabel(int number);
+
+  /// No description provided for @nextPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next Puzzle'**
+  String get nextPuzzle;
+
+  /// No description provided for @backHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Back Home'**
+  String get backHome;
+
+  /// No description provided for @endlessProgressError.
+  ///
+  /// In en, this message translates to:
+  /// **'Endless progress cannot be loaded with this version.'**
+  String get endlessProgressError;
+
+  /// No description provided for @resetEndless.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Endless'**
+  String get resetEndless;
+
   /// No description provided for @gameplayTitle.
   ///
   /// In en, this message translates to:

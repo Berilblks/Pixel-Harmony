@@ -18,6 +18,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get playButton => 'Oyna';
 
   @override
+  String get journeyMode => 'Yolculuk';
+
+  @override
+  String get endlessMode => 'Sonsuz';
+
+  @override
+  String get continueEndless => 'Sonsuz Moda Devam Et';
+
+  @override
+  String puzzleLabel(int number) {
+    return 'Bulmaca $number';
+  }
+
+  @override
+  String get nextPuzzle => 'Sonraki Bulmaca';
+
+  @override
+  String get backHome => 'Ana Sayfaya Dön';
+
+  @override
+  String get endlessProgressError =>
+      'Sonsuz mod ilerlemesi bu sürümle yüklenemiyor.';
+
+  @override
+  String get resetEndless => 'Sonsuz Modu Sıfırla';
+
+  @override
   String get gameplayTitle => 'Oyun';
 
   @override

@@ -3,6 +3,17 @@
   "appTitle": "Pixel Harmony",
   "homeWelcome": "Renklerin içinde huzuru bul.",
   "playButton": "Oyna",
+  "journeyMode": "Yolculuk",
+  "endlessMode": "Sonsuz",
+  "continueEndless": "Sonsuz Moda Devam Et",
+  "puzzleLabel": "Bulmaca {number}",
+  "@puzzleLabel": {
+    "placeholders": {"number": {"type": "int"}}
+  },
+  "nextPuzzle": "Sonraki Bulmaca",
+  "backHome": "Ana Sayfaya Dön",
+  "endlessProgressError": "Sonsuz mod ilerlemesi bu sürümle yüklenemiyor.",
+  "resetEndless": "Sonsuz Modu Sıfırla",
   "gameplayTitle": "Oyun",
   "completionTitle": "Uyum Tamamlandı",
   "completionSubtitle": "Harika tamamladın.",

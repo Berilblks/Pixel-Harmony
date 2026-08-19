@@ -3,6 +3,17 @@
   "appTitle": "Pixel Harmony",
   "homeWelcome": "Find calm in color.",
   "playButton": "Play",
+  "journeyMode": "Journey",
+  "endlessMode": "Endless",
+  "continueEndless": "Continue Endless",
+  "puzzleLabel": "Puzzle {number}",
+  "@puzzleLabel": {
+    "placeholders": {"number": {"type": "int"}}
+  },
+  "nextPuzzle": "Next Puzzle",
+  "backHome": "Back Home",
+  "endlessProgressError": "Endless progress cannot be loaded with this version.",
+  "resetEndless": "Reset Endless",
   "gameplayTitle": "Gameplay",
   "completionTitle": "Harmony Restored",
   "completionSubtitle": "Beautifully done.",

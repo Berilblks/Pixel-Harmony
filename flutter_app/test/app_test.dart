@@ -74,22 +74,24 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('Home shows Play without temporary level buttons', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      buildApp(repository: FakeLevelProgressRepository()),
-    );
-    await tester.pump();
+  testWidgets(
+    'Home shows Journey and Endless without temporary level buttons',
+    (tester) async {
+      await tester.pumpWidget(
+        buildApp(repository: FakeLevelProgressRepository()),
+      );
+      await tester.pump();
 
-    expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.text('Play'), findsOneWidget);
-    expect(find.text('Find calm in color.'), findsOneWidget);
-    expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
-    expect(find.text('Level 1'), findsNothing);
-    expect(find.text('Level 2'), findsNothing);
-    expect(find.text('Level 3'), findsNothing);
-  });
+      expect(find.byType(HomeScreen), findsOneWidget);
+      expect(find.text('Journey'), findsOneWidget);
+      expect(find.text('Endless'), findsOneWidget);
+      expect(find.text('Find calm in color.'), findsOneWidget);
+      expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
+      expect(find.text('Level 1'), findsNothing);
+      expect(find.text('Level 2'), findsNothing);
+      expect(find.text('Level 3'), findsNothing);
+    },
+  );
 
   testWidgets('Home opens Settings', (tester) async {
     await tester.pumpWidget(
@@ -210,7 +212,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.bySemanticsLabel('Play'), findsOneWidget);
+    expect(find.bySemanticsLabel('Journey'), findsOneWidget);
     expect(find.bySemanticsLabel('Settings'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('homePlayButton')));

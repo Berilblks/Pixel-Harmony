@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
+import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final localizations = AppLocalizations.of(context);
+    final endlessProgress = ref.watch(endlessProgressControllerProvider);
+    final hasEndlessProgress =
+        (endlessProgress.value?.completedPuzzleCount ?? 0) > 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -59,7 +64,20 @@ class HomeScreen extends StatelessWidget {
                     child: FilledButton(
                       key: const Key('homePlayButton'),
                       onPressed: () => context.pushNamed(AppRoutes.levelSelect),
-                      child: Text(localizations.playButton),
+                      child: Text(localizations.journeyMode),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  SizedBox(
+                    width: 220,
+                    child: OutlinedButton(
+                      key: const Key('homeEndlessButton'),
+                      onPressed: () => context.pushNamed(AppRoutes.endless),
+                      child: Text(
+                        hasEndlessProgress
+                            ? localizations.continueEndless
+                            : localizations.endlessMode,
+                      ),
                     ),
                   ),
                 ],

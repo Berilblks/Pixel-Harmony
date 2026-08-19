@@ -18,6 +18,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playButton => 'Play';
 
   @override
+  String get journeyMode => 'Journey';
+
+  @override
+  String get endlessMode => 'Endless';
+
+  @override
+  String get continueEndless => 'Continue Endless';
+
+  @override
+  String puzzleLabel(int number) {
+    return 'Puzzle $number';
+  }
+
+  @override
+  String get nextPuzzle => 'Next Puzzle';
+
+  @override
+  String get backHome => 'Back Home';
+
+  @override
+  String get endlessProgressError =>
+      'Endless progress cannot be loaded with this version.';
+
+  @override
+  String get resetEndless => 'Reset Endless';
+
+  @override
   String get gameplayTitle => 'Gameplay';
 
   @override
