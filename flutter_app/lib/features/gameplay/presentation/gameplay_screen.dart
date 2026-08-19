@@ -12,6 +12,8 @@ import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/features/settings/application/game_feedback_settings_providers.dart';
 import 'package:pixel_harmony/features/settings/domain/game_feedback_settings.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
+import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
@@ -100,9 +102,23 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                   ? widget.onEndlessCompleted
                   : widget.contentSource == GameplayContentSource.daily
                   ? widget.onDailyCompleted
-                  : (_) => ref
-                      .read(levelProgressControllerProvider.notifier)
-                      .markCompleted(level.id),
+                  : (state) => _completeJourney(level, state),
+        );
+  }
+
+  Future<void> _completeJourney(LevelDefinition level, BoardState state) async {
+    final persisted = await ref
+        .read(levelProgressControllerProvider.notifier)
+        .markCompleted(level.id);
+    if (!persisted) return;
+    await ref
+        .read(playerStatisticsControllerProvider.notifier)
+        .record(
+          PuzzleCompletionRecord(
+            id: 'journey:${level.id}',
+            mode: PuzzleCompletionMode.journey,
+            moveCount: state.moveCount,
+          ),
         );
   }
 

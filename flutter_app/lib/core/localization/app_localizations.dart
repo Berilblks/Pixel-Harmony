@@ -392,6 +392,60 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settingsTitle;
 
+  /// No description provided for @statisticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get statisticsTitle;
+
+  /// No description provided for @statisticsOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get statisticsOverview;
+
+  /// No description provided for @statisticsModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Modes'**
+  String get statisticsModes;
+
+  /// No description provided for @totalPuzzles.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Puzzles'**
+  String get totalPuzzles;
+
+  /// No description provided for @totalMoves.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Moves'**
+  String get totalMoves;
+
+  /// No description provided for @currentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Streak'**
+  String get currentStreak;
+
+  /// No description provided for @bestStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Streak'**
+  String get bestStreak;
+
+  /// No description provided for @statisticsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics are unavailable right now.'**
+  String get statisticsLoadError;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
   /// No description provided for @soundEffectsLabel.
   ///
   /// In en, this message translates to:

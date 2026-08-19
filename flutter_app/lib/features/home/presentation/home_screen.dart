@@ -50,6 +50,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       appBar: AppBar(
         actions: [
           Semantics(
+            label: localizations.statisticsTitle,
+            button: true,
+            excludeSemantics: true,
+            child: IconButton(
+              key: const Key('homeStatisticsButton'),
+              tooltip: localizations.statisticsTitle,
+              onPressed: () => context.pushNamed(AppRoutes.statistics),
+              icon: const Icon(Icons.insights_outlined),
+            ),
+          ),
+          Semantics(
             label: localizations.settingsTitle,
             button: true,
             excludeSemantics: true,

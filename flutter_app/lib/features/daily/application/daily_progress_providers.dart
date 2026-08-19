@@ -34,14 +34,14 @@ final dailyProgressControllerProvider =
     );
 
 class DailyProgressController extends AsyncNotifier<DailyProgress> {
-  Future<void>? _completionOperation;
+  Future<DailyProgress?>? _completionOperation;
 
   @override
   Future<DailyProgress> build() {
     return ref.watch(dailyProgressRepositoryProvider).read();
   }
 
-  Future<void> complete(String dateKey) {
+  Future<DailyProgress?> complete(String dateKey) {
     final active = _completionOperation;
     if (active != null) return active;
     final operation = _complete(dateKey);
@@ -49,15 +49,17 @@ class DailyProgressController extends AsyncNotifier<DailyProgress> {
     return operation.whenComplete(() => _completionOperation = null);
   }
 
-  Future<void> _complete(String dateKey) async {
+  Future<DailyProgress?> _complete(String dateKey) async {
     try {
       final persisted = await ref
           .read(dailyProgressRepositoryProvider)
           .complete(dateKey);
       state = AsyncData(persisted);
+      return persisted;
     } catch (error, stackTrace) {
       // Keep the stored state authoritative. Gameplay completion remains usable.
       state = AsyncError(error, stackTrace);
+      return null;
     }
   }
 }

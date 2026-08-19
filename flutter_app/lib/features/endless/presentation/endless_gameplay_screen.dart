@@ -7,6 +7,8 @@ import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/domain/endless_progress.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
+import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart';
 import 'package:pixel_harmony/game/generation/procedural_level_request.dart';
 import 'package:pixel_harmony/game/generation/procedural_level_providers.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
@@ -30,6 +32,15 @@ class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
     await ref
         .read(endlessProgressControllerProvider.notifier)
         .advance(progress);
+    await ref
+        .read(playerStatisticsControllerProvider.notifier)
+        .record(
+          PuzzleCompletionRecord(
+            id: 'endless:v${progress.generationVersion}:${progress.currentSeed}',
+            mode: PuzzleCompletionMode.endless,
+            moveCount: state.moveCount,
+          ),
+        );
   }
 
   void _showNextPuzzle() {

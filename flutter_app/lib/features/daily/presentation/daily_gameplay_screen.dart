@@ -5,6 +5,8 @@ import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_puzzle_identity.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
+import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart';
 import 'package:pixel_harmony/game/generation/procedural_level_providers.dart';
 import 'package:pixel_harmony/game/generation/procedural_level_request.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
@@ -49,9 +51,21 @@ class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
 
   Future<void> _complete(BoardState state) async {
     if (!state.completed) return;
-    await ref
+    final progress = await ref
         .read(dailyProgressControllerProvider.notifier)
         .complete(_identity.dateKey);
+    if (progress == null || !progress.isCompleted(_identity.dateKey)) return;
+    await ref
+        .read(playerStatisticsControllerProvider.notifier)
+        .record(
+          PuzzleCompletionRecord(
+            id: 'daily:v${_identity.generationVersion}:${_identity.dateKey}',
+            mode: PuzzleCompletionMode.daily,
+            moveCount: state.moveCount,
+            currentDailyStreak: progress.currentStreak,
+            bestDailyStreak: progress.longestStreak,
+          ),
+        );
   }
 
   LevelDefinition _generateLevel() {

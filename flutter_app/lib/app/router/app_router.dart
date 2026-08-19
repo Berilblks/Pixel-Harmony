@@ -6,6 +6,7 @@ import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_scr
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
 import 'package:pixel_harmony/features/settings/presentation/settings_screen.dart';
+import 'package:pixel_harmony/features/statistics/presentation/statistics_screen.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 
 abstract final class AppRoutes {
@@ -15,6 +16,7 @@ abstract final class AppRoutes {
   static const daily = 'daily';
   static const endless = 'endless';
   static const settings = 'settings';
+  static const statistics = 'statistics';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -29,6 +31,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/endless',
         name: AppRoutes.endless,
         builder: (context, state) => const EndlessGameplayScreen(),
+      ),
+      GoRoute(
+        path: '/statistics',
+        name: AppRoutes.statistics,
+        builder: (context, state) => const StatisticsScreen(),
       ),
       GoRoute(
         path: '/settings',

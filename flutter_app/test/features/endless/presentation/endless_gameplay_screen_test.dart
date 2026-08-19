@@ -8,12 +8,14 @@ import 'package:pixel_harmony/features/endless/application/endless_progress_prov
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_endless_progress_repository.dart';
 import '../../../support/fake_daily_progress_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
+import '../../../support/fake_player_statistics_repository.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -22,6 +24,7 @@ void main() {
     required FakeEndlessProgressRepository endlessRepository,
     FakeLevelProgressRepository? journeyRepository,
     FakeDailyProgressRepository? dailyRepository,
+    FakePlayerStatisticsRepository? statisticsRepository,
   }) {
     return ProviderScope(
       overrides: [
@@ -31,6 +34,9 @@ void main() {
         ),
         dailyProgressRepositoryProvider.overrideWithValue(
           dailyRepository ?? FakeDailyProgressRepository(),
+        ),
+        playerStatisticsRepositoryProvider.overrideWithValue(
+          statisticsRepository ?? FakePlayerStatisticsRepository(),
         ),
       ],
       child: const PixelHarmonyApp(),
@@ -42,12 +48,14 @@ void main() {
     FakeEndlessProgressRepository repository, {
     FakeLevelProgressRepository? journeyRepository,
     FakeDailyProgressRepository? dailyRepository,
+    FakePlayerStatisticsRepository? statisticsRepository,
   }) async {
     await tester.pumpWidget(
       buildApp(
         endlessRepository: repository,
         journeyRepository: journeyRepository,
         dailyRepository: dailyRepository,
+        statisticsRepository: statisticsRepository,
       ),
     );
     await tester.pump();
@@ -86,7 +94,8 @@ void main() {
     tester,
   ) async {
     final repository = FakeEndlessProgressRepository();
-    await openEndless(tester, repository);
+    final statistics = FakePlayerStatisticsRepository();
+    await openEndless(tester, repository, statisticsRepository: statistics);
 
     expect(find.byType(EndlessGameplayScreen), findsOneWidget);
     expect(find.text('Puzzle 1'), findsOneWidget);
@@ -102,13 +111,20 @@ void main() {
     expect(currentGame(tester), isNot(same(original)));
     expect(repository.advanceCallCount, 0);
     expect(repository.progress.completedPuzzleCount, 0);
+    expect(statistics.recordCallCount, 0);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(statistics.recordCallCount, 0);
   });
 
   testWidgets('completion advances once and Next Puzzle displays puzzle 2', (
     tester,
   ) async {
     final repository = FakeEndlessProgressRepository();
-    await openEndless(tester, repository);
+    final statistics = FakePlayerStatisticsRepository();
+    await openEndless(tester, repository, statisticsRepository: statistics);
     final firstSeed = repository.progress.currentSeed;
 
     await complete(tester);
@@ -118,6 +134,8 @@ void main() {
     await tester.pump();
 
     expect(repository.advanceCallCount, 1);
+    expect(statistics.statistics.endlessPuzzlesCompleted, 1);
+    expect(statistics.statistics.totalPuzzlesCompleted, 1);
     expect(repository.progress.completedPuzzleCount, 1);
     expect(repository.progress.currentSeed, isNot(firstSeed));
     expect(find.byKey(const Key('nextPuzzleButton')), findsOneWidget);
@@ -129,6 +147,22 @@ void main() {
     expect(find.text('Puzzle 2'), findsOneWidget);
     expect(currentGame(tester).session.boardState.moveCount, 0);
     expect(repository.advanceCallCount, 1);
+  });
+
+  testWidgets('statistics failure does not block Endless advancement', (
+    tester,
+  ) async {
+    final repository = FakeEndlessProgressRepository();
+    await openEndless(
+      tester,
+      repository,
+      statisticsRepository: FakePlayerStatisticsRepository(failWrites: true),
+    );
+
+    await complete(tester);
+
+    expect(repository.progress.completedPuzzleCount, 1);
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
   });
 
   testWidgets('Endless completion leaves Journey progress untouched', (

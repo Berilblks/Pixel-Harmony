@@ -168,6 +168,33 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsTitle => 'Ayarlar';
 
   @override
+  String get statisticsTitle => 'İstatistikler';
+
+  @override
+  String get statisticsOverview => 'Genel Bakış';
+
+  @override
+  String get statisticsModes => 'Modlar';
+
+  @override
+  String get totalPuzzles => 'Toplam Bulmaca';
+
+  @override
+  String get totalMoves => 'Toplam Hamle';
+
+  @override
+  String get currentStreak => 'Mevcut Seri';
+
+  @override
+  String get bestStreak => 'En İyi Seri';
+
+  @override
+  String get statisticsLoadError => 'İstatistiklere şu anda ulaşılamıyor.';
+
+  @override
+  String get retry => 'Tekrar Dene';
+
+  @override
   String get soundEffectsLabel => 'Ses Efektleri';
 
   @override

@@ -14,11 +14,14 @@ import 'package:pixel_harmony/features/level_select/presentation/level_select_sc
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/features/level_progress/domain/level_progress_repository.dart';
 import 'package:pixel_harmony/features/settings/presentation/settings_screen.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
+import 'package:pixel_harmony/features/statistics/domain/player_statistics_repository.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fake_level_progress_repository.dart';
+import 'support/fake_player_statistics_repository.dart';
 import 'support/fake_daily_progress_repository.dart';
 
 void main() {
@@ -27,6 +30,7 @@ void main() {
   Widget buildApp({
     LevelProgressRepository? repository,
     DailyProgressRepository? dailyRepository,
+    PlayerStatisticsRepository? statisticsRepository,
   }) {
     return ProviderScope(
       overrides: [
@@ -34,6 +38,10 @@ void main() {
           levelProgressRepositoryProvider.overrideWithValue(repository),
         if (dailyRepository != null)
           dailyProgressRepositoryProvider.overrideWithValue(dailyRepository),
+        if (statisticsRepository != null)
+          playerStatisticsRepositoryProvider.overrideWithValue(
+            statisticsRepository,
+          ),
         dailyClockProvider.overrideWithValue(
           _FixedDailyClock(DateTime(2026, 8, 19, 12)),
         ),
@@ -413,8 +421,13 @@ void main() {
   ) async {
     final repository = FakeLevelProgressRepository();
     final dailyRepository = FakeDailyProgressRepository();
+    final statisticsRepository = FakePlayerStatisticsRepository();
     await tester.pumpWidget(
-      buildApp(repository: repository, dailyRepository: dailyRepository),
+      buildApp(
+        repository: repository,
+        dailyRepository: dailyRepository,
+        statisticsRepository: statisticsRepository,
+      ),
     );
     await tester.pump();
     await tester.tap(find.byKey(const Key('homePlayButton')));
@@ -429,10 +442,13 @@ void main() {
     );
     final game = gameWidget.game!;
     game.onCompleted!(game.session.boardState.withCompleted(true));
+    game.onCompleted!(game.session.boardState.withCompleted(true));
     await tester.pump();
 
     expect(repository.completedLevelIds, contains('level_001'));
     expect(dailyRepository.completeCallCount, 0);
+    expect(statisticsRepository.statistics.journeyPuzzlesCompleted, 1);
+    expect(statisticsRepository.statistics.totalPuzzlesCompleted, 1);
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('completionBackToLevelsButton')));
@@ -442,6 +458,35 @@ void main() {
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
     expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
+  });
+
+  testWidgets('statistics failure does not block Journey progression', (
+    tester,
+  ) async {
+    final journey = FakeLevelProgressRepository();
+    await tester.pumpWidget(
+      buildApp(
+        repository: journey,
+        statisticsRepository: FakePlayerStatisticsRepository(failWrites: true),
+      ),
+    );
+    await tester.pump();
+    final context = tester.element(find.byType(HomeScreen));
+    GoRouter.of(context).go('/gameplay/level_001');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final game =
+        tester
+            .widget<GameWidget<PixelHarmonyGame>>(
+              find.byType(GameWidget<PixelHarmonyGame>),
+            )
+            .game!;
+
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump();
+
+    expect(journey.completedLevelIds, contains('level_001'));
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
   });
 }
 

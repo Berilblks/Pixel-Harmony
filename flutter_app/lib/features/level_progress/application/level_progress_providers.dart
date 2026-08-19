@@ -31,17 +31,19 @@ class LevelProgressController extends AsyncNotifier<Set<String>> {
     );
   }
 
-  Future<void> markCompleted(String levelId) async {
+  Future<bool> markCompleted(String levelId) async {
     final previous = state.value ?? const <String>{};
     if (previous.contains(levelId)) {
-      return;
+      return true;
     }
 
     try {
       await ref.read(levelProgressRepositoryProvider).markCompleted(levelId);
       state = AsyncData(Set.unmodifiable({...previous, levelId}));
+      return true;
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
+      return false;
     }
   }
 

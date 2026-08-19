@@ -5,14 +5,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/app/app.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_clock.dart';
+import 'package:pixel_harmony/features/daily/domain/daily_progress.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_daily_progress_repository.dart';
 import '../../../support/fake_endless_progress_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
+import '../../../support/fake_player_statistics_repository.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -21,6 +24,7 @@ void main() {
     required FakeDailyProgressRepository daily,
     FakeLevelProgressRepository? journey,
     FakeEndlessProgressRepository? endless,
+    FakePlayerStatisticsRepository? statistics,
   }) {
     return ProviderScope(
       overrides: [
@@ -34,6 +38,9 @@ void main() {
         endlessProgressRepositoryProvider.overrideWithValue(
           endless ?? FakeEndlessProgressRepository(),
         ),
+        playerStatisticsRepositoryProvider.overrideWithValue(
+          statistics ?? FakePlayerStatisticsRepository(),
+        ),
       ],
       child: const PixelHarmonyApp(),
     );
@@ -44,9 +51,15 @@ void main() {
     required FakeDailyProgressRepository daily,
     FakeLevelProgressRepository? journey,
     FakeEndlessProgressRepository? endless,
+    FakePlayerStatisticsRepository? statistics,
   }) async {
     await tester.pumpWidget(
-      buildApp(daily: daily, journey: journey, endless: endless),
+      buildApp(
+        daily: daily,
+        journey: journey,
+        endless: endless,
+        statistics: statistics,
+      ),
     );
     await tester.pump();
     await tester.tap(find.byKey(const Key('homeDailyButton')));
@@ -65,11 +78,13 @@ void main() {
     final daily = FakeDailyProgressRepository();
     final journey = FakeLevelProgressRepository();
     final endless = FakeEndlessProgressRepository();
+    final statistics = FakePlayerStatisticsRepository();
     final game = await openDaily(
       tester,
       daily: daily,
       journey: journey,
       endless: endless,
+      statistics: statistics,
     );
 
     final completed = game.session.boardState.withCompleted(true);
@@ -83,6 +98,8 @@ void main() {
     expect(journey.completedLevelIds, isEmpty);
     expect(endless.advanceCallCount, 0);
     expect(endless.progress.completedPuzzleCount, 0);
+    expect(statistics.statistics.dailyPuzzlesCompleted, 1);
+    expect(statistics.statistics.currentDailyStreak, 1);
   });
 
   testWidgets('persistence failure keeps completion overlay usable', (
@@ -98,6 +115,41 @@ void main() {
     expect(find.text('Daily Complete'), findsOneWidget);
     expect(daily.progress.totalDailyCompleted, 0);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('statistics failure does not block Daily completion', (
+    tester,
+  ) async {
+    final daily = FakeDailyProgressRepository();
+    final statistics = FakePlayerStatisticsRepository(failWrites: true);
+    final game = await openDaily(tester, daily: daily, statistics: statistics);
+
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump();
+
+    expect(daily.progress.totalDailyCompleted, 1);
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
+  });
+
+  testWidgets('backwards-clock Daily rejection does not record statistics', (
+    tester,
+  ) async {
+    final daily = FakeDailyProgressRepository(
+      progress: const DailyProgress(
+        lastCompletedDateKey: '2026-08-20',
+        currentStreak: 2,
+        longestStreak: 2,
+        totalDailyCompleted: 2,
+      ),
+    );
+    final statistics = FakePlayerStatisticsRepository();
+    final game = await openDaily(tester, daily: daily, statistics: statistics);
+
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump();
+
+    expect(daily.progress.lastCompletedDateKey, '2026-08-20');
+    expect(statistics.recordCallCount, 0);
   });
 
   testWidgets('Daily Home and completion copy is localized in Turkish', (

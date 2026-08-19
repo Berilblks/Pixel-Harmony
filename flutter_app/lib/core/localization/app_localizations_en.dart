@@ -167,6 +167,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTitle => 'Settings';
 
   @override
+  String get statisticsTitle => 'Statistics';
+
+  @override
+  String get statisticsOverview => 'Overview';
+
+  @override
+  String get statisticsModes => 'Modes';
+
+  @override
+  String get totalPuzzles => 'Total Puzzles';
+
+  @override
+  String get totalMoves => 'Total Moves';
+
+  @override
+  String get currentStreak => 'Current Streak';
+
+  @override
+  String get bestStreak => 'Best Streak';
+
+  @override
+  String get statisticsLoadError => 'Statistics are unavailable right now.';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
   String get soundEffectsLabel => 'Sound Effects';
 
   @override
