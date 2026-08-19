@@ -40,36 +40,35 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
   }
 
+  Future<void> scrollToLazyItem(WidgetTester tester, Finder itemFinder) async {
+    final scrollable =
+        find
+            .descendant(
+              of: find.byKey(const Key('levelSelectGrid')),
+              matching: find.byType(Scrollable),
+            )
+            .first;
+    for (
+      var attempt = 0;
+      attempt < 80 && itemFinder.evaluate().isEmpty;
+      attempt++
+    ) {
+      await tester.drag(scrollable, const Offset(0, -600));
+      await tester.pump();
+    }
+    expect(itemFinder, findsOneWidget);
+  }
+
   Future<void> scrollToLevel(WidgetTester tester, String levelId) async {
     final cardFinder = find.byKey(Key('levelCard_$levelId'));
-    await tester.scrollUntilVisible(
-      cardFinder,
-      260,
-      scrollable:
-          find
-              .descendant(
-                of: find.byKey(const Key('levelSelectGrid')),
-                matching: find.byType(Scrollable),
-              )
-              .first,
-    );
+    await scrollToLazyItem(tester, cardFinder);
     await tester.ensureVisible(cardFinder);
     await tester.pump();
   }
 
   Future<void> scrollToChapter(WidgetTester tester, String chapterId) async {
     final headerFinder = find.byKey(Key('chapterHeader_$chapterId'));
-    await tester.scrollUntilVisible(
-      headerFinder,
-      260,
-      scrollable:
-          find
-              .descendant(
-                of: find.byKey(const Key('levelSelectGrid')),
-                matching: find.byType(Scrollable),
-              )
-              .first,
-    );
+    await scrollToLazyItem(tester, headerFinder);
     await tester.ensureVisible(headerFinder);
     await tester.pump();
   }
@@ -247,8 +246,8 @@ void main() {
       await tester.pump();
       await openLevelSelect(tester, repository: FakeLevelProgressRepository());
       expect(find.byType(LevelSelectScreen), findsOneWidget);
-      await scrollToLevel(tester, 'level_036');
-      expect(find.byKey(const Key('levelCard_level_036')), findsOneWidget);
+      await scrollToLevel(tester, 'level_100');
+      expect(find.byKey(const Key('levelCard_level_100')), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });

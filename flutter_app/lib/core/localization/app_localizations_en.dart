@@ -103,6 +103,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auroraDescription => 'Master the most subtle color transitions.';
 
   @override
+  String get midnightName => 'Midnight';
+
+  @override
+  String get midnightDescription =>
+      'Navigate deep blues and quiet violet light.';
+
+  @override
+  String get blossomName => 'Blossom';
+
+  @override
+  String get blossomDescription =>
+      'Restore a gentle field of petals and blush.';
+
+  @override
+  String get desertName => 'Desert';
+
+  @override
+  String get desertDescription => 'Balance warm sand, amber, and terracotta.';
+
+  @override
+  String get northernLightsName => 'Northern Lights';
+
+  @override
+  String get northernLightsDescription =>
+      'Complete the journey through shifting polar color.';
+
+  @override
   String get chooseLevel => 'Choose a Level';
 
   @override

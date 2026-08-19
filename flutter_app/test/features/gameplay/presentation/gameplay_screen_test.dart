@@ -337,7 +337,7 @@ void main() {
     );
   });
 
-  testWidgets('Level 36 shows final copy and returns to Levels', (
+  testWidgets('Level 36 is an intermediate level with Next Level', (
     tester,
   ) async {
     final repository = FakeLevelProgressRepository(
@@ -347,6 +347,24 @@ void main() {
     );
     await tester.pumpWidget(
       buildApp(repository: repository, initialLevelId: 'level_036'),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await completeCurrentGame(tester);
+
+    expect(find.byKey(const Key('nextLevelButton')), findsOneWidget);
+    expect(find.text('All Levels Complete'), findsNothing);
+  });
+
+  testWidgets('Level 100 shows final copy and returns to Levels', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: {
+        for (final level in LevelCatalog.levels.take(99)) level.id,
+      },
+    );
+    await tester.pumpWidget(
+      buildApp(repository: repository, initialLevelId: 'level_100'),
     );
     await tester.pump(const Duration(seconds: 1));
     await completeCurrentGame(tester);

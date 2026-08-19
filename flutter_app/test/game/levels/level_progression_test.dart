@@ -31,10 +31,10 @@ void main() {
     }
   });
 
-  test('Level 36 requires Level 35 completion', () {
-    expect(progression.isUnlocked('level_036', const {}), isFalse);
-    expect(progression.isUnlocked('level_036', const {'level_034'}), isFalse);
-    expect(progression.isUnlocked('level_036', const {'level_035'}), isTrue);
+  test('Level 100 requires Level 99 completion', () {
+    expect(progression.isUnlocked('level_100', const {}), isFalse);
+    expect(progression.isUnlocked('level_100', const {'level_098'}), isFalse);
+    expect(progression.isUnlocked('level_100', const {'level_099'}), isTrue);
   });
 
   test('completed levels remain playable even with out-of-order progress', () {

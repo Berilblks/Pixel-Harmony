@@ -103,6 +103,34 @@ class AppLocalizationsTr extends AppLocalizations {
   String get auroraDescription => 'En ince renk geçişlerinde ustalaş.';
 
   @override
+  String get midnightName => 'Gece Yarısı';
+
+  @override
+  String get midnightDescription =>
+      'Derin maviler ve sakin mor ışıklar arasında ilerle.';
+
+  @override
+  String get blossomName => 'Çiçeklenme';
+
+  @override
+  String get blossomDescription =>
+      'Yumuşak çiçek ve pembe tonlarının uyumunu yeniden kur.';
+
+  @override
+  String get desertName => 'Çöl';
+
+  @override
+  String get desertDescription =>
+      'Sıcak kum, kehribar ve terakota tonlarını dengele.';
+
+  @override
+  String get northernLightsName => 'Kuzey Işıkları';
+
+  @override
+  String get northernLightsDescription =>
+      'Değişen kutup renkleriyle yolculuğu tamamla.';
+
+  @override
   String get chooseLevel => 'Bir Seviye Seç';
 
   @override

@@ -24,6 +24,20 @@ void main() {
     expect((await restartedRepository.read('level_001'))?.completed, isTrue);
   });
 
+  test(
+    'existing persistence accepts the expanded final Journey level',
+    () async {
+      final dataSource = _FakeLocalDataSource();
+      final repository = LocalLevelProgressRepository(dataSource: dataSource);
+      await repository.markCompleted('level_100');
+
+      final restartedRepository = LocalLevelProgressRepository(
+        dataSource: dataSource,
+      );
+      expect((await restartedRepository.read('level_100'))?.completed, isTrue);
+    },
+  );
+
   test('marking the same level twice is idempotent', () async {
     final dataSource = _FakeLocalDataSource();
     final repository = LocalLevelProgressRepository(dataSource: dataSource);

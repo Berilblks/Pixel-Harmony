@@ -272,6 +272,54 @@ abstract class AppLocalizations {
   /// **'Master the most subtle color transitions.'**
   String get auroraDescription;
 
+  /// No description provided for @midnightName.
+  ///
+  /// In en, this message translates to:
+  /// **'Midnight'**
+  String get midnightName;
+
+  /// No description provided for @midnightDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate deep blues and quiet violet light.'**
+  String get midnightDescription;
+
+  /// No description provided for @blossomName.
+  ///
+  /// In en, this message translates to:
+  /// **'Blossom'**
+  String get blossomName;
+
+  /// No description provided for @blossomDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a gentle field of petals and blush.'**
+  String get blossomDescription;
+
+  /// No description provided for @desertName.
+  ///
+  /// In en, this message translates to:
+  /// **'Desert'**
+  String get desertName;
+
+  /// No description provided for @desertDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance warm sand, amber, and terracotta.'**
+  String get desertDescription;
+
+  /// No description provided for @northernLightsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Northern Lights'**
+  String get northernLightsName;
+
+  /// No description provided for @northernLightsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete the journey through shifting polar color.'**
+  String get northernLightsDescription;
+
   /// No description provided for @chooseLevel.
   ///
   /// In en, this message translates to:

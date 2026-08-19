@@ -24,6 +24,10 @@ String localizedChapterName(
     'sunsetName' => localizations.sunsetName,
     'lavenderName' => localizations.lavenderName,
     'auroraName' => localizations.auroraName,
+    'midnightName' => localizations.midnightName,
+    'blossomName' => localizations.blossomName,
+    'desertName' => localizations.desertName,
+    'northernLightsName' => localizations.northernLightsName,
     _ => throw StateError('Unknown chapter name key: ${chapter.nameKey}'),
   };
 }
@@ -39,6 +43,10 @@ String localizedChapterDescription(
     'sunsetDescription' => localizations.sunsetDescription,
     'lavenderDescription' => localizations.lavenderDescription,
     'auroraDescription' => localizations.auroraDescription,
+    'midnightDescription' => localizations.midnightDescription,
+    'blossomDescription' => localizations.blossomDescription,
+    'desertDescription' => localizations.desertDescription,
+    'northernLightsDescription' => localizations.northernLightsDescription,
     _ =>
       throw StateError(
         'Unknown chapter description key: ${chapter.descriptionKey}',
