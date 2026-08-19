@@ -35,40 +35,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completionContinue => 'Continue';
 
   @override
-  String get level1Label => 'Level 1';
+  String levelLabel(int number) {
+    return 'Level $number';
+  }
 
   @override
-  String get level2Label => 'Level 2';
+  String get calmStartName => 'Calm Start';
 
   @override
-  String get level3Label => 'Level 3';
+  String get calmStartDescription => 'Begin with simple color harmony.';
 
   @override
-  String get level4Label => 'Level 4';
+  String get oceanName => 'Ocean';
 
   @override
-  String get level5Label => 'Level 5';
+  String get oceanDescription => 'Flow through cool blue tones.';
 
   @override
-  String get level6Label => 'Level 6';
+  String get forestName => 'Forest';
 
   @override
-  String get level7Label => 'Level 7';
+  String get forestDescription => 'Balance natural greens.';
 
   @override
-  String get level8Label => 'Level 8';
+  String get sunsetName => 'Sunset';
 
   @override
-  String get level9Label => 'Level 9';
+  String get sunsetDescription => 'Arrange warm fading colors.';
 
   @override
-  String get level10Label => 'Level 10';
+  String get lavenderName => 'Lavender';
 
   @override
-  String get level11Label => 'Level 11';
+  String get lavenderDescription => 'Explore softer violet harmony.';
 
   @override
-  String get level12Label => 'Level 12';
+  String get auroraName => 'Aurora';
+
+  @override
+  String get auroraDescription => 'Master the most subtle color transitions.';
 
   @override
   String get chooseLevel => 'Choose a Level';

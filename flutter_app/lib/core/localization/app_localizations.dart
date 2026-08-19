@@ -146,77 +146,83 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get completionContinue;
 
-  /// No description provided for @level1Label.
+  /// No description provided for @levelLabel.
   ///
   /// In en, this message translates to:
-  /// **'Level 1'**
-  String get level1Label;
+  /// **'Level {number}'**
+  String levelLabel(int number);
 
-  /// No description provided for @level2Label.
+  /// No description provided for @calmStartName.
   ///
   /// In en, this message translates to:
-  /// **'Level 2'**
-  String get level2Label;
+  /// **'Calm Start'**
+  String get calmStartName;
 
-  /// No description provided for @level3Label.
+  /// No description provided for @calmStartDescription.
   ///
   /// In en, this message translates to:
-  /// **'Level 3'**
-  String get level3Label;
+  /// **'Begin with simple color harmony.'**
+  String get calmStartDescription;
 
-  /// No description provided for @level4Label.
+  /// No description provided for @oceanName.
   ///
   /// In en, this message translates to:
-  /// **'Level 4'**
-  String get level4Label;
+  /// **'Ocean'**
+  String get oceanName;
 
-  /// No description provided for @level5Label.
+  /// No description provided for @oceanDescription.
   ///
   /// In en, this message translates to:
-  /// **'Level 5'**
-  String get level5Label;
+  /// **'Flow through cool blue tones.'**
+  String get oceanDescription;
 
-  /// No description provided for @level6Label.
+  /// No description provided for @forestName.
   ///
   /// In en, this message translates to:
-  /// **'Level 6'**
-  String get level6Label;
+  /// **'Forest'**
+  String get forestName;
 
-  /// No description provided for @level7Label.
+  /// No description provided for @forestDescription.
   ///
   /// In en, this message translates to:
-  /// **'Level 7'**
-  String get level7Label;
+  /// **'Balance natural greens.'**
+  String get forestDescription;
 
-  /// No description provided for @level8Label.
+  /// No description provided for @sunsetName.
   ///
   /// In en, this message translates to:
-  /// **'Level 8'**
-  String get level8Label;
+  /// **'Sunset'**
+  String get sunsetName;
 
-  /// No description provided for @level9Label.
+  /// No description provided for @sunsetDescription.
   ///
   /// In en, this message translates to:
-  /// **'Level 9'**
-  String get level9Label;
+  /// **'Arrange warm fading colors.'**
+  String get sunsetDescription;
 
-  /// No description provided for @level10Label.
+  /// No description provided for @lavenderName.
   ///
   /// In en, this message translates to:
-  /// **'Level 10'**
-  String get level10Label;
+  /// **'Lavender'**
+  String get lavenderName;
 
-  /// No description provided for @level11Label.
+  /// No description provided for @lavenderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Level 11'**
-  String get level11Label;
+  /// **'Explore softer violet harmony.'**
+  String get lavenderDescription;
 
-  /// No description provided for @level12Label.
+  /// No description provided for @auroraName.
   ///
   /// In en, this message translates to:
-  /// **'Level 12'**
-  String get level12Label;
+  /// **'Aurora'**
+  String get auroraName;
+
+  /// No description provided for @auroraDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Master the most subtle color transitions.'**
+  String get auroraDescription;
 
   /// No description provided for @chooseLevel.
   ///

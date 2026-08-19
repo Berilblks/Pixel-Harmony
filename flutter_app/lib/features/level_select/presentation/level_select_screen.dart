@@ -49,7 +49,7 @@ class LevelSelectScreen extends ConsumerWidget {
                   _ => 1,
                 };
 
-                return GridView.builder(
+                return ListView(
                   key: const Key('levelSelectGrid'),
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.md,
@@ -57,40 +57,101 @@ class LevelSelectScreen extends ConsumerWidget {
                     AppSpacing.md,
                     AppSpacing.xl,
                   ),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columnCount,
-                    mainAxisExtent: 180,
-                    mainAxisSpacing: AppSpacing.md,
-                    crossAxisSpacing: AppSpacing.md,
-                  ),
-                  itemCount: LevelCatalog.levels.length,
-                  itemBuilder: (context, index) {
-                    final level = LevelCatalog.levels[index];
-                    final completed = completedLevelIds.contains(level.id);
-                    final unlocked = progression.isUnlocked(
-                      level.id,
-                      completedLevelIds,
-                    );
-                    return _LevelCard(
-                      level: level,
-                      label: localizedLevelName(localizations, level),
-                      boardSizeLabel: localizations.boardSizeLabel,
-                      completedLabel: localizations.completedLabel,
-                      lockedLabel: localizations.lockedLabel,
-                      completed: completed,
-                      unlocked: unlocked,
-                      onTap:
-                          unlocked
-                              ? () => context.pushNamed(
-                                AppRoutes.gameplay,
-                                pathParameters: {'levelId': level.id},
-                              )
-                              : null,
-                    );
-                  },
+                  children: [
+                    for (final chapter in LevelCatalog.chapters) ...[
+                      _ChapterHeader(
+                        key: Key('chapterHeader_${chapter.id}'),
+                        title: localizedChapterName(localizations, chapter),
+                        description: localizedChapterDescription(
+                          localizations,
+                          chapter,
+                        ),
+                        muted:
+                            !progression.isUnlocked(
+                              chapter.levelIds.first,
+                              completedLevelIds,
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      GridView.builder(
+                        key: Key('chapterGrid_${chapter.id}'),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columnCount,
+                          mainAxisExtent: 180,
+                          mainAxisSpacing: AppSpacing.md,
+                          crossAxisSpacing: AppSpacing.md,
+                        ),
+                        itemCount: chapter.levelIds.length,
+                        itemBuilder: (context, index) {
+                          final level = LevelCatalog.byId(
+                            chapter.levelIds[index],
+                          );
+                          final completed = completedLevelIds.contains(
+                            level.id,
+                          );
+                          final unlocked = progression.isUnlocked(
+                            level.id,
+                            completedLevelIds,
+                          );
+                          return _LevelCard(
+                            level: level,
+                            label: localizedLevelName(localizations, level),
+                            boardSizeLabel: localizations.boardSizeLabel,
+                            completedLabel: localizations.completedLabel,
+                            lockedLabel: localizations.lockedLabel,
+                            completed: completed,
+                            unlocked: unlocked,
+                            onTap:
+                                unlocked
+                                    ? () => context.pushNamed(
+                                      AppRoutes.gameplay,
+                                      pathParameters: {'levelId': level.id},
+                                    )
+                                    : null,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
+                  ],
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChapterHeader extends StatelessWidget {
+  const _ChapterHeader({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.muted,
+  });
+
+  final String title;
+  final String description;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: muted ? 0.58 : 1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            description,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppPalette.mutedInk),
           ),
         ],
       ),

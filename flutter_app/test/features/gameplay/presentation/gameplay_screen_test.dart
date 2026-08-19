@@ -337,16 +337,16 @@ void main() {
     );
   });
 
-  testWidgets('Level 12 shows final copy and returns to Levels', (
+  testWidgets('Level 36 shows final copy and returns to Levels', (
     tester,
   ) async {
     final repository = FakeLevelProgressRepository(
       completedLevelIds: {
-        for (final level in LevelCatalog.levels.take(11)) level.id,
+        for (final level in LevelCatalog.levels.take(35)) level.id,
       },
     );
     await tester.pumpWidget(
-      buildApp(repository: repository, initialLevelId: 'level_012'),
+      buildApp(repository: repository, initialLevelId: 'level_036'),
     );
     await tester.pump(const Duration(seconds: 1));
     await completeCurrentGame(tester);

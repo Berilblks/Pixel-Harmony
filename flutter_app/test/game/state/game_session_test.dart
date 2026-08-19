@@ -10,8 +10,11 @@ void main() {
   }) {
     return LevelDefinition(
       id: 'test_level',
+      number: 1,
       nameKey: 'testLevel',
       boardSize: 2,
+      difficulty: LevelDifficulty.tutorial,
+      difficultyScore: 5,
       tiles: const [
         LevelTileDefinition(id: 'a', colorValue: 0xFF000001),
         LevelTileDefinition(id: 'b', colorValue: 0xFF000002),

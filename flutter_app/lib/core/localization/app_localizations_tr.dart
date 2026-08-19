@@ -35,40 +35,45 @@ class AppLocalizationsTr extends AppLocalizations {
   String get completionContinue => 'Devam Et';
 
   @override
-  String get level1Label => 'Seviye 1';
+  String levelLabel(int number) {
+    return 'Seviye $number';
+  }
 
   @override
-  String get level2Label => 'Seviye 2';
+  String get calmStartName => 'Sakin Başlangıç';
 
   @override
-  String get level3Label => 'Seviye 3';
+  String get calmStartDescription => 'Basit renk uyumlarıyla başla.';
 
   @override
-  String get level4Label => 'Seviye 4';
+  String get oceanName => 'Okyanus';
 
   @override
-  String get level5Label => 'Seviye 5';
+  String get oceanDescription => 'Serin mavi tonların akışına katıl.';
 
   @override
-  String get level6Label => 'Seviye 6';
+  String get forestName => 'Orman';
 
   @override
-  String get level7Label => 'Seviye 7';
+  String get forestDescription => 'Doğal yeşilleri dengele.';
 
   @override
-  String get level8Label => 'Seviye 8';
+  String get sunsetName => 'Gün Batımı';
 
   @override
-  String get level9Label => 'Seviye 9';
+  String get sunsetDescription => 'Sıcak ve solgun renkleri düzenle.';
 
   @override
-  String get level10Label => 'Seviye 10';
+  String get lavenderName => 'Lavanta';
 
   @override
-  String get level11Label => 'Seviye 11';
+  String get lavenderDescription => 'Yumuşak mor tonlarının uyumunu keşfet.';
 
   @override
-  String get level12Label => 'Seviye 12';
+  String get auroraName => 'Kutup Işıkları';
+
+  @override
+  String get auroraDescription => 'En ince renk geçişlerinde ustalaş.';
 
   @override
   String get chooseLevel => 'Bir Seviye Seç';

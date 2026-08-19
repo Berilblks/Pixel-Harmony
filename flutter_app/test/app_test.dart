@@ -57,6 +57,23 @@ void main() {
     await tester.pump();
   }
 
+  Future<void> scrollToChapter(WidgetTester tester, String chapterId) async {
+    final headerFinder = find.byKey(Key('chapterHeader_$chapterId'));
+    await tester.scrollUntilVisible(
+      headerFinder,
+      260,
+      scrollable:
+          find
+              .descendant(
+                of: find.byKey(const Key('levelSelectGrid')),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+    );
+    await tester.ensureVisible(headerFinder);
+    await tester.pump();
+  }
+
   testWidgets('Home shows Play without temporary level buttons', (
     tester,
   ) async {
@@ -95,11 +112,15 @@ void main() {
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.text('Choose a Level'), findsOneWidget);
-    for (var index = 0; index < LevelCatalog.levels.length; index++) {
-      final level = LevelCatalog.levels[index];
-      await scrollToLevel(tester, level.id);
-      expect(find.text('Level ${index + 1}'), findsOneWidget);
-      expect(find.byKey(Key('levelBoardSize_${level.id}')), findsOneWidget);
+    for (final chapter in LevelCatalog.chapters) {
+      await scrollToChapter(tester, chapter.id);
+      expect(find.byKey(Key('chapterHeader_${chapter.id}')), findsOneWidget);
+      for (final levelId in chapter.levelIds) {
+        final level = LevelCatalog.byId(levelId);
+        await scrollToLevel(tester, level.id);
+        expect(find.text('Level ${level.number}'), findsOneWidget);
+        expect(find.byKey(Key('levelBoardSize_${level.id}')), findsOneWidget);
+      }
     }
     expect(tester.takeException(), isNull);
   });
@@ -224,8 +245,8 @@ void main() {
       await tester.pump();
       await openLevelSelect(tester, repository: FakeLevelProgressRepository());
       expect(find.byType(LevelSelectScreen), findsOneWidget);
-      await scrollToLevel(tester, 'level_012');
-      expect(find.byKey(const Key('levelCard_level_012')), findsOneWidget);
+      await scrollToLevel(tester, 'level_036');
+      expect(find.byKey(const Key('levelCard_level_036')), findsOneWidget);
       expect(tester.takeException(), isNull);
     }
   });
@@ -240,9 +261,9 @@ void main() {
 
     for (final (levelId, boardSize) in const [
       ('level_001', 2),
-      ('level_003', 3),
-      ('level_007', 4),
-      ('level_012', 5),
+      ('level_005', 3),
+      ('level_013', 4),
+      ('level_025', 5),
     ]) {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
@@ -285,7 +306,9 @@ void main() {
   testWidgets('tapping a locked level does not open Gameplay', (tester) async {
     await openLevelSelect(tester, repository: FakeLevelProgressRepository());
 
-    await tester.tap(find.byKey(const Key('levelCard_level_002')));
+    await scrollToLevel(tester, 'level_007');
+    expect(find.byKey(const Key('levelLocked_level_007')), findsOneWidget);
+    await tester.tap(find.byKey(const Key('levelCard_level_007')));
     await tester.pump(const Duration(milliseconds: 350));
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);

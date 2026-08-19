@@ -11,14 +11,19 @@ void main() {
 
   LevelDefinition createLevel({
     int boardSize = 2,
+    LevelDifficulty difficulty = LevelDifficulty.tutorial,
+    int difficultyScore = 5,
     List<LevelTileDefinition> levelTiles = tiles,
     List<String> initialOrder = const ['b', 'a', 'c', 'd'],
     List<String> solutionOrder = const ['a', 'b', 'c', 'd'],
   }) {
     return LevelDefinition(
       id: 'test_level',
+      number: 1,
       nameKey: 'testLevel',
       boardSize: boardSize,
+      difficulty: difficulty,
+      difficultyScore: difficultyScore,
       tiles: levelTiles,
       initialTileOrder: initialOrder,
       solutionTileOrder: solutionOrder,
@@ -39,6 +44,16 @@ void main() {
   test('wrong tile count and invalid board size are rejected', () {
     expect(() => createLevel(levelTiles: [tiles[0]]), throwsArgumentError);
     expect(() => createLevel(boardSize: 0), throwsArgumentError);
+  });
+
+  test('difficulty score must match its metadata range', () {
+    expect(() => createLevel(difficultyScore: 0), throwsArgumentError);
+    expect(() => createLevel(difficultyScore: 101), throwsArgumentError);
+    expect(
+      () =>
+          createLevel(difficulty: LevelDifficulty.expert, difficultyScore: 50),
+      throwsArgumentError,
+    );
   });
 
   test('invalid initial order is rejected', () {
