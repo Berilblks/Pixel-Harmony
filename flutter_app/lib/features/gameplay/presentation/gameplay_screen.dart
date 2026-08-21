@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
+import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/core/feedback/game_feedback_controller.dart';
 import 'package:pixel_harmony/core/feedback/game_feedback_providers.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
@@ -111,7 +113,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         .read(levelProgressControllerProvider.notifier)
         .markCompleted(level.id);
     if (!persisted) return;
-    await ref
+    final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
           PuzzleCompletionRecord(
@@ -120,6 +122,13 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
             moveCount: state.moveCount,
           ),
         );
+    if (!recorded) return;
+    final statistics = ref.read(playerStatisticsControllerProvider).value;
+    if (statistics == null) return;
+    final newlyUnlocked = await ref
+        .read(achievementControllerProvider.notifier)
+        .evaluateAfterCompletion(statistics);
+    if (mounted) showAchievementUnlockFeedback(context, newlyUnlocked);
   }
 
   @override
@@ -192,6 +201,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(achievementControllerProvider);
     final level = widget.level;
     if (level == null) {
       return _LevelNotFoundView(

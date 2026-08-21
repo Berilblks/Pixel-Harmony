@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/achievements/presentation/achievements_screen.dart';
 import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
@@ -17,11 +18,17 @@ abstract final class AppRoutes {
   static const endless = 'endless';
   static const settings = 'settings';
   static const statistics = 'statistics';
+  static const achievements = 'achievements';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
     routes: [
+      GoRoute(
+        path: '/achievements',
+        name: AppRoutes.achievements,
+        builder: (context, state) => const AchievementsScreen(),
+      ),
       GoRoute(
         path: '/daily',
         name: AppRoutes.daily,

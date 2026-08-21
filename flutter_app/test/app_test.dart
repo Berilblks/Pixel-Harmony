@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/app.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
+import 'package:pixel_harmony/features/achievements/domain/achievement_repository.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_clock.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_progress_repository.dart';
 import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
@@ -23,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'support/fake_level_progress_repository.dart';
 import 'support/fake_player_statistics_repository.dart';
 import 'support/fake_daily_progress_repository.dart';
+import 'support/fake_achievement_repository.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -31,6 +34,7 @@ void main() {
     LevelProgressRepository? repository,
     DailyProgressRepository? dailyRepository,
     PlayerStatisticsRepository? statisticsRepository,
+    AchievementRepository? achievementRepository,
   }) {
     return ProviderScope(
       overrides: [
@@ -42,6 +46,9 @@ void main() {
           playerStatisticsRepositoryProvider.overrideWithValue(
             statisticsRepository,
           ),
+        achievementRepositoryProvider.overrideWithValue(
+          achievementRepository ?? FakeAchievementRepository(),
+        ),
         dailyClockProvider.overrideWithValue(
           _FixedDailyClock(DateTime(2026, 8, 19, 12)),
         ),
@@ -422,14 +429,17 @@ void main() {
     final repository = FakeLevelProgressRepository();
     final dailyRepository = FakeDailyProgressRepository();
     final statisticsRepository = FakePlayerStatisticsRepository();
+    final achievementRepository = FakeAchievementRepository();
     await tester.pumpWidget(
       buildApp(
         repository: repository,
         dailyRepository: dailyRepository,
         statisticsRepository: statisticsRepository,
+        achievementRepository: achievementRepository,
       ),
     );
     await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
     await tester.tap(find.byKey(const Key('homePlayButton')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
@@ -443,12 +453,14 @@ void main() {
     final game = gameWidget.game!;
     game.onCompleted!(game.session.boardState.withCompleted(true));
     game.onCompleted!(game.session.boardState.withCompleted(true));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(repository.completedLevelIds, contains('level_001'));
     expect(dailyRepository.completeCallCount, 0);
     expect(statisticsRepository.statistics.journeyPuzzlesCompleted, 1);
     expect(statisticsRepository.statistics.totalPuzzlesCompleted, 1);
+    expect(achievementRepository.unlocked, contains('first_harmony'));
+    expect(find.byKey(const Key('achievementUnlockFeedback')), findsOneWidget);
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('completionBackToLevelsButton')));
@@ -464,10 +476,12 @@ void main() {
     tester,
   ) async {
     final journey = FakeLevelProgressRepository();
+    final achievements = FakeAchievementRepository();
     await tester.pumpWidget(
       buildApp(
         repository: journey,
         statisticsRepository: FakePlayerStatisticsRepository(failWrites: true),
+        achievementRepository: achievements,
       ),
     );
     await tester.pump();
@@ -484,6 +498,37 @@ void main() {
 
     game.onCompleted!(game.session.boardState.withCompleted(true));
     await tester.pump();
+
+    expect(journey.completedLevelIds, contains('level_001'));
+    expect(achievements.unlocked, isEmpty);
+    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
+  });
+
+  testWidgets('achievement failure does not block Journey progression', (
+    tester,
+  ) async {
+    final journey = FakeLevelProgressRepository();
+    await tester.pumpWidget(
+      buildApp(
+        repository: journey,
+        statisticsRepository: FakePlayerStatisticsRepository(),
+        achievementRepository: FakeAchievementRepository(failWrites: true),
+      ),
+    );
+    await tester.pump();
+    final context = tester.element(find.byType(HomeScreen));
+    GoRouter.of(context).go('/gameplay/level_001');
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    final game =
+        tester
+            .widget<GameWidget<PixelHarmonyGame>>(
+              find.byType(GameWidget<PixelHarmonyGame>),
+            )
+            .game!;
+
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(journey.completedLevelIds, contains('level_001'));
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);

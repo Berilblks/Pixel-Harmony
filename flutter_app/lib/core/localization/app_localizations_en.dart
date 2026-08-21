@@ -170,6 +170,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statisticsTitle => 'Statistics';
 
   @override
+  String get achievementsTitle => 'Achievements';
+
+  @override
+  String get unlockedLabel => 'Unlocked';
+
+  @override
+  String get achievementProgressLabel => 'Progress';
+
+  @override
+  String get achievementsLoadError => 'Achievements are unavailable right now.';
+
+  @override
+  String achievementProgress(int current, int target) {
+    return '$current / $target';
+  }
+
+  @override
+  String achievementProgressDays(int current, int target) {
+    return '$current / $target days';
+  }
+
+  @override
+  String get achievementUnlocked => 'Achievement Unlocked';
+
+  @override
+  String achievementUnlockedMultiple(String title, int count) {
+    return 'Achievement Unlocked: $title (+$count more)';
+  }
+
+  @override
+  String get achievementFirstHarmonyTitle => 'First Harmony';
+
+  @override
+  String get achievementFirstHarmonyDescription =>
+      'Complete your first puzzle.';
+
+  @override
+  String get achievementTenHarmoniesTitle => 'Ten Harmonies';
+
+  @override
+  String get achievementTenHarmoniesDescription => 'Complete 10 puzzles.';
+
+  @override
+  String get achievementHundredHarmoniesTitle => 'Hundred Harmonies';
+
+  @override
+  String get achievementHundredHarmoniesDescription => 'Complete 100 puzzles.';
+
+  @override
+  String get achievementJourneyBeginsTitle => 'Journey Begins';
+
+  @override
+  String get achievementJourneyBeginsDescription =>
+      'Complete 10 Journey levels.';
+
+  @override
+  String get achievementHalfwayThereTitle => 'Halfway There';
+
+  @override
+  String get achievementHalfwayThereDescription =>
+      'Complete 50 Journey levels.';
+
+  @override
+  String get achievementJourneyCompleteTitle => 'Journey Complete';
+
+  @override
+  String get achievementJourneyCompleteDescription =>
+      'Complete all 100 Journey levels.';
+
+  @override
+  String get achievementEndlessExplorerTitle => 'Endless Explorer';
+
+  @override
+  String get achievementEndlessExplorerDescription =>
+      'Complete 10 Endless puzzles.';
+
+  @override
+  String get achievementEndlessWandererTitle => 'Endless Wanderer';
+
+  @override
+  String get achievementEndlessWandererDescription =>
+      'Complete 50 Endless puzzles.';
+
+  @override
+  String get achievementEndlessDevotionTitle => 'Endless Devotion';
+
+  @override
+  String get achievementEndlessDevotionDescription =>
+      'Complete 100 Endless puzzles.';
+
+  @override
+  String get achievementDailyRhythmTitle => 'Daily Rhythm';
+
+  @override
+  String get achievementDailyRhythmDescription => 'Reach a 7-day Daily streak.';
+
+  @override
+  String get achievementDailyDevotionTitle => 'Daily Devotion';
+
+  @override
+  String get achievementDailyDevotionDescription =>
+      'Complete 30 Daily puzzles.';
+
+  @override
+  String get achievementChapterMasterTitle => 'Chapter Master';
+
+  @override
+  String get achievementChapterMasterDescription =>
+      'Complete every level in one chapter.';
+
+  @override
+  String get achievementPerfectJourneyTitle => 'Perfect Journey';
+
+  @override
+  String get achievementPerfectJourneyDescription =>
+      'Complete all 10 Journey chapters.';
+
+  @override
+  String get achievementThousandMovesTitle => 'A Thousand Moves';
+
+  @override
+  String get achievementThousandMovesDescription =>
+      'Make 1,000 moves in completed puzzles.';
+
+  @override
   String get statisticsOverview => 'Overview';
 
   @override

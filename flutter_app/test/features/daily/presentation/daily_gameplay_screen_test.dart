@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_clock.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_progress.dart';
@@ -13,6 +14,7 @@ import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_daily_progress_repository.dart';
+import '../../../support/fake_achievement_repository.dart';
 import '../../../support/fake_endless_progress_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
 import '../../../support/fake_player_statistics_repository.dart';
@@ -25,6 +27,7 @@ void main() {
     FakeLevelProgressRepository? journey,
     FakeEndlessProgressRepository? endless,
     FakePlayerStatisticsRepository? statistics,
+    FakeAchievementRepository? achievements,
   }) {
     return ProviderScope(
       overrides: [
@@ -41,6 +44,9 @@ void main() {
         playerStatisticsRepositoryProvider.overrideWithValue(
           statistics ?? FakePlayerStatisticsRepository(),
         ),
+        achievementRepositoryProvider.overrideWithValue(
+          achievements ?? FakeAchievementRepository(),
+        ),
       ],
       child: const PixelHarmonyApp(),
     );
@@ -52,6 +58,7 @@ void main() {
     FakeLevelProgressRepository? journey,
     FakeEndlessProgressRepository? endless,
     FakePlayerStatisticsRepository? statistics,
+    FakeAchievementRepository? achievements,
   }) async {
     await tester.pumpWidget(
       buildApp(
@@ -59,6 +66,7 @@ void main() {
         journey: journey,
         endless: endless,
         statistics: statistics,
+        achievements: achievements,
       ),
     );
     await tester.pump();
@@ -79,18 +87,20 @@ void main() {
     final journey = FakeLevelProgressRepository();
     final endless = FakeEndlessProgressRepository();
     final statistics = FakePlayerStatisticsRepository();
+    final achievements = FakeAchievementRepository();
     final game = await openDaily(
       tester,
       daily: daily,
       journey: journey,
       endless: endless,
       statistics: statistics,
+      achievements: achievements,
     );
 
     final completed = game.session.boardState.withCompleted(true);
     game.onCompleted!(completed);
     game.onCompleted!(completed);
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(daily.completeCallCount, 1);
     expect(daily.progress.currentStreak, 1);
@@ -100,6 +110,8 @@ void main() {
     expect(endless.progress.completedPuzzleCount, 0);
     expect(statistics.statistics.dailyPuzzlesCompleted, 1);
     expect(statistics.statistics.currentDailyStreak, 1);
+    expect(achievements.unlocked, contains('first_harmony'));
+    expect(find.byKey(const Key('achievementUnlockFeedback')), findsOneWidget);
   });
 
   testWidgets('persistence failure keeps completion overlay usable', (

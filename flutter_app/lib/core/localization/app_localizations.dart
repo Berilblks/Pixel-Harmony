@@ -398,6 +398,222 @@ abstract class AppLocalizations {
   /// **'Statistics'**
   String get statisticsTitle;
 
+  /// No description provided for @achievementsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get achievementsTitle;
+
+  /// No description provided for @unlockedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked'**
+  String get unlockedLabel;
+
+  /// No description provided for @achievementProgressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get achievementProgressLabel;
+
+  /// No description provided for @achievementsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements are unavailable right now.'**
+  String get achievementsLoadError;
+
+  /// No description provided for @achievementProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {target}'**
+  String achievementProgress(int current, int target);
+
+  /// No description provided for @achievementProgressDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} / {target} days'**
+  String achievementProgressDays(int current, int target);
+
+  /// No description provided for @achievementUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Unlocked'**
+  String get achievementUnlocked;
+
+  /// No description provided for @achievementUnlockedMultiple.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement Unlocked: {title} (+{count} more)'**
+  String achievementUnlockedMultiple(String title, int count);
+
+  /// No description provided for @achievementFirstHarmonyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'First Harmony'**
+  String get achievementFirstHarmonyTitle;
+
+  /// No description provided for @achievementFirstHarmonyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your first puzzle.'**
+  String get achievementFirstHarmonyDescription;
+
+  /// No description provided for @achievementTenHarmoniesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Ten Harmonies'**
+  String get achievementTenHarmoniesTitle;
+
+  /// No description provided for @achievementTenHarmoniesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 puzzles.'**
+  String get achievementTenHarmoniesDescription;
+
+  /// No description provided for @achievementHundredHarmoniesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hundred Harmonies'**
+  String get achievementHundredHarmoniesTitle;
+
+  /// No description provided for @achievementHundredHarmoniesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 100 puzzles.'**
+  String get achievementHundredHarmoniesDescription;
+
+  /// No description provided for @achievementJourneyBeginsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey Begins'**
+  String get achievementJourneyBeginsTitle;
+
+  /// No description provided for @achievementJourneyBeginsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 Journey levels.'**
+  String get achievementJourneyBeginsDescription;
+
+  /// No description provided for @achievementHalfwayThereTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Halfway There'**
+  String get achievementHalfwayThereTitle;
+
+  /// No description provided for @achievementHalfwayThereDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 50 Journey levels.'**
+  String get achievementHalfwayThereDescription;
+
+  /// No description provided for @achievementJourneyCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey Complete'**
+  String get achievementJourneyCompleteTitle;
+
+  /// No description provided for @achievementJourneyCompleteDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete all 100 Journey levels.'**
+  String get achievementJourneyCompleteDescription;
+
+  /// No description provided for @achievementEndlessExplorerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Endless Explorer'**
+  String get achievementEndlessExplorerTitle;
+
+  /// No description provided for @achievementEndlessExplorerDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 10 Endless puzzles.'**
+  String get achievementEndlessExplorerDescription;
+
+  /// No description provided for @achievementEndlessWandererTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Endless Wanderer'**
+  String get achievementEndlessWandererTitle;
+
+  /// No description provided for @achievementEndlessWandererDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 50 Endless puzzles.'**
+  String get achievementEndlessWandererDescription;
+
+  /// No description provided for @achievementEndlessDevotionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Endless Devotion'**
+  String get achievementEndlessDevotionTitle;
+
+  /// No description provided for @achievementEndlessDevotionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 100 Endless puzzles.'**
+  String get achievementEndlessDevotionDescription;
+
+  /// No description provided for @achievementDailyRhythmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Rhythm'**
+  String get achievementDailyRhythmTitle;
+
+  /// No description provided for @achievementDailyRhythmDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach a 7-day Daily streak.'**
+  String get achievementDailyRhythmDescription;
+
+  /// No description provided for @achievementDailyDevotionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Devotion'**
+  String get achievementDailyDevotionTitle;
+
+  /// No description provided for @achievementDailyDevotionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 30 Daily puzzles.'**
+  String get achievementDailyDevotionDescription;
+
+  /// No description provided for @achievementChapterMasterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter Master'**
+  String get achievementChapterMasterTitle;
+
+  /// No description provided for @achievementChapterMasterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete every level in one chapter.'**
+  String get achievementChapterMasterDescription;
+
+  /// No description provided for @achievementPerfectJourneyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Perfect Journey'**
+  String get achievementPerfectJourneyTitle;
+
+  /// No description provided for @achievementPerfectJourneyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete all 10 Journey chapters.'**
+  String get achievementPerfectJourneyDescription;
+
+  /// No description provided for @achievementThousandMovesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A Thousand Moves'**
+  String get achievementThousandMovesTitle;
+
+  /// No description provided for @achievementThousandMovesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Make 1,000 moves in completed puzzles.'**
+  String get achievementThousandMovesDescription;
+
   /// No description provided for @statisticsOverview.
   ///
   /// In en, this message translates to:

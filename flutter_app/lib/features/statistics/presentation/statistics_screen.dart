@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
 import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart';
 
@@ -13,7 +15,18 @@ class StatisticsScreen extends ConsumerWidget {
     final localizations = AppLocalizations.of(context);
     final state = ref.watch(playerStatisticsControllerProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(localizations.statisticsTitle)),
+      appBar: AppBar(
+        title: Text(localizations.statisticsTitle),
+        actions: [
+          IconButton(
+            key: const Key('statisticsAchievementsButton'),
+            tooltip: localizations.achievementsTitle,
+            onPressed: () => context.pushNamed(AppRoutes.achievements),
+            icon: const Icon(Icons.emoji_events_outlined),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ),
       body: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error:

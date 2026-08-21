@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
+import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
@@ -32,7 +34,7 @@ class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
     await ref
         .read(endlessProgressControllerProvider.notifier)
         .advance(progress);
-    await ref
+    final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
           PuzzleCompletionRecord(
@@ -41,6 +43,13 @@ class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
             moveCount: state.moveCount,
           ),
         );
+    if (!recorded) return;
+    final statistics = ref.read(playerStatisticsControllerProvider).value;
+    if (statistics == null) return;
+    final newlyUnlocked = await ref
+        .read(achievementControllerProvider.notifier)
+        .evaluateAfterCompletion(statistics);
+    if (mounted) showAchievementUnlockFeedback(context, newlyUnlocked);
   }
 
   void _showNextPuzzle() {

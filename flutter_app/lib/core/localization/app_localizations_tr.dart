@@ -171,6 +171,130 @@ class AppLocalizationsTr extends AppLocalizations {
   String get statisticsTitle => 'İstatistikler';
 
   @override
+  String get achievementsTitle => 'Başarımlar';
+
+  @override
+  String get unlockedLabel => 'Açıldı';
+
+  @override
+  String get achievementProgressLabel => 'İlerleme';
+
+  @override
+  String get achievementsLoadError => 'Başarımlara şu anda ulaşılamıyor.';
+
+  @override
+  String achievementProgress(int current, int target) {
+    return '$current / $target';
+  }
+
+  @override
+  String achievementProgressDays(int current, int target) {
+    return '$current / $target gün';
+  }
+
+  @override
+  String get achievementUnlocked => 'Başarım Açıldı';
+
+  @override
+  String achievementUnlockedMultiple(String title, int count) {
+    return 'Başarım Açıldı: $title (+$count tane daha)';
+  }
+
+  @override
+  String get achievementFirstHarmonyTitle => 'İlk Uyum';
+
+  @override
+  String get achievementFirstHarmonyDescription => 'İlk bulmacanı tamamla.';
+
+  @override
+  String get achievementTenHarmoniesTitle => 'On Uyum';
+
+  @override
+  String get achievementTenHarmoniesDescription => '10 bulmaca tamamla.';
+
+  @override
+  String get achievementHundredHarmoniesTitle => 'Yüz Uyum';
+
+  @override
+  String get achievementHundredHarmoniesDescription => '100 bulmaca tamamla.';
+
+  @override
+  String get achievementJourneyBeginsTitle => 'Yolculuk Başlıyor';
+
+  @override
+  String get achievementJourneyBeginsDescription =>
+      '10 Yolculuk seviyesi tamamla.';
+
+  @override
+  String get achievementHalfwayThereTitle => 'Yolun Yarısı';
+
+  @override
+  String get achievementHalfwayThereDescription =>
+      '50 Yolculuk seviyesi tamamla.';
+
+  @override
+  String get achievementJourneyCompleteTitle => 'Yolculuk Tamamlandı';
+
+  @override
+  String get achievementJourneyCompleteDescription =>
+      '100 Yolculuk seviyesinin tamamını bitir.';
+
+  @override
+  String get achievementEndlessExplorerTitle => 'Sonsuz Kâşif';
+
+  @override
+  String get achievementEndlessExplorerDescription =>
+      '10 Sonsuz bulmaca tamamla.';
+
+  @override
+  String get achievementEndlessWandererTitle => 'Sonsuz Gezgin';
+
+  @override
+  String get achievementEndlessWandererDescription =>
+      '50 Sonsuz bulmaca tamamla.';
+
+  @override
+  String get achievementEndlessDevotionTitle => 'Sonsuz Bağlılık';
+
+  @override
+  String get achievementEndlessDevotionDescription =>
+      '100 Sonsuz bulmaca tamamla.';
+
+  @override
+  String get achievementDailyRhythmTitle => 'Günlük Ritim';
+
+  @override
+  String get achievementDailyRhythmDescription => '7 günlük seri yakala.';
+
+  @override
+  String get achievementDailyDevotionTitle => 'Günlük Bağlılık';
+
+  @override
+  String get achievementDailyDevotionDescription =>
+      '30 Günlük bulmaca tamamla.';
+
+  @override
+  String get achievementChapterMasterTitle => 'Bölüm Ustası';
+
+  @override
+  String get achievementChapterMasterDescription =>
+      'Bir bölümdeki tüm seviyeleri tamamla.';
+
+  @override
+  String get achievementPerfectJourneyTitle => 'Kusursuz Yolculuk';
+
+  @override
+  String get achievementPerfectJourneyDescription =>
+      '10 Yolculuk bölümünün tamamını bitir.';
+
+  @override
+  String get achievementThousandMovesTitle => 'Bin Hamle';
+
+  @override
+  String get achievementThousandMovesDescription =>
+      'Tamamlanan bulmacalarda 1.000 hamle yap.';
+
+  @override
   String get statisticsOverview => 'Genel Bakış';
 
   @override

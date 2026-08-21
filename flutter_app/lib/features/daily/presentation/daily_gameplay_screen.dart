@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
+import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/daily/domain/daily_puzzle_identity.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
@@ -55,7 +57,7 @@ class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
         .read(dailyProgressControllerProvider.notifier)
         .complete(_identity.dateKey);
     if (progress == null || !progress.isCompleted(_identity.dateKey)) return;
-    await ref
+    final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
           PuzzleCompletionRecord(
@@ -66,6 +68,13 @@ class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
             bestDailyStreak: progress.longestStreak,
           ),
         );
+    if (!recorded) return;
+    final statistics = ref.read(playerStatisticsControllerProvider).value;
+    if (statistics == null) return;
+    final newlyUnlocked = await ref
+        .read(achievementControllerProvider.notifier)
+        .evaluateAfterCompletion(statistics);
+    if (mounted) showAchievementUnlockFeedback(context, newlyUnlocked);
   }
 
   LevelDefinition _generateLevel() {

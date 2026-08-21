@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
@@ -14,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_endless_progress_repository.dart';
 import '../../../support/fake_daily_progress_repository.dart';
+import '../../../support/fake_achievement_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
 import '../../../support/fake_player_statistics_repository.dart';
 
@@ -25,6 +27,7 @@ void main() {
     FakeLevelProgressRepository? journeyRepository,
     FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
+    FakeAchievementRepository? achievementRepository,
   }) {
     return ProviderScope(
       overrides: [
@@ -38,6 +41,9 @@ void main() {
         playerStatisticsRepositoryProvider.overrideWithValue(
           statisticsRepository ?? FakePlayerStatisticsRepository(),
         ),
+        achievementRepositoryProvider.overrideWithValue(
+          achievementRepository ?? FakeAchievementRepository(),
+        ),
       ],
       child: const PixelHarmonyApp(),
     );
@@ -49,6 +55,7 @@ void main() {
     FakeLevelProgressRepository? journeyRepository,
     FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
+    FakeAchievementRepository? achievementRepository,
   }) async {
     await tester.pumpWidget(
       buildApp(
@@ -56,6 +63,7 @@ void main() {
         journeyRepository: journeyRepository,
         dailyRepository: dailyRepository,
         statisticsRepository: statisticsRepository,
+        achievementRepository: achievementRepository,
       ),
     );
     await tester.pump();
@@ -95,7 +103,13 @@ void main() {
   ) async {
     final repository = FakeEndlessProgressRepository();
     final statistics = FakePlayerStatisticsRepository();
-    await openEndless(tester, repository, statisticsRepository: statistics);
+    final achievements = FakeAchievementRepository();
+    await openEndless(
+      tester,
+      repository,
+      statisticsRepository: statistics,
+      achievementRepository: achievements,
+    );
 
     expect(find.byType(EndlessGameplayScreen), findsOneWidget);
     expect(find.text('Puzzle 1'), findsOneWidget);
@@ -124,7 +138,13 @@ void main() {
   ) async {
     final repository = FakeEndlessProgressRepository();
     final statistics = FakePlayerStatisticsRepository();
-    await openEndless(tester, repository, statisticsRepository: statistics);
+    final achievements = FakeAchievementRepository();
+    await openEndless(
+      tester,
+      repository,
+      statisticsRepository: statistics,
+      achievementRepository: achievements,
+    );
     final firstSeed = repository.progress.currentSeed;
 
     await complete(tester);
@@ -136,6 +156,8 @@ void main() {
     expect(repository.advanceCallCount, 1);
     expect(statistics.statistics.endlessPuzzlesCompleted, 1);
     expect(statistics.statistics.totalPuzzlesCompleted, 1);
+    expect(achievements.unlocked, contains('first_harmony'));
+    expect(find.byKey(const Key('achievementUnlockFeedback')), findsOneWidget);
     expect(repository.progress.completedPuzzleCount, 1);
     expect(repository.progress.currentSeed, isNot(firstSeed));
     expect(find.byKey(const Key('nextPuzzleButton')), findsOneWidget);
