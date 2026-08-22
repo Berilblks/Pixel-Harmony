@@ -370,6 +370,20 @@ void main() {
     expect(find.byKey(const Key('levelLocked_level_003')), findsOneWidget);
   });
 
+  testWidgets('Level Select marks a completed chapter without changing locks', (
+    tester,
+  ) async {
+    await openLevelSelect(
+      tester,
+      repository: FakeLevelProgressRepository(
+        completedLevelIds: LevelCatalog.chapters.first.levelIds.toSet(),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('chapterCompletedIndicator')), findsOneWidget);
+  });
+
   testWidgets('tapping a locked level does not open Gameplay', (tester) async {
     await openLevelSelect(tester, repository: FakeLevelProgressRepository());
 

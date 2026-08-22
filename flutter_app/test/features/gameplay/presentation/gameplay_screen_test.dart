@@ -316,6 +316,99 @@ void main() {
     expect(screen.level?.id, 'level_006');
   });
 
+  testWidgets('completing Level 10 shows Calm Start chapter feedback', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 640);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: {
+        for (final level in LevelCatalog.levels.take(9)) level.id,
+      },
+    );
+    await tester.pumpWidget(
+      buildApp(repository: repository, initialLevelId: 'level_010'),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await completeCurrentGame(tester);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Chapter Complete'), findsOneWidget);
+    expect(find.text('Calm Start'), findsOneWidget);
+    expect(find.text('A new harmony awaits.'), findsOneWidget);
+    expect(find.byKey(const Key('chapterPaletteAccent')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const Key('nextLevelButton')));
+    await tester.pump(const Duration(seconds: 1));
+    expect(
+      tester.widget<GameplayScreen>(find.byType(GameplayScreen)).level?.id,
+      'level_011',
+    );
+  });
+
+  testWidgets('a non-final chapter level keeps normal completion feedback', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: {
+        for (final level in LevelCatalog.levels.take(8)) level.id,
+      },
+    );
+    await tester.pumpWidget(
+      buildApp(repository: repository, initialLevelId: 'level_009'),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await completeCurrentGame(tester);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Harmony Restored'), findsOneWidget);
+    expect(find.text('Chapter Complete'), findsNothing);
+  });
+
+  testWidgets('replaying Level 10 does not repeat chapter feedback', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: LevelCatalog.chapters.first.levelIds.toSet(),
+    );
+    await tester.pumpWidget(
+      buildApp(repository: repository, initialLevelId: 'level_010'),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await completeCurrentGame(tester);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Harmony Restored'), findsOneWidget);
+    expect(find.text('Chapter Complete'), findsNothing);
+  });
+
+  testWidgets('chapter completion feedback is localized in Turkish', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: {
+        for (final level in LevelCatalog.levels.take(9)) level.id,
+      },
+    );
+    await tester.pumpWidget(
+      buildApp(
+        repository: repository,
+        initialLevelId: 'level_010',
+        locale: const Locale('tr'),
+      ),
+    );
+    await tester.pump(const Duration(seconds: 1));
+    await completeCurrentGame(tester);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Bölüm Tamamlandı'), findsOneWidget);
+    expect(find.text('Sakin Başlangıç'), findsOneWidget);
+    expect(find.text('Yeni bir uyum seni bekliyor.'), findsOneWidget);
+  });
+
   testWidgets('Next Level waits for completion persistence', (tester) async {
     final repository = _DelayedProgressRepository();
     await tester.pumpWidget(buildApp(repository: repository));
@@ -372,6 +465,7 @@ void main() {
     expect(find.byKey(const Key('nextLevelButton')), findsNothing);
     expect(find.text('All Levels Complete'), findsOneWidget);
     expect(find.text('You restored every harmony.'), findsOneWidget);
+    expect(find.text('Chapter Complete'), findsNothing);
 
     await tester.tap(find.byKey(const Key('finalBackToLevelsButton')));
     await tester.pump();

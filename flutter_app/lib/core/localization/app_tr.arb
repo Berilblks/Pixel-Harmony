@@ -116,5 +116,7 @@
   "hint": "İpucu",
   "nextLevel": "Sonraki Seviye",
   "allLevelsCompleteTitle": "Tüm Seviyeler Tamamlandı",
-  "allLevelsCompleteSubtitle": "Tüm uyumları yeniden oluşturdun."
+  "allLevelsCompleteSubtitle": "Tüm uyumları yeniden oluşturdun.",
+  "chapterCompleteTitle": "Bölüm Tamamlandı",
+  "chapterCompleteSubtitle": "Yeni bir uyum seni bekliyor."
 }

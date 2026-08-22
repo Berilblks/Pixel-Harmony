@@ -116,5 +116,7 @@
   "hint": "Hint",
   "nextLevel": "Next Level",
   "allLevelsCompleteTitle": "All Levels Complete",
-  "allLevelsCompleteSubtitle": "You restored every harmony."
+  "allLevelsCompleteSubtitle": "You restored every harmony.",
+  "chapterCompleteTitle": "Chapter Complete",
+  "chapterCompleteSubtitle": "A new harmony awaits."
 }

@@ -338,4 +338,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get allLevelsCompleteSubtitle => 'Tüm uyumları yeniden oluşturdun.';
+
+  @override
+  String get chapterCompleteTitle => 'Bölüm Tamamlandı';
+
+  @override
+  String get chapterCompleteSubtitle => 'Yeni bir uyum seni bekliyor.';
 }

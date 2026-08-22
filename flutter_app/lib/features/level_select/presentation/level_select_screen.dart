@@ -6,6 +6,7 @@ import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/localization/level_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
+import 'package:pixel_harmony/game/levels/chapter_completion_evaluator.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
@@ -19,6 +20,9 @@ class LevelSelectScreen extends ConsumerWidget {
     final progress = ref.watch(levelProgressControllerProvider);
     final completedLevelIds = progress.asData?.value ?? const <String>{};
     final progression = LevelProgression(levels: LevelCatalog.levels);
+    final chapterCompletion = ChapterCompletionEvaluator(
+      chapters: LevelCatalog.chapters,
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.chooseLevel)),
@@ -71,6 +75,10 @@ class LevelSelectScreen extends ConsumerWidget {
                               chapter.levelIds.first,
                               completedLevelIds,
                             ),
+                        completed: chapterCompletion.isChapterCompleted(
+                          chapter,
+                          completedLevelIds,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.md),
                       GridView.builder(
@@ -132,11 +140,13 @@ class _ChapterHeader extends StatelessWidget {
     required this.title,
     required this.description,
     required this.muted,
+    required this.completed,
   });
 
   final String title;
   final String description;
   final bool muted;
+  final bool completed;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +155,23 @@ class _ChapterHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
+              if (completed)
+                Icon(
+                  Icons.check_circle_outline,
+                  key: const Key('chapterCompletedIndicator'),
+                  color: AppPalette.completed,
+                  semanticLabel: AppLocalizations.of(context).completedLabel,
+                ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
             description,

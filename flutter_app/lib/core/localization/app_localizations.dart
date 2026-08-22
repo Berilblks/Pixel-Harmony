@@ -703,6 +703,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You restored every harmony.'**
   String get allLevelsCompleteSubtitle;
+
+  /// No description provided for @chapterCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter Complete'**
+  String get chapterCompleteTitle;
+
+  /// No description provided for @chapterCompleteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A new harmony awaits.'**
+  String get chapterCompleteSubtitle;
 }
 
 class _AppLocalizationsDelegate

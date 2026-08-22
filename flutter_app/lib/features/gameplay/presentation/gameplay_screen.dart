@@ -16,6 +16,8 @@ import 'package:pixel_harmony/features/settings/application/game_feedback_settin
 import 'package:pixel_harmony/features/settings/domain/game_feedback_settings.dart';
 import 'package:pixel_harmony/features/statistics/application/player_statistics_providers.dart';
 import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart';
+import 'package:pixel_harmony/game/levels/chapter_completion_evaluator.dart';
+import 'package:pixel_harmony/game/levels/chapter_definition.dart';
 import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
@@ -83,6 +85,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   late final GameFeedbackController _feedbackController;
   int _sessionGeneration = 0;
   bool _isNavigatingToNextLevel = false;
+  ChapterDefinition? _completedChapter;
 
   @override
   void initState() {
@@ -109,10 +112,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   }
 
   Future<void> _completeJourney(LevelDefinition level, BoardState state) async {
+    final completedBefore =
+        ref.read(levelProgressControllerProvider).value ?? const <String>{};
+    final completedChapter = ChapterCompletionEvaluator(
+      chapters: LevelCatalog.chapters,
+    ).newlyCompletedChapter(
+      completedLevelId: level.id,
+      previouslyCompletedLevelIds: completedBefore,
+    );
     final persisted = await ref
         .read(levelProgressControllerProvider.notifier)
         .markCompleted(level.id);
     if (!persisted) return;
+    if (mounted && level.id != LevelCatalog.levels.last.id) {
+      setState(() => _completedChapter = completedChapter);
+    }
     final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
@@ -167,6 +181,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       _completionController.reset();
       _feedbackController.resetSession();
       _isNavigatingToNextLevel = false;
+      _completedChapter = null;
     });
   }
 
@@ -316,6 +331,11 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                               widget.contentSource ==
                               GameplayContentSource.daily,
                           isFinalLevel: nextLevel == null,
+                          completedChapter: _completedChapter,
+                          chapterAccentColors: [
+                            for (final tile in level.tiles.take(4))
+                              Color(tile.colorValue),
+                          ],
                           onNextLevel:
                               widget.contentSource ==
                                       GameplayContentSource.endless
@@ -435,6 +455,8 @@ class _LevelCompleteOverlay extends StatelessWidget {
     required this.isEndless,
     required this.isDaily,
     required this.isFinalLevel,
+    required this.completedChapter,
+    required this.chapterAccentColors,
     required this.onNextLevel,
     required this.onBackToLevels,
   });
@@ -444,6 +466,8 @@ class _LevelCompleteOverlay extends StatelessWidget {
   final bool isEndless;
   final bool isDaily;
   final bool isFinalLevel;
+  final ChapterDefinition? completedChapter;
+  final List<Color> chapterAccentColors;
   final VoidCallback? onNextLevel;
   final VoidCallback onBackToLevels;
 
@@ -495,6 +519,8 @@ class _LevelCompleteOverlay extends StatelessWidget {
                           ? localizations.completionTitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteTitle
+                          : completedChapter != null
+                          ? localizations.chapterCompleteTitle
                           : localizations.completionTitle,
                       style: Theme.of(context).textTheme.headlineSmall,
                       textAlign: TextAlign.center,
@@ -507,10 +533,23 @@ class _LevelCompleteOverlay extends StatelessWidget {
                           ? localizations.completionSubtitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteSubtitle
+                          : completedChapter != null
+                          ? localizations.chapterCompleteSubtitle
                           : localizations.completionSubtitle,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    if (completedChapter != null && !isFinalLevel) ...[
+                      Text(
+                        localizedChapterName(localizations, completedChapter!),
+                        key: const Key('completedChapterName'),
+                        style: Theme.of(context).textTheme.titleMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _ChapterPaletteAccent(colors: chapterAccentColors),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
                     if (isEndless) ...[
                       Text(
                         localizations.puzzleLabel(puzzleNumber!),
@@ -586,6 +625,30 @@ class _LevelCompleteOverlay extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ChapterPaletteAccent extends StatelessWidget {
+  const _ChapterPaletteAccent({required this.colors});
+
+  final List<Color> colors;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      key: const Key('chapterPaletteAccent'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final color in colors)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              child: const SizedBox.square(dimension: 14),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -338,4 +338,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allLevelsCompleteSubtitle => 'You restored every harmony.';
+
+  @override
+  String get chapterCompleteTitle => 'Chapter Complete';
+
+  @override
+  String get chapterCompleteSubtitle => 'A new harmony awaits.';
 }
