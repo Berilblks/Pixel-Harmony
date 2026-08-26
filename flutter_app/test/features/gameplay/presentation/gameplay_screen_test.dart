@@ -6,6 +6,9 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
+import 'package:pixel_harmony/core/analytics/app_analytics_service.dart';
 import 'package:pixel_harmony/core/feedback/game_audio_service.dart';
 import 'package:pixel_harmony/core/feedback/game_feedback_providers.dart';
 import 'package:pixel_harmony/core/feedback/haptic_service.dart';
@@ -22,6 +25,7 @@ import 'package:pixel_harmony/game/state/board_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_level_progress_repository.dart';
+import '../../../support/fake_app_analytics_service.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -42,6 +46,7 @@ void main() {
     Locale locale = const Locale('en'),
     GameAudioService? audioService,
     HapticService? hapticService,
+    AppAnalyticsService? analyticsService,
   }) {
     final router = GoRouter(
       initialLocation: '/gameplay/$initialLevelId',
@@ -70,6 +75,8 @@ void main() {
           gameAudioServiceProvider.overrideWithValue(audioService),
         if (hapticService != null)
           hapticServiceProvider.overrideWithValue(hapticService),
+        if (analyticsService != null)
+          appAnalyticsServiceProvider.overrideWithValue(analyticsService),
         levelProgressRepositoryProvider.overrideWithValue(
           repository ?? FakeLevelProgressRepository(),
         ),
@@ -112,6 +119,64 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
+  });
+
+  testWidgets('Journey analytics emit start and completion exactly once', (
+    tester,
+  ) async {
+    final analytics = FakeAppAnalyticsService();
+    await tester.pumpWidget(buildApp(analyticsService: analytics));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(analytics.count(AnalyticsEvents.journeyLevelStart), 1);
+    final game = currentGame(tester);
+    final completed = game.session.boardState.withCompleted(true);
+    game.onCompleted!(completed);
+    game.onCompleted!(completed);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(analytics.count(AnalyticsEvents.journeyLevelComplete), 1);
+  });
+
+  testWidgets('accepted hint and restart emit analytics', (tester) async {
+    final analytics = FakeAppAnalyticsService();
+    await tester.pumpWidget(buildApp(analyticsService: analytics));
+    await tester.pump(const Duration(seconds: 1));
+
+    await tester.tap(find.byKey(const Key('hintButton')));
+    await tester.pump();
+    await tester.tap(find.byKey(const Key('hintButton')));
+    await tester.pump();
+    expect(analytics.count(AnalyticsEvents.hintUsed), 2);
+
+    await tester.tap(find.byKey(const Key('restartLevelButton')));
+    await tester.pump();
+    expect(analytics.count(AnalyticsEvents.levelRestart), 1);
+  });
+
+  testWidgets('rejected hint does not emit analytics', (tester) async {
+    final analytics = FakeAppAnalyticsService();
+    await tester.pumpWidget(buildApp(analyticsService: analytics));
+    await tester.pump(const Duration(seconds: 1));
+    currentGame(tester).session.swapTiles(0, 1);
+
+    await tester.tap(find.byKey(const Key('hintButton')));
+    await tester.pump();
+
+    expect(analytics.count(AnalyticsEvents.hintUsed), 0);
+  });
+
+  testWidgets('analytics backend failure does not break gameplay', (
+    tester,
+  ) async {
+    final analytics =
+        DelegatingAppAnalyticsService()
+          ..attach(FakeAppAnalyticsService(fail: true));
+    await tester.pumpWidget(buildApp(analyticsService: analytics));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('restart creates a fresh session from the same level', (

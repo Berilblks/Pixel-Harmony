@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
@@ -25,6 +29,7 @@ class DailyGameplayScreen extends ConsumerStatefulWidget {
 class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
     with WidgetsBindingObserver {
   late DailyPuzzleIdentity _identity;
+  final Set<String> _loggedStarts = {};
 
   @override
   void initState() {
@@ -57,6 +62,21 @@ class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
         .read(dailyProgressControllerProvider.notifier)
         .complete(_identity.dateKey);
     if (progress == null || !progress.isCompleted(_identity.dateKey)) return;
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.dailyPuzzleComplete,
+            parameters: {
+              AnalyticsParameters.boardSize: _identity.boardSize,
+              AnalyticsParameters.difficulty: _identity.targetDifficulty.name,
+              AnalyticsParameters.generationVersion:
+                  _identity.generationVersion,
+              AnalyticsParameters.moves: state.moveCount,
+              AnalyticsParameters.currentStreak: progress.currentStreak,
+            },
+          ),
+    );
     final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
@@ -90,7 +110,26 @@ class _DailyGameplayScreenState extends ConsumerState<DailyGameplayScreen>
                 'daily_v${_identity.generationVersion}_${_identity.dateKey}',
           ),
         );
-    return generated.toLevelDefinition(nameKey: 'dailyPuzzle');
+    final level = generated.toLevelDefinition(nameKey: 'dailyPuzzle');
+    if (_loggedStarts.add(_identity.dateKey)) {
+      _logStart(_identity);
+    }
+    return level;
+  }
+
+  void _logStart(DailyPuzzleIdentity identity) {
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.dailyPuzzleStart,
+            parameters: {
+              AnalyticsParameters.boardSize: identity.boardSize,
+              AnalyticsParameters.difficulty: identity.targetDifficulty.name,
+              AnalyticsParameters.generationVersion: identity.generationVersion,
+            },
+          ),
+    );
   }
 
   @override

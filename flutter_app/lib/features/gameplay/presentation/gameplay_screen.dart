@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/core/feedback/game_feedback_controller.dart';
@@ -86,6 +90,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   int _sessionGeneration = 0;
   bool _isNavigatingToNextLevel = false;
   ChapterDefinition? _completedChapter;
+  bool _startLogged = false;
 
   @override
   void initState() {
@@ -124,6 +129,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         .read(levelProgressControllerProvider.notifier)
         .markCompleted(level.id);
     if (!persisted) return;
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.journeyLevelComplete,
+            parameters: {
+              AnalyticsParameters.levelNumber: level.number,
+              AnalyticsParameters.chapterId:
+                  LevelCatalog.chapterForLevel(level.id).id,
+              AnalyticsParameters.boardSize: level.boardSize,
+              AnalyticsParameters.moves: state.moveCount,
+              AnalyticsParameters.difficulty: level.difficulty.name,
+            },
+          ),
+    );
     if (mounted && level.id != LevelCatalog.levels.last.id) {
       setState(() => _completedChapter = completedChapter);
     }
@@ -160,7 +180,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   }
 
   PixelHarmonyGame _createGame(LevelDefinition level) {
-    return PixelHarmonyGame(
+    final game = PixelHarmonyGame(
       level: level,
       onTilePickedUp: _feedbackController.tilePickedUp,
       onSwapCompleted: _feedbackController.acceptedSwap,
@@ -168,6 +188,45 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         _feedbackController.levelCompleted();
         _completionController.showCompletion(state);
       },
+    );
+    if (!_startLogged &&
+        widget.contentSource == GameplayContentSource.journey) {
+      _startLogged = true;
+      unawaited(
+        ref
+            .read(appAnalyticsServiceProvider)
+            .logEvent(
+              AnalyticsEvents.journeyLevelStart,
+              parameters: {
+                AnalyticsParameters.levelNumber: level.number,
+                AnalyticsParameters.chapterId:
+                    LevelCatalog.chapterForLevel(level.id).id,
+                AnalyticsParameters.boardSize: level.boardSize,
+              },
+            ),
+      );
+    }
+    return game;
+  }
+
+  String get _analyticsMode => switch (widget.contentSource) {
+    GameplayContentSource.journey => AnalyticsValues.journey,
+    GameplayContentSource.endless => AnalyticsValues.endless,
+    GameplayContentSource.daily => AnalyticsValues.daily,
+  };
+
+  void _requestHint(PixelHarmonyGame game) {
+    if (!game.requestHint()) return;
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.hintUsed,
+            parameters: {
+              AnalyticsParameters.mode: _analyticsMode,
+              AnalyticsParameters.boardSize: widget.level!.boardSize,
+            },
+          ),
     );
   }
 
@@ -183,6 +242,17 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       _isNavigatingToNextLevel = false;
       _completedChapter = null;
     });
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.levelRestart,
+            parameters: {
+              AnalyticsParameters.mode: _analyticsMode,
+              AnalyticsParameters.boardSize: level.boardSize,
+            },
+          ),
+    );
   }
 
   Future<void> _openNextLevel(LevelDefinition nextLevel) async {
@@ -283,7 +353,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
             child: IconButton(
               key: const Key('hintButton'),
               tooltip: localizations.hint,
-              onPressed: () => game.requestHint(),
+              onPressed: () => _requestHint(game),
               icon: const Icon(Icons.lightbulb_outline),
             ),
           ),

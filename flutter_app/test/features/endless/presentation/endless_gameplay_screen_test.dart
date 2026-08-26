@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
@@ -14,6 +16,7 @@ import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_endless_progress_repository.dart';
+import '../../../support/fake_app_analytics_service.dart';
 import '../../../support/fake_daily_progress_repository.dart';
 import '../../../support/fake_achievement_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
@@ -28,6 +31,7 @@ void main() {
     FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
     FakeAchievementRepository? achievementRepository,
+    FakeAppAnalyticsService? analytics,
   }) {
     return ProviderScope(
       overrides: [
@@ -44,6 +48,8 @@ void main() {
         achievementRepositoryProvider.overrideWithValue(
           achievementRepository ?? FakeAchievementRepository(),
         ),
+        if (analytics != null)
+          appAnalyticsServiceProvider.overrideWithValue(analytics),
       ],
       child: const PixelHarmonyApp(),
     );
@@ -56,6 +62,7 @@ void main() {
     FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
     FakeAchievementRepository? achievementRepository,
+    FakeAppAnalyticsService? analytics,
   }) async {
     await tester.pumpWidget(
       buildApp(
@@ -64,6 +71,7 @@ void main() {
         dailyRepository: dailyRepository,
         statisticsRepository: statisticsRepository,
         achievementRepository: achievementRepository,
+        analytics: analytics,
       ),
     );
     await tester.pump();
@@ -87,6 +95,26 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
   }
+
+  testWidgets('Endless start and completion analytics emit once', (
+    tester,
+  ) async {
+    final analytics = FakeAppAnalyticsService();
+    await openEndless(
+      tester,
+      FakeEndlessProgressRepository(),
+      analytics: analytics,
+    );
+    expect(analytics.count(AnalyticsEvents.endlessPuzzleStart), 1);
+
+    final game = currentGame(tester);
+    final completed = game.session.boardState.withCompleted(true);
+    game.onCompleted!(completed);
+    game.onCompleted!(completed);
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(analytics.count(AnalyticsEvents.endlessPuzzleComplete), 1);
+  });
 
   testWidgets('Home exposes Journey and Endless mode choices', (tester) async {
     await tester.pumpWidget(

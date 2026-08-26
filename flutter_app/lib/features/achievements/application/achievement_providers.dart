@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/data/achievement_local_data_source.dart';
 import 'package:pixel_harmony/features/achievements/data/local_achievement_repository.dart';
 import 'package:pixel_harmony/features/achievements/data/shared_preferences_achievement_data_source.dart';
@@ -98,6 +102,16 @@ class AchievementController extends AsyncNotifier<AchievementCollection> {
       newlyUnlocked.map((item) => item.id).toSet(),
       ref.read(achievementNowProvider)(),
     );
+    for (final achievement in newlyUnlocked) {
+      unawaited(
+        ref
+            .read(appAnalyticsServiceProvider)
+            .logEvent(
+              AnalyticsEvents.achievementUnlocked,
+              parameters: {AnalyticsParameters.achievementId: achievement.id},
+            ),
+      );
+    }
     final finalState = ref
         .read(achievementEvaluatorProvider)
         .evaluate(

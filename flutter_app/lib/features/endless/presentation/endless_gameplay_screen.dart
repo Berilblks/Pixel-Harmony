@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
+import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
+import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/achievements/presentation/achievement_unlock_feedback.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
@@ -25,6 +29,7 @@ class EndlessGameplayScreen extends ConsumerStatefulWidget {
 
 class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
   EndlessProgress? _displayedProgress;
+  final Set<String> _loggedStarts = {};
 
   Future<void> _completePuzzle(
     EndlessProgress progress,
@@ -34,6 +39,21 @@ class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
     await ref
         .read(endlessProgressControllerProvider.notifier)
         .advance(progress);
+    unawaited(
+      ref
+          .read(appAnalyticsServiceProvider)
+          .logEvent(
+            AnalyticsEvents.endlessPuzzleComplete,
+            parameters: {
+              AnalyticsParameters.puzzleNumber: progress.puzzleNumber,
+              AnalyticsParameters.boardSize: progress.currentBoardSize,
+              AnalyticsParameters.difficulty:
+                  progress.currentTargetDifficulty.name,
+              AnalyticsParameters.generationVersion: progress.generationVersion,
+              AnalyticsParameters.moves: state.moveCount,
+            },
+          ),
+    );
     final recorded = await ref
         .read(playerStatisticsControllerProvider.notifier)
         .record(
@@ -88,6 +108,25 @@ class _EndlessGameplayScreenState extends ConsumerState<EndlessGameplayScreen> {
           number: progress.puzzleNumber,
           nameKey: 'endlessPuzzle',
         );
+        final sessionId =
+            '${progress.generationVersion}:${progress.currentSeed}';
+        if (_loggedStarts.add(sessionId)) {
+          unawaited(
+            ref
+                .read(appAnalyticsServiceProvider)
+                .logEvent(
+                  AnalyticsEvents.endlessPuzzleStart,
+                  parameters: {
+                    AnalyticsParameters.puzzleNumber: progress.puzzleNumber,
+                    AnalyticsParameters.boardSize: progress.currentBoardSize,
+                    AnalyticsParameters.difficulty:
+                        progress.currentTargetDifficulty.name,
+                    AnalyticsParameters.generationVersion:
+                        progress.generationVersion,
+                  },
+                ),
+          );
+        }
         return GameplayScreen.endless(
           key: ValueKey(
             'endless_${progress.generationVersion}_${progress.currentSeed}',
