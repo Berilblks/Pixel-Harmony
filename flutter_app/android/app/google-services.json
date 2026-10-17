@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "614257425059",
+    "project_id": "pixel-harmony-82d15",
+    "storage_bucket": "pixel-harmony-82d15.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614257425059:android:186933e757b3e81dcc9d16",
+        "android_client_info": {
+          "package_name": "com.berilblks.pixelharmony"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAW7JbyRlJmMDj_BF_2xAvXEsHLyIIo2B4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

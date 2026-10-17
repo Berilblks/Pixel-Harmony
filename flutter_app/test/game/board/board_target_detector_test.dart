@@ -53,4 +53,17 @@ void main() {
 
     expect(target, isNull);
   });
+
+  test('detects targets on a rectangular board', () {
+    final target = detector.detect(
+      draggedCenter: const Point(165, 55),
+      sourceIndex: 0,
+      rowCount: 2,
+      columnCount: 3,
+      tileSize: 100,
+      spacing: 10,
+    );
+
+    expect(target, 1);
+  });
 }

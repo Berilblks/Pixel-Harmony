@@ -21,6 +21,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get journeyMode => 'Yolculuk';
 
   @override
+  String get continuingJourneyName => 'Devam Eden Yolculuk';
+
+  @override
+  String get continuingJourneyDescription =>
+      'Yeni bir deterministik uyum seni bekliyor.';
+
+  @override
   String get dailyPuzzle => 'Günün Bulmacası';
 
   @override
@@ -30,10 +37,60 @@ class AppLocalizationsTr extends AppLocalizations {
   String get dailyCompleteSubtitle => 'Bugünün uyumu tamamlandı.';
 
   @override
-  String get endlessMode => 'Sonsuz';
+  String get endlessMode => 'Serbest Oyun';
 
   @override
-  String get continueEndless => 'Sonsuz Moda Devam Et';
+  String get continueEndless => 'Serbest Oyuna Devam Et';
+
+  @override
+  String get continueJourney => 'Oyna';
+
+  @override
+  String journeyProgressLevel(int number) {
+    return 'Seviye $number';
+  }
+
+  @override
+  String get todayPuzzleReady => 'Bugünkü bulmaca hazır';
+
+  @override
+  String get completedToday => 'Bugün tamamlandı';
+
+  @override
+  String dailyStreakDays(int count) {
+    return '$count günlük seri';
+  }
+
+  @override
+  String get freePlayDescription =>
+      'İlerleme baskısı olmadan istediğin gibi oyna.';
+
+  @override
+  String get puzzleType => 'Bulmaca Türü';
+
+  @override
+  String get gradientPuzzle => 'Renk Sıralama';
+
+  @override
+  String get pixelColoringPuzzle => 'Pixel Boyama';
+
+  @override
+  String get mixedPuzzle => 'Karışık';
+
+  @override
+  String get difficulty => 'Zorluk';
+
+  @override
+  String get difficultyRelaxed => 'Rahat';
+
+  @override
+  String get difficultyNormal => 'Normal';
+
+  @override
+  String get difficultyHard => 'Zor';
+
+  @override
+  String get difficultyExpert => 'Uzman';
 
   @override
   String puzzleLabel(int number) {
@@ -48,10 +105,10 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get endlessProgressError =>
-      'Sonsuz mod ilerlemesi bu sürümle yüklenemiyor.';
+      'Serbest Oyun ilerlemesi bu sürümle yüklenemiyor.';
 
   @override
-  String get resetEndless => 'Sonsuz Modu Sıfırla';
+  String get resetEndless => 'Serbest Oyunu Sıfırla';
 
   @override
   String get gameplayTitle => 'Oyun';
@@ -140,7 +197,7 @@ class AppLocalizationsTr extends AppLocalizations {
       'Değişen kutup renkleriyle yolculuğu tamamla.';
 
   @override
-  String get chooseLevel => 'Bir Seviye Seç';
+  String get chooseLevel => 'Bölümler';
 
   @override
   String get boardSizeLabel => 'Tahta Boyutu';
@@ -233,11 +290,11 @@ class AppLocalizationsTr extends AppLocalizations {
       '50 Yolculuk seviyesi tamamla.';
 
   @override
-  String get achievementJourneyCompleteTitle => 'Yolculuk Tamamlandı';
+  String get achievementJourneyCompleteTitle => 'Yüz Uyum';
 
   @override
   String get achievementJourneyCompleteDescription =>
-      '100 Yolculuk seviyesinin tamamını bitir.';
+      '100 seviyelik Yolculuk kilometre taşına ulaş.';
 
   @override
   String get achievementEndlessExplorerTitle => 'Sonsuz Kâşif';
@@ -274,18 +331,18 @@ class AppLocalizationsTr extends AppLocalizations {
       '30 Günlük bulmaca tamamla.';
 
   @override
-  String get achievementChapterMasterTitle => 'Bölüm Ustası';
+  String get achievementChapterMasterTitle => 'Yolculuk 10';
 
   @override
   String get achievementChapterMasterDescription =>
-      'Bir bölümdeki tüm seviyeleri tamamla.';
+      '10 Yolculuk seviyesini tamamla.';
 
   @override
-  String get achievementPerfectJourneyTitle => 'Kusursuz Yolculuk';
+  String get achievementPerfectJourneyTitle => 'Yolculuk 100';
 
   @override
   String get achievementPerfectJourneyDescription =>
-      '10 Yolculuk bölümünün tamamını bitir.';
+      '100 Yolculuk seviyesini tamamla.';
 
   @override
   String get achievementThousandMovesTitle => 'Bin Hamle';
@@ -329,6 +386,170 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get hint => 'İpucu';
+
+  @override
+  String get targetOrder => 'Hedef';
+
+  @override
+  String get gradientInstruction =>
+      'Aynı rengin tonlarını koyudan açığa doğru sırala.';
+
+  @override
+  String get gradientCompactInstruction => 'Koyudan açığa sırala';
+
+  @override
+  String get pixelPictureLabel => 'Piksel Boyama';
+
+  @override
+  String get pixelPictureInstruction => 'Piksel Boyama';
+
+  @override
+  String get pixelPictureTransitionInstruction => 'Numaralı pikselleri boya.';
+
+  @override
+  String get pixelPictureTutorialTitle => 'Bu bölüm farklı!';
+
+  @override
+  String get pixelPictureTutorialBody =>
+      'Bir piksele, sonra diğerine dokun; yerlerini değiştirerek resmi tamamla.';
+
+  @override
+  String get pixelPictureTutorialDemo =>
+      'Bir pikselin eşleşen hücreye doğru hareketini izle.';
+
+  @override
+  String get pixelPictureTutorialTry =>
+      'Şimdi sen dene! Doğru pikseller yerlerine oturur.';
+
+  @override
+  String get pixelPictureHint => 'Bir pikseli boya';
+
+  @override
+  String get resetZoom => 'Yakınlaştırmayı sıfırla';
+
+  @override
+  String pixelPictureCreateTarget(String figure) {
+    return '$figure RESMİNİ BOYA';
+  }
+
+  @override
+  String get pixelPicturePlayInstruction =>
+      'Numaralı hücreleri boyayarak figürü tamamla.';
+
+  @override
+  String get pixelPictureSwapInstruction =>
+      'Bir renk seç, sonra eşleşen numaraları boya.';
+
+  @override
+  String get pixelFigureHeart => 'Kalp';
+
+  @override
+  String get pixelFigureStar => 'Yıldız';
+
+  @override
+  String get pixelFigureSmiley => 'Gülen Yüz';
+
+  @override
+  String get pixelFigureFlower => 'Çiçek';
+
+  @override
+  String get pixelFigureCherries => 'Kiraz';
+
+  @override
+  String get pixelFigureMushroom => 'Mantar';
+
+  @override
+  String get pixelFigureFish => 'Balık';
+
+  @override
+  String get pixelFigureButterfly => 'Kelebek';
+
+  @override
+  String get pixelFigureCat => 'Kedi Yüzü';
+
+  @override
+  String get pixelFigureSun => 'Güneş';
+
+  @override
+  String get pixelFigureMoon => 'Ay';
+
+  @override
+  String get pixelFigureCloud => 'Bulut';
+
+  @override
+  String get pixelFigureHouse => 'Ev';
+
+  @override
+  String get pixelFigureTree => 'Ağaç';
+
+  @override
+  String get pixelFigureApple => 'Elma';
+
+  @override
+  String get pixelFigureSunset => 'Gün Batımı';
+
+  @override
+  String get pixelFigureRainbow => 'Gökkuşağı';
+
+  @override
+  String get pixelFigureLightning => 'Şimşek';
+
+  @override
+  String get pixelFigureDiamond => 'Elmas';
+
+  @override
+  String get pixelFigureTulip => 'Lale';
+
+  @override
+  String get pixelFigureCactus => 'Kaktüs';
+
+  @override
+  String get pixelFigureLeaf => 'Yaprak';
+
+  @override
+  String get pixelFigureStrawberry => 'Çilek';
+
+  @override
+  String get pixelFigureWatermelon => 'Karpuz';
+
+  @override
+  String get pixelFigureRabbit => 'Tavşan';
+
+  @override
+  String get pixelFigureBee => 'Arı';
+
+  @override
+  String get pixelFigureLadybug => 'Uğur Böceği';
+
+  @override
+  String get pixelFigureTurtle => 'Kaplumbağa';
+
+  @override
+  String get pixelFigurePenguin => 'Penguen';
+
+  @override
+  String get pixelFigureGift => 'Hediye Kutusu';
+
+  @override
+  String get pixelFigureCupcake => 'Kapkek';
+
+  @override
+  String get pixelFigureRocket => 'Roket';
+
+  @override
+  String get pixelFigureMountainSunset => 'Dağ Gün Batımı';
+
+  @override
+  String get continueLabel => 'Devam Et';
+
+  @override
+  String get skip => 'Atla';
+
+  @override
+  String get gotIt => 'Anladım';
+
+  @override
+  String get startPuzzle => 'Bulmacayı Başlat';
 
   @override
   String get nextLevel => 'Sonraki Seviye';

@@ -64,6 +64,8 @@ flutter:
 
   assets:
     - assets/audio/sfx/
+    - assets/branding/app_icon/pixel_harmony_official.png
+    - assets/branding/app_icon/pixel_harmony_home.png
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

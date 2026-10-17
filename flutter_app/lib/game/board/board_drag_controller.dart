@@ -12,7 +12,8 @@ class BoardDragController {
   Vector2 _boardSize = Vector2.zero();
   Map<String, Vector2> _originalPositions = const {};
   List<String> _tileIds = const [];
-  int _boardDimension = 0;
+  int _boardRows = 0;
+  int _boardColumns = 0;
   double _tileExtent = 0;
   double _spacing = 0;
   String? _activeTileId;
@@ -24,7 +25,9 @@ class BoardDragController {
   void updateLayout({
     required Vector2 boardSize,
     required Map<String, Vector2> originalPositions,
-    required int boardDimension,
+    int? boardDimension,
+    int? boardRows,
+    int? boardColumns,
     required double tileExtent,
     required double spacing,
   }) {
@@ -34,7 +37,8 @@ class BoardDragController {
         entry.key: entry.value.clone(),
     };
     _tileIds = List.unmodifiable(originalPositions.keys);
-    _boardDimension = boardDimension;
+    _boardRows = boardRows ?? boardDimension ?? 0;
+    _boardColumns = boardColumns ?? boardDimension ?? 0;
     _tileExtent = tileExtent;
     _spacing = spacing;
   }
@@ -84,7 +88,7 @@ class BoardDragController {
 
   void _updateTarget({required String tileId, required Vector2 tilePosition}) {
     final sourceIndex = _tileIds.indexOf(tileId);
-    if (sourceIndex == -1 || _boardDimension == 0) {
+    if (sourceIndex == -1 || _boardRows == 0 || _boardColumns == 0) {
       _activeTargetTileId = null;
       return;
     }
@@ -93,11 +97,13 @@ class BoardDragController {
     final targetIndex = _targetDetector.detect(
       draggedCenter: math.Point(center.x, center.y),
       sourceIndex: sourceIndex,
-      boardSize: _boardDimension,
+      rowCount: _boardRows,
+      columnCount: _boardColumns,
       tileSize: _tileExtent,
       spacing: _spacing,
     );
-    _activeTargetTileId = targetIndex == null ? null : _tileIds[targetIndex];
+    final targetId = targetIndex == null ? null : _tileIds[targetIndex];
+    _activeTargetTileId = targetId;
   }
 
   Vector2 originalPositionFor(String tileId) {

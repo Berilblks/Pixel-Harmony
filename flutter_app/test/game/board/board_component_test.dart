@@ -8,8 +8,19 @@ import 'package:pixel_harmony/game/components/tile_component.dart';
 import 'package:pixel_harmony/game/hints/puzzle_hint.dart';
 import 'package:pixel_harmony/game/models/tile_model.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
+import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 
 void main() {
+  test(
+    'Pixel Picture spacing is substantially tighter than Gradient spacing',
+    () {
+      expect(PixelHarmonyGame.pixelPictureBoardConfig.spacing, 1);
+      expect(
+        PixelHarmonyGame.pixelPictureBoardConfig.spacing,
+        lessThan(PixelHarmonyGame.gradientBoardConfig.spacing / 4),
+      );
+    },
+  );
   test('completed board rejects further drag input', () {
     final board = BoardComponent(
       state: BoardState(

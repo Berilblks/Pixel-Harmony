@@ -168,9 +168,10 @@ class TileComponent extends PositionComponent with DragCallbacks {
     canvas.scale(_visualScale);
     canvas.translate(-center.dx, -center.dy);
 
+    final visualRect = Rect.fromLTWH(0, 0, size.x, size.y);
     final cornerRadius = size.x * _cornerRadiusRatio;
     final tile = RRect.fromRectAndRadius(
-      size.toRect(),
+      visualRect,
       Radius.circular(cornerRadius),
     );
     final tilePath = Path()..addRRect(tile);

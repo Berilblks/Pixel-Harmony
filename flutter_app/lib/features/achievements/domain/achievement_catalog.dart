@@ -107,8 +107,8 @@ abstract final class AchievementCatalog {
       descriptionKey: 'achievementChapterMasterDescription',
       iconType: AchievementIconType.chapter,
       category: AchievementCategory.journey,
-      conditionType: AchievementConditionType.completedChapters,
-      targetValue: 1,
+      conditionType: AchievementConditionType.journeyPuzzles,
+      targetValue: 10,
     ),
     AchievementDefinition(
       id: 'perfect_journey',
@@ -116,8 +116,8 @@ abstract final class AchievementCatalog {
       descriptionKey: 'achievementPerfectJourneyDescription',
       iconType: AchievementIconType.chapter,
       category: AchievementCategory.journey,
-      conditionType: AchievementConditionType.completedChapters,
-      targetValue: 10,
+      conditionType: AchievementConditionType.journeyPuzzles,
+      targetValue: 100,
     ),
     AchievementDefinition(
       id: 'thousand_moves',

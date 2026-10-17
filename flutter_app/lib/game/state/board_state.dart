@@ -3,15 +3,25 @@ import 'package:pixel_harmony/game/models/tile_model.dart';
 class BoardState {
   BoardState({
     required this.boardSize,
+    int? rowCount,
+    int? columnCount,
     required List<TileModel> tiles,
     this.moveCount = 0,
     this.elapsedTime = Duration.zero,
     this.completed = false,
-  }) : assert(boardSize > 0),
-       assert(tiles.length == boardSize * boardSize),
+  }) : rowCount = rowCount ?? boardSize,
+       columnCount = columnCount ?? boardSize,
+       assert(boardSize > 0),
+       assert((rowCount ?? boardSize) > 0),
+       assert((columnCount ?? boardSize) > 0),
+       assert(
+         tiles.length == (rowCount ?? boardSize) * (columnCount ?? boardSize),
+       ),
        tiles = List.unmodifiable(tiles);
 
   final int boardSize;
+  final int rowCount;
+  final int columnCount;
   final List<TileModel> tiles;
   final int moveCount;
   final Duration elapsedTime;
@@ -24,6 +34,8 @@ class BoardState {
 
     return BoardState(
       boardSize: boardSize,
+      rowCount: rowCount,
+      columnCount: columnCount,
       tiles: tiles,
       moveCount: moveCount,
       elapsedTime: elapsedTime,
@@ -49,6 +61,8 @@ class BoardState {
 
     return BoardState(
       boardSize: boardSize,
+      rowCount: rowCount,
+      columnCount: columnCount,
       tiles: swappedTiles,
       moveCount: moveCount + 1,
       elapsedTime: elapsedTime,

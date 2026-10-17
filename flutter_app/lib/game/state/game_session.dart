@@ -14,9 +14,9 @@ class GameSession {
   }) : _hintEvaluator = hintEvaluator,
        solution = PuzzleSolution(tileIds: level.solutionTileOrder),
        _boardState = _buildInitialState(level) {
-    _boardState = _boardState.withCompleted(
-      solution.matches(_boardState.tiles.map((tile) => tile.id)),
-    );
+    if (level.puzzleType == JourneyPuzzleType.gradient) {
+      _boardState = _boardState.withCompleted(_isComplete(_boardState));
+    }
   }
 
   final LevelDefinition level;
@@ -31,10 +31,17 @@ class GameSession {
       return null;
     }
 
+    if (level.puzzleType == JourneyPuzzleType.pixelPicture) {
+      return null;
+    }
     return _hintEvaluator.evaluate(
       currentTileIds: _boardState.tiles.map((tile) => tile.id).toList(),
       solutionTileIds: solution.tileIds,
     );
+  }
+
+  bool _isComplete(BoardState state) {
+    return solution.matches(state.tiles.map((tile) => tile.id));
   }
 
   static BoardState _buildInitialState(LevelDefinition level) {
@@ -44,18 +51,21 @@ class GameSession {
     };
     return BoardState(
       boardSize: level.boardSize,
+      rowCount: level.rowCount,
+      columnCount: level.columnCount,
       tiles: [for (final id in level.initialTileOrder) tilesById[id]!],
     );
   }
 
   BoardState swapTiles(int sourceIndex, int targetIndex) {
+    if (level.puzzleType == JourneyPuzzleType.pixelPicture) {
+      throw StateError('Pixel Coloring does not support tile swapping.');
+    }
     if (_boardState.completed) {
       throw StateError('A completed game session cannot accept another swap.');
     }
 
     final swapped = _boardState.swapTiles(sourceIndex, targetIndex);
-    return _boardState = swapped.withCompleted(
-      solution.matches(swapped.tiles.map((tile) => tile.id)),
-    );
+    return _boardState = swapped.withCompleted(_isComplete(swapped));
   }
 }

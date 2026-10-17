@@ -7,6 +7,7 @@ import 'package:pixel_harmony/core/analytics/app_analytics_service.dart';
 import 'package:pixel_harmony/core/analytics/firebase_app_analytics_service.dart';
 import 'package:pixel_harmony/core/crash_reporting/app_crash_reporter.dart';
 import 'package:pixel_harmony/core/crash_reporting/firebase_app_crash_reporter.dart';
+import 'package:pixel_harmony/firebase_options.dart';
 
 Future<bool> initializeOptionalFirebase({
   required DelegatingAppAnalyticsService analytics,
@@ -14,7 +15,10 @@ Future<bool> initializeOptionalFirebase({
   Future<void> Function()? initializeFirebase,
 }) async {
   try {
-    await (initializeFirebase?.call() ?? Firebase.initializeApp());
+    await (initializeFirebase?.call() ??
+        Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        ));
     final firebaseAnalytics = FirebaseAnalytics.instance;
     final firebaseCrashlytics = FirebaseCrashlytics.instance;
     await firebaseCrashlytics.setCrashlyticsCollectionEnabled(!kDebugMode);

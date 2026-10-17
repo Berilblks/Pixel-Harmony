@@ -34,4 +34,23 @@ void main() {
     expect(result.tileSize, closeTo(63.6, 0.001));
     expect(result.boardSize.x, closeTo(350, 0.001));
   });
+
+  test('rectangular boards are centered and preserve their shape', () {
+    const layout = BoardLayout(BoardConfig(spacing: 10, screenPadding: 20));
+    final result = layout.calculate(
+      availableSize: Vector2(400, 300),
+      rowCount: 2,
+      columnCount: 3,
+    );
+
+    expect(result.boardSize.x, greaterThan(result.boardSize.y));
+    expect(
+      result.boardPosition.x,
+      closeTo((400 - result.boardSize.x) / 2, 0.001),
+    );
+    expect(
+      result.boardPosition.y,
+      closeTo((300 - result.boardSize.y) / 2, 0.001),
+    );
+  });
 }

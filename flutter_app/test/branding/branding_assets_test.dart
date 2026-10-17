@@ -49,14 +49,75 @@ void main() {
     expect(adaptiveIcon, contains('@drawable/ic_launcher_foreground'));
     expect(adaptiveIcon, contains('@color/ic_launcher_background'));
     expect(android12Theme, contains('android:windowSplashScreenAnimatedIcon'));
-    expect(android12Theme, contains('@drawable/launch_mark'));
+    expect(android12Theme, contains('@drawable/launch_mark_android12'));
+    expect(android12Theme, contains('android:windowSplashScreenBrandingImage'));
+    expect(android12Theme, contains('@drawable/launch_branding_android12'));
+
+    for (final entry
+        in const {
+          'mipmap-mdpi': 48,
+          'mipmap-hdpi': 72,
+          'mipmap-xhdpi': 96,
+          'mipmap-xxhdpi': 144,
+          'mipmap-xxxhdpi': 192,
+        }.entries) {
+      final png = _readPng(
+        'android/app/src/main/res/${entry.key}/ic_launcher.png',
+      );
+      expect(png.width, entry.value, reason: entry.key);
+      expect(png.height, entry.value, reason: entry.key);
+    }
+
+    final foreground = _readPng(
+      'android/app/src/main/res/drawable-nodpi/ic_launcher_foreground.png',
+    );
+    expect(foreground.width, 432);
+    expect(foreground.height, 432);
+    expect(foreground.colorType, 6, reason: 'Adaptive foreground needs alpha.');
+
+    final android12Mark = _readPng(
+      'android/app/src/main/res/drawable-nodpi/launch_mark_android12.png',
+    );
+    expect(android12Mark.width, 288);
+    expect(android12Mark.height, 288);
+    expect(android12Mark.colorType, 6);
+
+    final android12Branding = _readPng(
+      'android/app/src/main/res/drawable-nodpi/launch_branding_android12.png',
+    );
+    expect(android12Branding.width, 600);
+    expect(android12Branding.height, 144);
+    expect(android12Branding.colorType, 6);
+
+    for (final entry
+        in const {
+          'drawable-mdpi': (200, 230),
+          'drawable-hdpi': (300, 345),
+          'drawable-xhdpi': (400, 460),
+          'drawable-xxhdpi': (600, 690),
+          'drawable-xxxhdpi': (800, 920),
+        }.entries) {
+      final splash = _readPng(
+        'android/app/src/main/res/${entry.key}/launch_mark.png',
+      );
+      expect(splash.width, entry.value.$1, reason: entry.key);
+      expect(splash.height, entry.value.$2, reason: entry.key);
+      expect(splash.colorType, 6, reason: '${entry.key} needs alpha.');
+    }
   });
 
-  test('central placeholder source and replacement documentation exist', () {
+  test('official source and branding documentation exist', () {
     expect(
       File(
         'assets/branding/app_icon/'
-        'pixel_harmony_icon_foreground_placeholder.png',
+        'pixel_harmony_official.png',
+      ).existsSync(),
+      isTrue,
+    );
+    expect(
+      File(
+        'assets/branding/app_icon/'
+        'pixel_harmony_home.png',
       ).existsSync(),
       isTrue,
     );

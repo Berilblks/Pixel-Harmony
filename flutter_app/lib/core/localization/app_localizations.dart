@@ -122,6 +122,18 @@ abstract class AppLocalizations {
   /// **'Journey'**
   String get journeyMode;
 
+  /// No description provided for @continuingJourneyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuing Journey'**
+  String get continuingJourneyName;
+
+  /// No description provided for @continuingJourneyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A new deterministic harmony awaits.'**
+  String get continuingJourneyDescription;
+
   /// No description provided for @dailyPuzzle.
   ///
   /// In en, this message translates to:
@@ -143,14 +155,104 @@ abstract class AppLocalizations {
   /// No description provided for @endlessMode.
   ///
   /// In en, this message translates to:
-  /// **'Endless'**
+  /// **'Free Play'**
   String get endlessMode;
 
   /// No description provided for @continueEndless.
   ///
   /// In en, this message translates to:
-  /// **'Continue Endless'**
+  /// **'Continue Free Play'**
   String get continueEndless;
+
+  /// No description provided for @continueJourney.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get continueJourney;
+
+  /// No description provided for @journeyProgressLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level {number}'**
+  String journeyProgressLevel(int number);
+
+  /// No description provided for @todayPuzzleReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s puzzle is ready'**
+  String get todayPuzzleReady;
+
+  /// No description provided for @completedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed today'**
+  String get completedToday;
+
+  /// No description provided for @dailyStreakDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} day streak'**
+  String dailyStreakDays(int count);
+
+  /// No description provided for @freePlayDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Play your way, without progression pressure.'**
+  String get freePlayDescription;
+
+  /// No description provided for @puzzleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle Type'**
+  String get puzzleType;
+
+  /// No description provided for @gradientPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Gradient'**
+  String get gradientPuzzle;
+
+  /// No description provided for @pixelColoringPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pixel Coloring'**
+  String get pixelColoringPuzzle;
+
+  /// No description provided for @mixedPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Mixed'**
+  String get mixedPuzzle;
+
+  /// No description provided for @difficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get difficulty;
+
+  /// No description provided for @difficultyRelaxed.
+  ///
+  /// In en, this message translates to:
+  /// **'Relaxed'**
+  String get difficultyRelaxed;
+
+  /// No description provided for @difficultyNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal'**
+  String get difficultyNormal;
+
+  /// No description provided for @difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get difficultyHard;
+
+  /// No description provided for @difficultyExpert.
+  ///
+  /// In en, this message translates to:
+  /// **'Expert'**
+  String get difficultyExpert;
 
   /// No description provided for @puzzleLabel.
   ///
@@ -173,13 +275,13 @@ abstract class AppLocalizations {
   /// No description provided for @endlessProgressError.
   ///
   /// In en, this message translates to:
-  /// **'Endless progress cannot be loaded with this version.'**
+  /// **'Free Play progress cannot be loaded with this version.'**
   String get endlessProgressError;
 
   /// No description provided for @resetEndless.
   ///
   /// In en, this message translates to:
-  /// **'Reset Endless'**
+  /// **'Reset Free Play'**
   String get resetEndless;
 
   /// No description provided for @gameplayTitle.
@@ -341,7 +443,7 @@ abstract class AppLocalizations {
   /// No description provided for @chooseLevel.
   ///
   /// In en, this message translates to:
-  /// **'Choose a Level'**
+  /// **'Levels'**
   String get chooseLevel;
 
   /// No description provided for @boardSizeLabel.
@@ -509,13 +611,13 @@ abstract class AppLocalizations {
   /// No description provided for @achievementJourneyCompleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Journey Complete'**
+  /// **'A Century of Harmony'**
   String get achievementJourneyCompleteTitle;
 
   /// No description provided for @achievementJourneyCompleteDescription.
   ///
   /// In en, this message translates to:
-  /// **'Complete all 100 Journey levels.'**
+  /// **'Reach the 100-level Journey milestone.'**
   String get achievementJourneyCompleteDescription;
 
   /// No description provided for @achievementEndlessExplorerTitle.
@@ -581,25 +683,25 @@ abstract class AppLocalizations {
   /// No description provided for @achievementChapterMasterTitle.
   ///
   /// In en, this message translates to:
-  /// **'Chapter Master'**
+  /// **'Journey 10'**
   String get achievementChapterMasterTitle;
 
   /// No description provided for @achievementChapterMasterDescription.
   ///
   /// In en, this message translates to:
-  /// **'Complete every level in one chapter.'**
+  /// **'Complete 10 Journey levels.'**
   String get achievementChapterMasterDescription;
 
   /// No description provided for @achievementPerfectJourneyTitle.
   ///
   /// In en, this message translates to:
-  /// **'Perfect Journey'**
+  /// **'Journey 100'**
   String get achievementPerfectJourneyTitle;
 
   /// No description provided for @achievementPerfectJourneyDescription.
   ///
   /// In en, this message translates to:
-  /// **'Complete all 10 Journey chapters.'**
+  /// **'Complete 100 Journey levels.'**
   String get achievementPerfectJourneyDescription;
 
   /// No description provided for @achievementThousandMovesTitle.
@@ -685,6 +787,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hint'**
   String get hint;
+
+  /// No description provided for @targetOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Target'**
+  String get targetOrder;
+
+  /// No description provided for @gradientInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange shades of the same color from dark to light.'**
+  String get gradientInstruction;
+
+  /// No description provided for @gradientCompactInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrange dark to light'**
+  String get gradientCompactInstruction;
+
+  /// No description provided for @pixelPictureLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pixel Coloring'**
+  String get pixelPictureLabel;
+
+  /// No description provided for @pixelPictureInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pixel Coloring'**
+  String get pixelPictureInstruction;
+
+  /// No description provided for @pixelPictureTransitionInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Color the numbered pixels.'**
+  String get pixelPictureTransitionInstruction;
+
+  /// No description provided for @pixelPictureTutorialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This puzzle is different!'**
+  String get pixelPictureTutorialTitle;
+
+  /// No description provided for @pixelPictureTutorialBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap one pixel, then another, to swap them and complete the picture.'**
+  String get pixelPictureTutorialBody;
+
+  /// No description provided for @pixelPictureTutorialDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch one pixel move toward its matching cell.'**
+  String get pixelPictureTutorialDemo;
+
+  /// No description provided for @pixelPictureTutorialTry.
+  ///
+  /// In en, this message translates to:
+  /// **'Now you try! Correct pixels settle into place.'**
+  String get pixelPictureTutorialTry;
+
+  /// No description provided for @pixelPictureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Color one pixel'**
+  String get pixelPictureHint;
+
+  /// No description provided for @resetZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset zoom'**
+  String get resetZoom;
+
+  /// No description provided for @pixelPictureCreateTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'COLOR THE {figure}'**
+  String pixelPictureCreateTarget(String figure);
+
+  /// No description provided for @pixelPicturePlayInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Color the numbered cells to complete the figure.'**
+  String get pixelPicturePlayInstruction;
+
+  /// No description provided for @pixelPictureSwapInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a color, then paint the matching numbers.'**
+  String get pixelPictureSwapInstruction;
+
+  /// No description provided for @pixelFigureHeart.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart'**
+  String get pixelFigureHeart;
+
+  /// No description provided for @pixelFigureStar.
+  ///
+  /// In en, this message translates to:
+  /// **'Star'**
+  String get pixelFigureStar;
+
+  /// No description provided for @pixelFigureSmiley.
+  ///
+  /// In en, this message translates to:
+  /// **'Smiley'**
+  String get pixelFigureSmiley;
+
+  /// No description provided for @pixelFigureFlower.
+  ///
+  /// In en, this message translates to:
+  /// **'Flower'**
+  String get pixelFigureFlower;
+
+  /// No description provided for @pixelFigureCherries.
+  ///
+  /// In en, this message translates to:
+  /// **'Cherries'**
+  String get pixelFigureCherries;
+
+  /// No description provided for @pixelFigureMushroom.
+  ///
+  /// In en, this message translates to:
+  /// **'Mushroom'**
+  String get pixelFigureMushroom;
+
+  /// No description provided for @pixelFigureFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get pixelFigureFish;
+
+  /// No description provided for @pixelFigureButterfly.
+  ///
+  /// In en, this message translates to:
+  /// **'Butterfly'**
+  String get pixelFigureButterfly;
+
+  /// No description provided for @pixelFigureCat.
+  ///
+  /// In en, this message translates to:
+  /// **'Cat Face'**
+  String get pixelFigureCat;
+
+  /// No description provided for @pixelFigureSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get pixelFigureSun;
+
+  /// No description provided for @pixelFigureMoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Moon'**
+  String get pixelFigureMoon;
+
+  /// No description provided for @pixelFigureCloud.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud'**
+  String get pixelFigureCloud;
+
+  /// No description provided for @pixelFigureHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get pixelFigureHouse;
+
+  /// No description provided for @pixelFigureTree.
+  ///
+  /// In en, this message translates to:
+  /// **'Tree'**
+  String get pixelFigureTree;
+
+  /// No description provided for @pixelFigureApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple'**
+  String get pixelFigureApple;
+
+  /// No description provided for @pixelFigureSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunset'**
+  String get pixelFigureSunset;
+
+  /// No description provided for @pixelFigureRainbow.
+  ///
+  /// In en, this message translates to:
+  /// **'Rainbow'**
+  String get pixelFigureRainbow;
+
+  /// No description provided for @pixelFigureLightning.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightning'**
+  String get pixelFigureLightning;
+
+  /// No description provided for @pixelFigureDiamond.
+  ///
+  /// In en, this message translates to:
+  /// **'Diamond'**
+  String get pixelFigureDiamond;
+
+  /// No description provided for @pixelFigureTulip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tulip'**
+  String get pixelFigureTulip;
+
+  /// No description provided for @pixelFigureCactus.
+  ///
+  /// In en, this message translates to:
+  /// **'Cactus'**
+  String get pixelFigureCactus;
+
+  /// No description provided for @pixelFigureLeaf.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaf'**
+  String get pixelFigureLeaf;
+
+  /// No description provided for @pixelFigureStrawberry.
+  ///
+  /// In en, this message translates to:
+  /// **'Strawberry'**
+  String get pixelFigureStrawberry;
+
+  /// No description provided for @pixelFigureWatermelon.
+  ///
+  /// In en, this message translates to:
+  /// **'Watermelon'**
+  String get pixelFigureWatermelon;
+
+  /// No description provided for @pixelFigureRabbit.
+  ///
+  /// In en, this message translates to:
+  /// **'Rabbit'**
+  String get pixelFigureRabbit;
+
+  /// No description provided for @pixelFigureBee.
+  ///
+  /// In en, this message translates to:
+  /// **'Bee'**
+  String get pixelFigureBee;
+
+  /// No description provided for @pixelFigureLadybug.
+  ///
+  /// In en, this message translates to:
+  /// **'Ladybug'**
+  String get pixelFigureLadybug;
+
+  /// No description provided for @pixelFigureTurtle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turtle'**
+  String get pixelFigureTurtle;
+
+  /// No description provided for @pixelFigurePenguin.
+  ///
+  /// In en, this message translates to:
+  /// **'Penguin'**
+  String get pixelFigurePenguin;
+
+  /// No description provided for @pixelFigureGift.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Box'**
+  String get pixelFigureGift;
+
+  /// No description provided for @pixelFigureCupcake.
+  ///
+  /// In en, this message translates to:
+  /// **'Cupcake'**
+  String get pixelFigureCupcake;
+
+  /// No description provided for @pixelFigureRocket.
+  ///
+  /// In en, this message translates to:
+  /// **'Rocket'**
+  String get pixelFigureRocket;
+
+  /// No description provided for @pixelFigureMountainSunset.
+  ///
+  /// In en, this message translates to:
+  /// **'Mountain Sunset'**
+  String get pixelFigureMountainSunset;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @startPuzzle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Puzzle'**
+  String get startPuzzle;
 
   /// No description provided for @nextLevel.
   ///

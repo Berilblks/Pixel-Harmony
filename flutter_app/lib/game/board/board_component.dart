@@ -99,7 +99,8 @@ class BoardComponent extends PositionComponent {
 
     final result = _layout.calculate(
       availableSize: size,
-      boardSize: _state.boardSize,
+      rowCount: _state.rowCount,
+      columnCount: _state.columnCount,
     );
     position = result.boardPosition;
     this.size = result.boardSize;
@@ -145,13 +146,17 @@ class BoardComponent extends PositionComponent {
       return;
     }
 
-    final sourceIndex = _indexOfTile(result.sourceTileId);
+    _performSwap(result.sourceTileId, targetTileId);
+  }
+
+  void _performSwap(String sourceTileId, String targetTileId) {
+    final sourceIndex = _indexOfTile(sourceTileId);
     final targetIndex = _indexOfTile(targetTileId);
     _state = onDropRequested(
       BoardDropRequest(sourceIndex: sourceIndex, targetIndex: targetIndex),
     );
     _isSwapAnimating = true;
-    _synchronizeLayout(animateTileIds: {result.sourceTileId, targetTileId});
+    _synchronizeLayout(animateTileIds: {sourceTileId, targetTileId});
   }
 
   void _syncTargetHighlight() {
@@ -198,8 +203,8 @@ class BoardComponent extends PositionComponent {
       }
 
       final destination = _layout.tilePosition(
-        row: index ~/ _state.boardSize,
-        column: index % _state.boardSize,
+        row: index ~/ _state.columnCount,
+        column: index % _state.columnCount,
         tileSize: _tileExtent,
       );
       originalPositions[model.id] = destination;
@@ -225,7 +230,8 @@ class BoardComponent extends PositionComponent {
     _dragController.updateLayout(
       boardSize: size,
       originalPositions: originalPositions,
-      boardDimension: _state.boardSize,
+      boardRows: _state.rowCount,
+      boardColumns: _state.columnCount,
       tileExtent: _tileExtent,
       spacing: config.spacing,
     );

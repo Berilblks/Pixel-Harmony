@@ -48,7 +48,7 @@ void main() {
       'Total Moves',
       'Modes',
       'Journey',
-      'Endless',
+      'Free Play',
       'Daily Puzzle',
       'Current Streak',
       'Best Streak',

@@ -23,9 +23,8 @@ class LocalLevelProgressRepository implements LevelProgressRepository {
   Future<List<LevelProgress>> readAll() async {
     final completedIds = await _readValidatedIds();
     return [
-      for (final level in LevelCatalog.levels)
-        if (completedIds.contains(level.id))
-          LevelProgress(levelId: level.id, completed: true),
+      for (final levelId in completedIds)
+        LevelProgress(levelId: levelId, completed: true),
     ];
   }
 

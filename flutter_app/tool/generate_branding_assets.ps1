@@ -5,7 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
-$sourcePath = Join-Path $ProjectRoot 'assets/branding/app_icon/pixel_harmony_icon_foreground_placeholder.png'
+$sourcePath = Join-Path $ProjectRoot 'assets/branding/app_icon/pixel_harmony_official.png'
+$transparentLogoPath = Join-Path $ProjectRoot 'assets/branding/app_icon/pixel_harmony_home.png'
 $backgroundColor = [System.Drawing.ColorTranslator]::FromHtml('#F3F6F3')
 
 function New-DirectoryForFile([string]$Path) {
@@ -91,6 +92,128 @@ function Export-Icon(
     }
 }
 
+function Export-PaddedLogo(
+    [System.Drawing.Image]$Source,
+    [int]$Size,
+    [double]$ArtworkFraction,
+    [string]$Path,
+    [bool]$OpaqueBackground
+) {
+    New-DirectoryForFile $Path
+    $pixelFormat = if ($OpaqueBackground) {
+        [System.Drawing.Imaging.PixelFormat]::Format24bppRgb
+    } else {
+        [System.Drawing.Imaging.PixelFormat]::Format32bppArgb
+    }
+    $bitmap = [System.Drawing.Bitmap]::new($Size, $Size, $pixelFormat)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    try {
+        $graphics.Clear($(if ($OpaqueBackground) { $backgroundColor } else { [System.Drawing.Color]::Transparent }))
+        $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+        $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+        $artworkSize = [int][Math]::Round($Size * $ArtworkFraction)
+        $offset = [int][Math]::Round(($Size - $artworkSize) / 2)
+        $graphics.DrawImage($Source, $offset, $offset, $artworkSize, $artworkSize)
+        $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+    } finally {
+        $graphics.Dispose()
+        $bitmap.Dispose()
+    }
+}
+
+function Export-SplashComposition(
+    [System.Drawing.Image]$Source,
+    [double]$Density,
+    [string]$Path
+) {
+    New-DirectoryForFile $Path
+    $width = [int][Math]::Round(200 * $Density)
+    $height = [int][Math]::Round(230 * $Density)
+    $logoSize = [int][Math]::Round(156 * $Density)
+    $bitmap = [System.Drawing.Bitmap]::new($width, $height, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    try {
+        $graphics.Clear([System.Drawing.Color]::Transparent)
+        $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
+        $graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+        $graphics.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+        $logoX = [int](($width - $logoSize) / 2)
+        $graphics.DrawImage($Source, $logoX, 0, $logoSize, $logoSize)
+
+        $font = [System.Drawing.Font]::new(
+            [System.Drawing.FontFamily]::GenericSansSerif,
+            18 * $Density,
+            [System.Drawing.FontStyle]::Bold,
+            [System.Drawing.GraphicsUnit]::Pixel
+        )
+        $brush = [System.Drawing.SolidBrush]::new(
+            [System.Drawing.ColorTranslator]::FromHtml('#7458C8')
+        )
+        $format = [System.Drawing.StringFormat]::new()
+        try {
+            $format.Alignment = [System.Drawing.StringAlignment]::Center
+            $format.LineAlignment = [System.Drawing.StringAlignment]::Center
+            $titleBounds = [System.Drawing.RectangleF]::new(
+                0,
+                170 * $Density,
+                $width,
+                30 * $Density
+            )
+            $graphics.DrawString('PIXEL HARMONY', $font, $brush, $titleBounds, $format)
+        } finally {
+            $format.Dispose()
+            $brush.Dispose()
+            $font.Dispose()
+        }
+        $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+    } finally {
+        $graphics.Dispose()
+        $bitmap.Dispose()
+    }
+}
+
+function Export-SplashBranding([string]$Path) {
+    New-DirectoryForFile $Path
+    $bitmap = [System.Drawing.Bitmap]::new(600, 144, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+    try {
+        $graphics.Clear([System.Drawing.Color]::Transparent)
+        $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
+        $graphics.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+        $font = [System.Drawing.Font]::new(
+            [System.Drawing.FontFamily]::GenericSansSerif,
+            54,
+            [System.Drawing.FontStyle]::Bold,
+            [System.Drawing.GraphicsUnit]::Pixel
+        )
+        $brush = [System.Drawing.SolidBrush]::new(
+            [System.Drawing.ColorTranslator]::FromHtml('#7458C8')
+        )
+        $format = [System.Drawing.StringFormat]::new()
+        try {
+            $format.Alignment = [System.Drawing.StringAlignment]::Center
+            $format.LineAlignment = [System.Drawing.StringAlignment]::Center
+            $graphics.DrawString(
+                'PIXEL HARMONY',
+                $font,
+                $brush,
+                [System.Drawing.RectangleF]::new(0, 0, 600, 144),
+                $format
+            )
+        } finally {
+            $format.Dispose()
+            $brush.Dispose()
+            $font.Dispose()
+        }
+        $bitmap.Save($Path, [System.Drawing.Imaging.ImageFormat]::Png)
+    } finally {
+        $graphics.Dispose()
+        $bitmap.Dispose()
+    }
+}
+
 function Export-LaunchMark(
     [System.Drawing.Image]$Source,
     [int]$Size,
@@ -115,10 +238,14 @@ function Export-LaunchMark(
 }
 
 if (-not (Test-Path -LiteralPath $sourcePath)) {
-    New-PlaceholderForeground $sourcePath
+    throw "Official Pixel Harmony source artwork not found: $sourcePath"
+}
+if (-not (Test-Path -LiteralPath $transparentLogoPath)) {
+    throw "Transparent Pixel Harmony artwork not found: $transparentLogoPath"
 }
 
 $source = [System.Drawing.Image]::FromFile($sourcePath)
+$transparentLogo = [System.Drawing.Image]::FromFile($transparentLogoPath)
 try {
     $androidIconSizes = @{
         'mipmap-mdpi' = 48
@@ -129,21 +256,25 @@ try {
     }
     foreach ($entry in $androidIconSizes.GetEnumerator()) {
         $directory = Join-Path $ProjectRoot "android/app/src/main/res/$($entry.Key)"
-        Export-Icon $source $entry.Value (Join-Path $directory 'ic_launcher.png') $true
-        Export-Icon $source $entry.Value (Join-Path $directory 'ic_launcher_round.png') $true
+        Export-PaddedLogo $transparentLogo $entry.Value 0.90 (Join-Path $directory 'ic_launcher.png') $true
+        Export-PaddedLogo $transparentLogo $entry.Value 0.90 (Join-Path $directory 'ic_launcher_round.png') $true
     }
 
-    Export-Icon $source 432 (Join-Path $ProjectRoot 'android/app/src/main/res/drawable-nodpi/ic_launcher_foreground.png') $false
+    # The adaptive layer is intentionally smaller than the legacy artwork so
+    # circular and rounded-square launcher masks retain the complete frame.
+    Export-PaddedLogo $transparentLogo 432 0.82 (Join-Path $ProjectRoot 'android/app/src/main/res/drawable-nodpi/ic_launcher_foreground.png') $false
+    Export-PaddedLogo $transparentLogo 288 0.72 (Join-Path $ProjectRoot 'android/app/src/main/res/drawable-nodpi/launch_mark_android12.png') $false
+    Export-SplashBranding (Join-Path $ProjectRoot 'android/app/src/main/res/drawable-nodpi/launch_branding_android12.png')
 
-    $androidLaunchSizes = @{
-        'drawable-mdpi' = 120
-        'drawable-hdpi' = 180
-        'drawable-xhdpi' = 240
-        'drawable-xxhdpi' = 360
-        'drawable-xxxhdpi' = 480
+    $androidSplashDensities = @{
+        'drawable-mdpi' = 1
+        'drawable-hdpi' = 1.5
+        'drawable-xhdpi' = 2
+        'drawable-xxhdpi' = 3
+        'drawable-xxxhdpi' = 4
     }
-    foreach ($entry in $androidLaunchSizes.GetEnumerator()) {
-        Export-LaunchMark $source $entry.Value (Join-Path $ProjectRoot "android/app/src/main/res/$($entry.Key)/launch_mark.png")
+    foreach ($entry in $androidSplashDensities.GetEnumerator()) {
+        Export-SplashComposition $transparentLogo $entry.Value (Join-Path $ProjectRoot "android/app/src/main/res/$($entry.Key)/launch_mark.png")
     }
 
     $iosIconDirectory = Join-Path $ProjectRoot 'ios/Runner/Assets.xcassets/AppIcon.appiconset'
@@ -173,6 +304,7 @@ try {
     Export-LaunchMark $source 240 (Join-Path $iosLaunchDirectory 'LaunchImage@2x.png')
     Export-LaunchMark $source 360 (Join-Path $iosLaunchDirectory 'LaunchImage@3x.png')
 } finally {
+    $transparentLogo.Dispose()
     $source.Dispose()
 }
 

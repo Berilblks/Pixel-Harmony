@@ -25,6 +25,7 @@ abstract final class AnalyticsParameters {
   static const achievementId = 'achievement_id';
   static const setting = 'setting';
   static const enabled = 'enabled';
+  static const puzzleType = 'puzzle_type';
 }
 
 abstract final class AnalyticsValues {
@@ -33,4 +34,6 @@ abstract final class AnalyticsValues {
   static const daily = 'daily';
   static const soundEffects = 'sound_effects';
   static const haptics = 'haptics';
+  static const gradient = 'gradient';
+  static const pixelPicture = 'pixel_picture';
 }

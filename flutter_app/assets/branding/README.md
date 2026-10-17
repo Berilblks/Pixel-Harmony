@@ -1,22 +1,29 @@
 # Pixel Harmony branding assets
 
-The current artwork is a temporary, project-owned placeholder built from four
-rounded palette tiles. It contains no third-party artwork and must be reviewed
-or replaced before store submission.
+The current official artwork is the user-supplied glossy four-color Pixel
+Harmony icon. It is used by Home and as the Android launcher-icon source.
 
 ## Source of truth
 
-Replace this file with the approved transparent foreground artwork:
+Official source artwork:
 
-`assets/branding/app_icon/pixel_harmony_icon_foreground_placeholder.png`
+`assets/branding/app_icon/pixel_harmony_official.png`
 
-Requirements for its replacement:
+The Flutter Home screen uses the transparency-prepared derivative at
+`assets/branding/app_icon/pixel_harmony_home.png`. This removes only the
+opaque white canvas outside the mark; launcher resources continue to use the
+official source and are unchanged by Home UI work.
 
-- 1024 × 1024 PNG
-- transparent foreground canvas
-- artwork kept inside the central safe area
-- no text or fine details
-- project-owned or properly licensed artwork only
+The Android adaptive foreground is a transparency-prepared derivative of this
+source. Its padded source occupies 82% of the foreground canvas so Android's
+circular and rounded-square masks retain the full outer frame. Legacy launcher
+icons use 90% of that already-padded source with the neutral Pixel Harmony
+background.
+
+Android 11 and earlier splash resources combine the same transparent mark with
+the `PIXEL HARMONY` wordmark. Android 12 and later use a separately padded,
+icon-only splash drawable because the platform clips the animated-icon slot.
+The iOS icon set has not yet been regenerated from this artwork.
 
 The generator composites the foreground onto the opaque Pixel Harmony neutral
 background for legacy Android and every iOS AppIcon. It also creates the

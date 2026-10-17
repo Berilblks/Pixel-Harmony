@@ -32,22 +32,50 @@ moves, current Daily streak, mode, achievement ID, and changed setting.
 Never log tile colors, board contents, procedural seeds, signing information,
 user IDs, email, advertising IDs, location, or personal profile data.
 
-## Required platform setup
+## Platform setup
 
-The repository intentionally contains no fabricated Firebase configuration.
-Before enabling Firebase for a release:
+Android is registered as `com.berilblks.pixelharmony`. Its official
+`google-services.json` and generated `firebase_options.dart` are normal mobile
+client configuration and may be tracked; they contain identifiers, not signing
+credentials. Upload keystores, `key.properties`, passwords, and service-account
+credentials must never be tracked.
+
+iOS still requires platform setup before an iOS Firebase build:
 
 1. Create or select a Firebase project and enable Google Analytics.
-2. Register Android app `com.berilblks.pixelharmony` and place the downloaded
-   `google-services.json` at `flutter_app/android/app/google-services.json`.
-3. Register iOS app `com.berilblks.pixelharmony` and place the downloaded
+2. Register iOS app `com.berilblks.pixelharmony` and place the downloaded
    `GoogleService-Info.plist` at
    `flutter_app/ios/Runner/GoogleService-Info.plist`.
-4. Install/login to the Firebase and FlutterFire CLIs, then run
-   `flutterfire configure` from `flutter_app/` for Android and iOS. This creates
-   the platform options and adds required Android Crashlytics Gradle wiring.
-5. Revalidate debug/release builds and confirm events in Analytics DebugView and
+3. Re-run `flutterfire configure --platforms=ios` from `flutter_app/` after the
+   iOS app is registered.
+4. Revalidate debug/release builds and confirm events in Analytics DebugView and
    non-production Crashlytics testing before release.
+
+## Android verification
+
+Enable Analytics DebugView for the connected development device:
+
+```powershell
+adb shell setprop debug.firebase.analytics.app com.berilblks.pixelharmony
+```
+
+Launch the app, open a Journey level, and request a hint to exercise `app_open`,
+`journey_level_start`, and `hint_used`. Disable DebugView afterward:
+
+```powershell
+adb shell setprop debug.firebase.analytics.app .none.
+```
+
+Firebase delivery and console visibility require a connected device/emulator,
+network access, and access to the Firebase project; automated tests use fakes.
+
+Crashlytics collection is intentionally disabled in debug mode. To verify it,
+use a non-production profile build and a temporary local-only call to
+`FirebaseCrashlytics.instance.crash()` behind `kProfileMode`. Launch the profile
+build, trigger that temporary code once, reopen the app so the report can be
+uploaded, verify it in the Firebase console, and remove the temporary code
+before committing. Never leave a crash control in release UI or automatically
+crash production builds.
 
 ## Privacy and store disclosure
 

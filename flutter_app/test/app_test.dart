@@ -68,58 +68,65 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
   }
 
-  Future<void> scrollToLazyItem(WidgetTester tester, Finder itemFinder) async {
-    final scrollable =
-        find
-            .descendant(
-              of: find.byKey(const Key('levelSelectGrid')),
-              matching: find.byType(Scrollable),
-            )
-            .first;
-    for (
-      var attempt = 0;
-      attempt < 80 && itemFinder.evaluate().isEmpty;
-      attempt++
-    ) {
-      await tester.drag(scrollable, const Offset(0, -600));
-      await tester.pump();
-    }
-    expect(itemFinder, findsOneWidget);
-  }
-
   Future<void> scrollToLevel(WidgetTester tester, String levelId) async {
     final cardFinder = find.byKey(Key('levelCard_$levelId'));
-    await scrollToLazyItem(tester, cardFinder);
+    final number = LevelCatalog.numberFromId(levelId)!;
+    final scrollable = tester.state<ScrollableState>(
+      find.descendant(
+        of: find.byKey(const Key('levelSelectGrid')),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    scrollable.position.jumpTo(
+      ((number - 1) * 124.0).clamp(0, scrollable.position.maxScrollExtent),
+    );
+    await tester.pump();
+    expect(cardFinder, findsOneWidget);
     await tester.ensureVisible(cardFinder);
     await tester.pump();
   }
 
-  Future<void> scrollToChapter(WidgetTester tester, String chapterId) async {
-    final headerFinder = find.byKey(Key('chapterHeader_$chapterId'));
-    await scrollToLazyItem(tester, headerFinder);
-    await tester.ensureVisible(headerFinder);
+  testWidgets('App hides the debug mode banner', (tester) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
     await tester.pump();
-  }
 
-  testWidgets(
-    'Home shows Journey, Daily, and Endless without temporary level buttons',
-    (tester) async {
-      await tester.pumpWidget(
-        buildApp(repository: FakeLevelProgressRepository()),
-      );
-      await tester.pump();
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.debugShowCheckedModeBanner, isFalse);
+  });
 
-      expect(find.byType(HomeScreen), findsOneWidget);
-      expect(find.text('Journey'), findsOneWidget);
-      expect(find.text('Daily Puzzle'), findsOneWidget);
-      expect(find.text('Endless'), findsOneWidget);
-      expect(find.text('Find calm in color.'), findsOneWidget);
-      expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
-      expect(find.text('Level 1'), findsNothing);
-      expect(find.text('Level 2'), findsNothing);
-      expect(find.text('Level 3'), findsNothing);
-    },
-  );
+  testWidgets('Home shows primary Journey, Daily, and Free Play experiences', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.text('Daily Puzzle'), findsOneWidget);
+    expect(find.text('Free Play'), findsOneWidget);
+    expect(find.byKey(const Key('homeJourneyContinueButton')), findsOneWidget);
+    expect(find.byKey(const Key('homeBackground')), findsOneWidget);
+    expect(find.byKey(const Key('homeLogo')), findsOneWidget);
+    final logo = tester.widget<Image>(find.byKey(const Key('homeLogo')));
+    expect(
+      (logo.image as AssetImage).assetName,
+      'assets/branding/app_icon/'
+      'pixel_harmony_home.png',
+    );
+    expect(find.byKey(const Key('homeUtilityDock')), findsOneWidget);
+    expect(find.byType(Card), findsNothing);
+    expect(find.text('Play'), findsOneWidget);
+    expect(find.byIcon(Icons.arrow_forward_rounded), findsNothing);
+    expect(find.text('Pixel Art — 100 Template Review'), findsNothing);
+    expect(find.byKey(const Key('pixelArtContactSheet')), findsNothing);
+    expect(find.byKey(const Key('levelButton_level_001')), findsNothing);
+    expect(find.text('Level 1'), findsNothing);
+    expect(find.text('Level 2'), findsNothing);
+    expect(find.text('Level 3'), findsNothing);
+  });
 
   testWidgets('Daily opens today deterministic puzzle and returns Home', (
     tester,
@@ -158,6 +165,58 @@ void main() {
     expect(find.byKey(const Key('homeDailyCompleted')), findsOneWidget);
   });
 
+  testWidgets(
+    'Home utility actions are anchored in an equal-width bottom bar',
+    (tester) async {
+      await tester.pumpWidget(
+        buildApp(repository: FakeLevelProgressRepository()),
+      );
+      await tester.pump();
+
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold.bottomNavigationBar, isNotNull);
+      expect(scaffold.extendBody, isTrue);
+
+      final dock = find.byKey(const Key('homeUtilityDock'));
+      final background = find.byKey(const Key('homeBackground'));
+      expect(find.descendant(of: background, matching: dock), findsNothing);
+      expect(
+        tester.getBottomLeft(dock).dy,
+        tester.view.physicalSize.height / tester.view.devicePixelRatio,
+      );
+
+      final actionSizes = [
+        tester.getSize(find.byKey(const Key('homeAchievementsButton'))),
+        tester.getSize(find.byKey(const Key('homeStatisticsButton'))),
+        tester.getSize(find.byKey(const Key('homeSettingsButton'))),
+      ];
+      expect(actionSizes.toSet(), hasLength(1));
+      expect(actionSizes.first.height, 68);
+    },
+  );
+
+  testWidgets('Home bottom bar handles narrow screens and enlarged text', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 640);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('homeUtilityDock')), findsOneWidget);
+    expect(find.text('Achievements'), findsOneWidget);
+    expect(find.text('Statistics'), findsOneWidget);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Home opens Settings', (tester) async {
     await tester.pumpWidget(
       buildApp(repository: FakeLevelProgressRepository()),
@@ -172,23 +231,74 @@ void main() {
     expect(find.text('Settings'), findsOneWidget);
   });
 
-  testWidgets('Play opens Level Select with every catalog level', (
+  testWidgets('Home Continue opens Journey map without starting gameplay', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(
+        repository: FakeLevelProgressRepository(
+          completedLevelIds: const {'level_001', 'level_002'},
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Level 3'), findsNothing);
+    await tester.tap(find.byKey(const Key('homeJourneyContinueButton')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
+    expect(find.byType(GameplayScreen), findsNothing);
+    expect(find.byKey(const Key('currentLevel_level_003')), findsOneWidget);
+  });
+
+  testWidgets('Free Play opens setup with puzzle types and difficulties', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+
+    await tester.tap(find.byKey(const Key('homeEndlessButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Free Play'), findsOneWidget);
+    expect(find.text('Gradient'), findsOneWidget);
+    expect(find.text('Pixel Coloring'), findsOneWidget);
+    expect(find.text('Mixed'), findsOneWidget);
+    for (final label in const ['Relaxed', 'Normal', 'Hard', 'Expert']) {
+      expect(find.text(label), findsOneWidget);
+    }
+  });
+
+  testWidgets('Play opens a continuous Journey map without range headings', (
     tester,
   ) async {
     await openLevelSelect(tester, repository: FakeLevelProgressRepository());
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
-    expect(find.text('Choose a Level'), findsOneWidget);
-    for (final chapter in LevelCatalog.chapters) {
-      await scrollToChapter(tester, chapter.id);
-      expect(find.byKey(Key('chapterHeader_${chapter.id}')), findsOneWidget);
-      for (final levelId in chapter.levelIds) {
-        final level = LevelCatalog.byId(levelId);
-        await scrollToLevel(tester, level.id);
-        expect(find.text('Level ${level.number}'), findsOneWidget);
-        expect(find.byKey(Key('levelBoardSize_${level.id}')), findsOneWidget);
-      }
-    }
+    expect(find.text('Levels'), findsOneWidget);
+    expect(find.textContaining('1–10'), findsNothing);
+    expect(find.textContaining('Levels 1'), findsNothing);
+    expect(
+      find.byKey(const Key('chapterHeader_journey_segment_1')),
+      findsNothing,
+    );
+    expect(find.byKey(const Key('levelCard_level_001')), findsOneWidget);
+    expect(find.byKey(const Key('journeyPathSegment_1')), findsOneWidget);
+    expect(find.byKey(const Key('journeyPathSegment_2')), findsOneWidget);
+    expect(find.byKey(const Key('journeySelectBackground')), findsOneWidget);
+    expect(find.byKey(const Key('currentLevel_level_001')), findsOneWidget);
+    expect(find.byKey(const Key('gradientNode_level_001')), findsOneWidget);
+    expect(find.byKey(const Key('levelSelectBackButton')), findsOneWidget);
+    expect(find.byIcon(Icons.star), findsNothing);
+    expect(find.byIcon(Icons.star_rounded), findsNothing);
+    await scrollToLevel(tester, 'level_100');
+    expect(find.byKey(const Key('levelCard_level_100')), findsOneWidget);
+    expect(find.byKey(const Key('milestoneLevel_level_100')), findsOneWidget);
+    expect(find.byKey(const Key('journeySelectBackground')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -205,7 +315,13 @@ void main() {
         ),
       );
 
-      await tester.tap(find.byKey(Key('levelCard_$levelId')));
+      await scrollToLevel(tester, levelId);
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(Key('levelCard_$levelId')),
+          matching: find.byType(InkWell),
+        ),
+      );
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
 
@@ -265,7 +381,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 350));
 
     expect(find.byType(LevelSelectScreen), findsOneWidget);
-    expect(find.text('Choose a Level'), findsOneWidget);
+    expect(find.text('Levels'), findsOneWidget);
   });
 
   testWidgets('primary navigation retains accessible tap semantics', (
@@ -277,7 +393,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.bySemanticsLabel('Journey'), findsOneWidget);
+    final journeySemantics = tester.widget<Semantics>(
+      find.byKey(const Key('homeJourneySemantics')),
+    );
+    expect(journeySemantics.properties.label, 'Play');
     expect(find.bySemanticsLabel('Settings'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('homePlayButton')));
@@ -326,11 +445,14 @@ void main() {
       completedLevelIds: completedLevelIds,
     );
 
-    for (final (levelId, boardSize) in const [
-      ('level_001', 2),
-      ('level_005', 3),
-      ('level_013', 4),
-      ('level_025', 5),
+    for (final (levelId, rows, columns) in const [
+      ('level_001', 2, 2),
+      ('level_002', 2, 2),
+      ('level_003', 2, 2),
+      ('level_004', 2, 2),
+      ('level_005', 5, 5),
+      ('level_013', 3, 3),
+      ('level_071', 6, 6),
     ]) {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
@@ -348,7 +470,8 @@ void main() {
                 find.byType(GameWidget<PixelHarmonyGame>),
               )
               .game!;
-      expect(game.session.boardState.boardSize, boardSize);
+      expect(game.session.boardState.rowCount, rows);
+      expect(game.session.boardState.columnCount, columns);
       expect(tester.takeException(), isNull);
     }
   });
@@ -363,14 +486,37 @@ void main() {
     await tester.pump();
 
     expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
-    expect(find.text('Completed'), findsOneWidget);
     expect(find.byKey(const Key('levelCompleted_level_002')), findsNothing);
     expect(find.byKey(const Key('levelCompleted_level_003')), findsNothing);
     expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
     expect(find.byKey(const Key('levelLocked_level_003')), findsOneWidget);
   });
 
-  testWidgets('Level Select marks a completed chapter without changing locks', (
+  testWidgets(
+    'Level Select labels Pixel Pictures without revealing templates',
+    (tester) async {
+      await openLevelSelect(
+        tester,
+        repository: FakeLevelProgressRepository(
+          completedLevelIds:
+              LevelCatalog.levels.take(4).map((level) => level.id).toSet(),
+        ),
+      );
+      await scrollToLevel(tester, 'level_005');
+
+      expect(
+        find.byKey(const Key('pixelPictureBadge_level_005')),
+        findsOneWidget,
+      );
+      expect(find.text('heart'), findsNothing);
+      expect(
+        find.byKey(const Key('pixelPictureBadge_level_004')),
+        findsNothing,
+      );
+    },
+  );
+
+  testWidgets('Level Select focuses the next stop after completed progress', (
     tester,
   ) async {
     await openLevelSelect(
@@ -381,7 +527,31 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.byKey(const Key('chapterCompletedIndicator')), findsOneWidget);
+    expect(find.byKey(const Key('currentLevel_level_011')), findsOneWidget);
+    expect(find.byKey(const Key('levelCompleted_level_010')), findsOneWidget);
+    expect(find.byKey(const Key('levelLocked_level_012')), findsOneWidget);
+  });
+
+  testWidgets('Journey map supports lazy high-level focus', (tester) async {
+    for (final currentLevel in const [101, 500, 1000]) {
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      final completed = {
+        for (var number = 1; number < currentLevel; number++)
+          'level_${number.toString().padLeft(3, '0')}',
+      };
+      await openLevelSelect(
+        tester,
+        repository: FakeLevelProgressRepository(completedLevelIds: completed),
+      );
+      await tester.pump();
+
+      final id = 'level_${currentLevel.toString().padLeft(3, '0')}';
+      expect(find.byKey(Key('currentLevel_$id')), findsOneWidget);
+      expect(find.byKey(Key('levelCard_$id')), findsOneWidget);
+      expect(find.byType(Semantics).evaluate().length, lessThan(80));
+      expect(tester.takeException(), isNull);
+    }
   });
 
   testWidgets('tapping a locked level does not open Gameplay', (tester) async {

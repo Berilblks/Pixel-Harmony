@@ -51,9 +51,6 @@ doc/api/
 !.env.example
 *.local
 secrets/
-**/google-services.json
-**/GoogleService-Info.plist
-firebase_options.dart
 
 # Operating systems and logs
 .DS_Store

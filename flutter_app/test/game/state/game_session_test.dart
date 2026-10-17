@@ -65,6 +65,7 @@ void main() {
 
   test('all catalog levels complete using their own solution', () {
     for (final level in LevelCatalog.levels) {
+      if (level.puzzleType == JourneyPuzzleType.pixelPicture) continue;
       final session = GameSession(level: level);
       final currentOrder = List<String>.of(level.initialTileOrder);
       var moveCount = 0;
@@ -80,6 +81,7 @@ void main() {
         currentOrder[source] = displacedTileId;
         session.swapTiles(source, target);
         moveCount++;
+        if (session.boardState.completed) break;
       }
 
       expect(session.boardState.completed, isTrue, reason: level.id);

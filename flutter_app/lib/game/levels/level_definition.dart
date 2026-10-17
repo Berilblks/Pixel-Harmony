@@ -7,18 +7,26 @@ class LevelTileDefinition {
 
 enum LevelDifficulty { tutorial, easy, medium, hard, expert }
 
+enum JourneyPuzzleType { gradient, pixelPicture }
+
 class LevelDefinition {
   LevelDefinition({
     required this.id,
     required this.number,
     required this.nameKey,
     required this.boardSize,
+    int? rowCount,
+    int? columnCount,
     required this.difficulty,
     required this.difficultyScore,
+    this.puzzleType = JourneyPuzzleType.gradient,
+    this.pictureTemplateId,
     required List<LevelTileDefinition> tiles,
     required List<String> initialTileOrder,
     required List<String> solutionTileOrder,
-  }) : tiles = List.unmodifiable(tiles),
+  }) : rowCount = rowCount ?? boardSize,
+       columnCount = columnCount ?? boardSize,
+       tiles = List.unmodifiable(tiles),
        initialTileOrder = List.unmodifiable(initialTileOrder),
        solutionTileOrder = List.unmodifiable(solutionTileOrder) {
     _validate();
@@ -28,17 +36,36 @@ class LevelDefinition {
   final int number;
   final String nameKey;
   final int boardSize;
+  final int rowCount;
+  final int columnCount;
   final LevelDifficulty difficulty;
   final int difficultyScore;
+  final JourneyPuzzleType puzzleType;
+  final String? pictureTemplateId;
   final List<LevelTileDefinition> tiles;
   final List<String> initialTileOrder;
   final List<String> solutionTileOrder;
 
   void _validate() {
+    if (puzzleType == JourneyPuzzleType.pixelPicture &&
+        (pictureTemplateId == null || pictureTemplateId!.isEmpty)) {
+      throw ArgumentError.value(
+        pictureTemplateId,
+        'pictureTemplateId',
+        'Pixel Picture levels require a template ID.',
+      );
+    }
+    if (puzzleType == JourneyPuzzleType.gradient && pictureTemplateId != null) {
+      throw ArgumentError.value(
+        pictureTemplateId,
+        'pictureTemplateId',
+        'Gradient levels cannot reference a picture template.',
+      );
+    }
     if (number <= 0) {
       throw ArgumentError.value(number, 'number', 'Must be positive.');
     }
-    if (boardSize <= 0) {
+    if (boardSize <= 0 || rowCount <= 0 || columnCount <= 0) {
       throw ArgumentError.value(boardSize, 'boardSize', 'Must be positive.');
     }
     if (difficultyScore < 1 || difficultyScore > 100) {
@@ -64,7 +91,7 @@ class LevelDefinition {
       );
     }
 
-    final expectedTileCount = boardSize * boardSize;
+    final expectedTileCount = rowCount * columnCount;
     if (tiles.length != expectedTileCount) {
       throw ArgumentError.value(
         tiles.length,
@@ -90,7 +117,8 @@ class LevelDefinition {
       expectedTileCount: expectedTileCount,
       tileIds: tileIds.toSet(),
     );
-    if (_ordersMatch(initialTileOrder, solutionTileOrder)) {
+    if (puzzleType == JourneyPuzzleType.gradient &&
+        _ordersMatch(initialTileOrder, solutionTileOrder)) {
       throw ArgumentError.value(
         initialTileOrder,
         'initialTileOrder',

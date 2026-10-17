@@ -28,6 +28,7 @@ String localizedChapterName(
     'blossomName' => localizations.blossomName,
     'desertName' => localizations.desertName,
     'northernLightsName' => localizations.northernLightsName,
+    'continuingJourneyName' => localizations.continuingJourneyName,
     _ => throw StateError('Unknown chapter name key: ${chapter.nameKey}'),
   };
 }
@@ -47,6 +48,8 @@ String localizedChapterDescription(
     'blossomDescription' => localizations.blossomDescription,
     'desertDescription' => localizations.desertDescription,
     'northernLightsDescription' => localizations.northernLightsDescription,
+    'continuingJourneyDescription' =>
+      localizations.continuingJourneyDescription,
     _ =>
       throw StateError(
         'Unknown chapter description key: ${chapter.descriptionKey}',

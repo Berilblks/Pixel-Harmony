@@ -21,6 +21,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get journeyMode => 'Journey';
 
   @override
+  String get continuingJourneyName => 'Continuing Journey';
+
+  @override
+  String get continuingJourneyDescription =>
+      'A new deterministic harmony awaits.';
+
+  @override
   String get dailyPuzzle => 'Daily Puzzle';
 
   @override
@@ -30,10 +37,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyCompleteSubtitle => 'Today\'s harmony is restored.';
 
   @override
-  String get endlessMode => 'Endless';
+  String get endlessMode => 'Free Play';
 
   @override
-  String get continueEndless => 'Continue Endless';
+  String get continueEndless => 'Continue Free Play';
+
+  @override
+  String get continueJourney => 'Play';
+
+  @override
+  String journeyProgressLevel(int number) {
+    return 'Level $number';
+  }
+
+  @override
+  String get todayPuzzleReady => 'Today\'s puzzle is ready';
+
+  @override
+  String get completedToday => 'Completed today';
+
+  @override
+  String dailyStreakDays(int count) {
+    return '$count day streak';
+  }
+
+  @override
+  String get freePlayDescription =>
+      'Play your way, without progression pressure.';
+
+  @override
+  String get puzzleType => 'Puzzle Type';
+
+  @override
+  String get gradientPuzzle => 'Gradient';
+
+  @override
+  String get pixelColoringPuzzle => 'Pixel Coloring';
+
+  @override
+  String get mixedPuzzle => 'Mixed';
+
+  @override
+  String get difficulty => 'Difficulty';
+
+  @override
+  String get difficultyRelaxed => 'Relaxed';
+
+  @override
+  String get difficultyNormal => 'Normal';
+
+  @override
+  String get difficultyHard => 'Hard';
+
+  @override
+  String get difficultyExpert => 'Expert';
 
   @override
   String puzzleLabel(int number) {
@@ -48,10 +105,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get endlessProgressError =>
-      'Endless progress cannot be loaded with this version.';
+      'Free Play progress cannot be loaded with this version.';
 
   @override
-  String get resetEndless => 'Reset Endless';
+  String get resetEndless => 'Reset Free Play';
 
   @override
   String get gameplayTitle => 'Gameplay';
@@ -139,7 +196,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete the journey through shifting polar color.';
 
   @override
-  String get chooseLevel => 'Choose a Level';
+  String get chooseLevel => 'Levels';
 
   @override
   String get boardSizeLabel => 'Board Size';
@@ -233,11 +290,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete 50 Journey levels.';
 
   @override
-  String get achievementJourneyCompleteTitle => 'Journey Complete';
+  String get achievementJourneyCompleteTitle => 'A Century of Harmony';
 
   @override
   String get achievementJourneyCompleteDescription =>
-      'Complete all 100 Journey levels.';
+      'Reach the 100-level Journey milestone.';
 
   @override
   String get achievementEndlessExplorerTitle => 'Endless Explorer';
@@ -274,18 +331,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete 30 Daily puzzles.';
 
   @override
-  String get achievementChapterMasterTitle => 'Chapter Master';
+  String get achievementChapterMasterTitle => 'Journey 10';
 
   @override
   String get achievementChapterMasterDescription =>
-      'Complete every level in one chapter.';
+      'Complete 10 Journey levels.';
 
   @override
-  String get achievementPerfectJourneyTitle => 'Perfect Journey';
+  String get achievementPerfectJourneyTitle => 'Journey 100';
 
   @override
   String get achievementPerfectJourneyDescription =>
-      'Complete all 10 Journey chapters.';
+      'Complete 100 Journey levels.';
 
   @override
   String get achievementThousandMovesTitle => 'A Thousand Moves';
@@ -329,6 +386,170 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hint => 'Hint';
+
+  @override
+  String get targetOrder => 'Target';
+
+  @override
+  String get gradientInstruction =>
+      'Arrange shades of the same color from dark to light.';
+
+  @override
+  String get gradientCompactInstruction => 'Arrange dark to light';
+
+  @override
+  String get pixelPictureLabel => 'Pixel Coloring';
+
+  @override
+  String get pixelPictureInstruction => 'Pixel Coloring';
+
+  @override
+  String get pixelPictureTransitionInstruction => 'Color the numbered pixels.';
+
+  @override
+  String get pixelPictureTutorialTitle => 'This puzzle is different!';
+
+  @override
+  String get pixelPictureTutorialBody =>
+      'Tap one pixel, then another, to swap them and complete the picture.';
+
+  @override
+  String get pixelPictureTutorialDemo =>
+      'Watch one pixel move toward its matching cell.';
+
+  @override
+  String get pixelPictureTutorialTry =>
+      'Now you try! Correct pixels settle into place.';
+
+  @override
+  String get pixelPictureHint => 'Color one pixel';
+
+  @override
+  String get resetZoom => 'Reset zoom';
+
+  @override
+  String pixelPictureCreateTarget(String figure) {
+    return 'COLOR THE $figure';
+  }
+
+  @override
+  String get pixelPicturePlayInstruction =>
+      'Color the numbered cells to complete the figure.';
+
+  @override
+  String get pixelPictureSwapInstruction =>
+      'Choose a color, then paint the matching numbers.';
+
+  @override
+  String get pixelFigureHeart => 'Heart';
+
+  @override
+  String get pixelFigureStar => 'Star';
+
+  @override
+  String get pixelFigureSmiley => 'Smiley';
+
+  @override
+  String get pixelFigureFlower => 'Flower';
+
+  @override
+  String get pixelFigureCherries => 'Cherries';
+
+  @override
+  String get pixelFigureMushroom => 'Mushroom';
+
+  @override
+  String get pixelFigureFish => 'Fish';
+
+  @override
+  String get pixelFigureButterfly => 'Butterfly';
+
+  @override
+  String get pixelFigureCat => 'Cat Face';
+
+  @override
+  String get pixelFigureSun => 'Sun';
+
+  @override
+  String get pixelFigureMoon => 'Moon';
+
+  @override
+  String get pixelFigureCloud => 'Cloud';
+
+  @override
+  String get pixelFigureHouse => 'House';
+
+  @override
+  String get pixelFigureTree => 'Tree';
+
+  @override
+  String get pixelFigureApple => 'Apple';
+
+  @override
+  String get pixelFigureSunset => 'Sunset';
+
+  @override
+  String get pixelFigureRainbow => 'Rainbow';
+
+  @override
+  String get pixelFigureLightning => 'Lightning';
+
+  @override
+  String get pixelFigureDiamond => 'Diamond';
+
+  @override
+  String get pixelFigureTulip => 'Tulip';
+
+  @override
+  String get pixelFigureCactus => 'Cactus';
+
+  @override
+  String get pixelFigureLeaf => 'Leaf';
+
+  @override
+  String get pixelFigureStrawberry => 'Strawberry';
+
+  @override
+  String get pixelFigureWatermelon => 'Watermelon';
+
+  @override
+  String get pixelFigureRabbit => 'Rabbit';
+
+  @override
+  String get pixelFigureBee => 'Bee';
+
+  @override
+  String get pixelFigureLadybug => 'Ladybug';
+
+  @override
+  String get pixelFigureTurtle => 'Turtle';
+
+  @override
+  String get pixelFigurePenguin => 'Penguin';
+
+  @override
+  String get pixelFigureGift => 'Gift Box';
+
+  @override
+  String get pixelFigureCupcake => 'Cupcake';
+
+  @override
+  String get pixelFigureRocket => 'Rocket';
+
+  @override
+  String get pixelFigureMountainSunset => 'Mountain Sunset';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get startPuzzle => 'Start Puzzle';
 
   @override
   String get nextLevel => 'Next Level';

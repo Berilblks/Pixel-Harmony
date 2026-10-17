@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/achievements/presentation/achievements_screen.dart';
 import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
+import 'package:pixel_harmony/features/endless/domain/free_play_configuration.dart';
+import 'package:pixel_harmony/features/endless/presentation/free_play_gameplay_screen.dart';
+import 'package:pixel_harmony/features/endless/presentation/free_play_setup_screen.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
 import 'package:pixel_harmony/features/level_select/presentation/level_select_screen.dart';
@@ -16,6 +19,8 @@ abstract final class AppRoutes {
   static const gameplay = 'gameplay';
   static const daily = 'daily';
   static const endless = 'endless';
+  static const freePlaySetup = 'free-play-setup';
+  static const freePlayGame = 'free-play-game';
   static const settings = 'settings';
   static const statistics = 'statistics';
   static const achievements = 'achievements';
@@ -38,6 +43,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/endless',
         name: AppRoutes.endless,
         builder: (context, state) => const EndlessGameplayScreen(),
+      ),
+      GoRoute(
+        path: '/free-play',
+        name: AppRoutes.freePlaySetup,
+        builder: (context, state) => const FreePlaySetupScreen(),
+      ),
+      GoRoute(
+        path: '/free-play/play',
+        name: AppRoutes.freePlayGame,
+        builder:
+            (context, state) => FreePlayGameplayScreen(
+              configuration:
+                  state.extra as FreePlayConfiguration? ??
+                  const FreePlayConfiguration(
+                    puzzleType: FreePlayPuzzleType.gradient,
+                    difficulty: FreePlayDifficulty.relaxed,
+                  ),
+            ),
       ),
       GoRoute(
         path: '/statistics',

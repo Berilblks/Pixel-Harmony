@@ -3,6 +3,17 @@ import 'package:pixel_harmony/game/levels/level_catalog.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
 
 void main() {
+  test('Journey progression has no finite final level', () {
+    const endlessProgression = LevelProgression.journey();
+    final level100 = endlessProgression.nextLevel('level_099')!;
+    final level101 = endlessProgression.nextLevel(level100.id)!;
+
+    expect(level100.number, 100);
+    expect(level101.number, 101);
+    expect(level101.boardSize, 6);
+    expect(endlessProgression.isUnlocked('level_101', {'level_100'}), isTrue);
+  });
+
   final levels = LevelCatalog.levels;
   final progression = LevelProgression(levels: levels);
 

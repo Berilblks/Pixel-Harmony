@@ -11,6 +11,8 @@ void main() {
 
   LevelDefinition createLevel({
     int boardSize = 2,
+    int? rowCount,
+    int? columnCount,
     LevelDifficulty difficulty = LevelDifficulty.tutorial,
     int difficultyScore = 5,
     List<LevelTileDefinition> levelTiles = tiles,
@@ -22,6 +24,8 @@ void main() {
       number: 1,
       nameKey: 'testLevel',
       boardSize: boardSize,
+      rowCount: rowCount,
+      columnCount: columnCount,
       difficulty: difficulty,
       difficultyScore: difficultyScore,
       tiles: levelTiles,
@@ -32,6 +36,15 @@ void main() {
 
   test('valid level is accepted', () {
     expect(createLevel().boardSize, 2);
+  });
+
+  test('rectangular level geometry controls the expected tile count', () {
+    final level = createLevel(boardSize: 4, rowCount: 1, columnCount: 4);
+    expect((level.rowCount, level.columnCount), (1, 4));
+    expect(
+      () => createLevel(boardSize: 3, rowCount: 2, columnCount: 3),
+      throwsArgumentError,
+    );
   });
 
   test('duplicate tile IDs are rejected', () {

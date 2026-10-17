@@ -10,10 +10,16 @@ class BoardLayout {
 
   BoardLayoutResult calculate({
     required Vector2 availableSize,
-    required int boardSize,
+    int? boardSize,
+    int? rowCount,
+    int? columnCount,
   }) {
-    assert(boardSize > 0);
-    final totalSpacing = config.spacing * (boardSize - 1);
+    final rows = rowCount ?? boardSize ?? 0;
+    final columns = columnCount ?? boardSize ?? 0;
+    assert(rows > 0);
+    assert(columns > 0);
+    final horizontalSpacing = config.spacing * (columns - 1);
+    final verticalSpacing = config.spacing * (rows - 1);
     final usableWidth = math.max(
       0.0,
       availableSize.x - (config.screenPadding * 2),
@@ -24,21 +30,22 @@ class BoardLayout {
     );
     final widthBasedTileSize = math.max(
       0.0,
-      (usableWidth - totalSpacing) / boardSize,
+      (usableWidth - horizontalSpacing) / columns,
     );
     final heightBasedTileSize = math.max(
       0.0,
-      (usableHeight - totalSpacing) / boardSize,
+      (usableHeight - verticalSpacing) / rows,
     );
     final tileSize = math.min(widthBasedTileSize, heightBasedTileSize);
-    final boardExtent = (tileSize * boardSize) + totalSpacing;
+    final boardWidth = (tileSize * columns) + horizontalSpacing;
+    final boardHeight = (tileSize * rows) + verticalSpacing;
 
     return BoardLayoutResult(
       tileSize: tileSize,
-      boardSize: Vector2.all(boardExtent),
+      boardSize: Vector2(boardWidth, boardHeight),
       boardPosition: Vector2(
-        (availableSize.x - boardExtent) / 2,
-        (availableSize.y - boardExtent) / 2,
+        (availableSize.x - boardWidth) / 2,
+        (availableSize.y - boardHeight) / 2,
       ),
     );
   }

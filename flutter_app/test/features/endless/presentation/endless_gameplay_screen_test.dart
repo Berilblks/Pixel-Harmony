@@ -2,7 +2,9 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
 import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
@@ -76,7 +78,9 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    await tester.tap(find.byKey(const Key('homeEndlessButton')));
+    GoRouter.of(
+      tester.element(find.byType(HomeScreen)),
+    ).pushNamed(AppRoutes.endless);
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
   }
@@ -116,14 +120,14 @@ void main() {
     expect(analytics.count(AnalyticsEvents.endlessPuzzleComplete), 1);
   });
 
-  testWidgets('Home exposes Journey and Endless mode choices', (tester) async {
+  testWidgets('Home exposes Journey map and Free Play choices', (tester) async {
     await tester.pumpWidget(
       buildApp(endlessRepository: FakeEndlessProgressRepository()),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Journey'), findsOneWidget);
-    expect(find.text('Endless'), findsOneWidget);
+    expect(find.text('Play'), findsOneWidget);
+    expect(find.text('Free Play'), findsOneWidget);
   });
 
   testWidgets('Endless opens and reuses GameSession, hint, and restart', (
@@ -241,7 +245,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 350));
     expect(find.byType(HomeScreen), findsOneWidget);
-    expect(find.text('Continue Endless'), findsOneWidget);
+    expect(find.text('Free Play'), findsOneWidget);
   });
 
   testWidgets('Turkish Endless puzzle label is localized', (tester) async {

@@ -55,22 +55,22 @@ void main() {
     });
   }
 
-  test('chapter_master derives one complete chapter from Journey IDs', () {
+  test('chapter_master retains its ID and uses the 10-level milestone', () {
     final completed = LevelCatalog.chapters.first.levelIds.toSet();
     final result = evaluator.evaluate(
-      statistics: const PlayerStatistics(),
+      statistics: const PlayerStatistics(journeyPuzzlesCompleted: 10),
       completedJourneyLevelIds: completed,
       chapters: LevelCatalog.chapters,
     );
 
     expect(result.byId('chapter_master').unlocked, isTrue);
-    expect(result.byId('chapter_master').currentValue, 1);
+    expect(result.byId('chapter_master').currentValue, 10);
     expect(result.byId('perfect_journey').unlocked, isFalse);
   });
 
-  test('perfect_journey derives all 10 complete chapters', () {
+  test('perfect_journey retains its ID and uses the 100-level milestone', () {
     final result = evaluator.evaluate(
-      statistics: const PlayerStatistics(),
+      statistics: const PlayerStatistics(journeyPuzzlesCompleted: 100),
       completedJourneyLevelIds:
           LevelCatalog.levels.map((level) => level.id).toSet(),
       chapters: LevelCatalog.chapters,
@@ -78,7 +78,7 @@ void main() {
 
     expect(result.byId('chapter_master').unlocked, isTrue);
     expect(result.byId('perfect_journey').unlocked, isTrue);
-    expect(result.byId('perfect_journey').currentValue, 10);
+    expect(result.byId('perfect_journey').currentValue, 100);
   });
 
   test('persisted achievement stays unlocked if values decrease', () {
