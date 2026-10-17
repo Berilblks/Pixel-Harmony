@@ -4,6 +4,7 @@ import 'package:pixel_harmony/game/coloring/pixel_coloring_state.dart';
 import 'package:pixel_harmony/game/levels/journey_level_generator.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
+import 'package:pixel_harmony/game/levels/pixel_picture_difficulty.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 
 void main() {
@@ -35,8 +36,8 @@ void main() {
     final template = PixelPictureCatalog.byId(first.pictureTemplateId!);
 
     expect(first.puzzleType, JourneyPuzzleType.pixelPicture);
-    expect(template.familyId, 'heart');
-    expect(first.boardSize, 5);
+    expect(template, PixelPictureCatalog.journeyTemplates.first);
+    expect(first.difficulty, LevelDifficulty.tutorial);
     expect(first.initialTileOrder, first.solutionTileOrder);
     expect(second.pictureTemplateId, first.pictureTemplateId);
     expect(template.requiredPaletteIndices, isNotEmpty);
@@ -148,14 +149,11 @@ void main() {
       final level520 = _nextPicture(generator, 401);
       final level1000 = _nextPicture(generator, 1000);
 
-      expect(early.boardSize, 5);
-      expect(level55.boardSize, inInclusiveRange(5, 7));
-      expect(level130.boardSize, inInclusiveRange(7, 9));
-      // Detailed authored subjects may use the catalog's mobile-safe 16x16
-      // maximum when a smaller matrix would make the silhouette ambiguous.
-      expect(level280.boardSize, inInclusiveRange(9, 16));
-      expect(level520.boardSize, inInclusiveRange(13, 16));
-      expect(level1000.boardSize, inInclusiveRange(5, 16));
+      final samples = [early, level55, level130, level280, level520];
+      final scores = samples.map((level) => level.difficultyScore).toList();
+      expect(scores, orderedEquals([...scores]..sort()));
+      expect(level1000.difficulty, LevelDifficulty.expert);
+      expect(level1000.difficultyScore, greaterThanOrEqualTo(81));
     },
   );
 
@@ -172,8 +170,64 @@ void main() {
     }
     expect(pictures.map((item) => item.id).toSet(), hasLength(100));
     expect(pictures.map((item) => item.familyId).toSet(), hasLength(100));
-    expect(pictures.first.familyId, 'heart');
-    expect(pictures.last.familyId, 'northern_lights');
+    expect(pictures, orderedEquals(PixelPictureCatalog.journeyTemplates));
+  });
+
+  test('all templates receive a multi-factor Journey difficulty score', () {
+    final assessments = PixelPictureCatalog.journeyAssessments;
+    expect(assessments, hasLength(100));
+    expect(assessments.map((item) => item.template.id).toSet(), hasLength(100));
+    for (var index = 1; index < assessments.length; index++) {
+      expect(
+        assessments[index].score - assessments[index - 1].score,
+        inInclusiveRange(-3, 8),
+        reason: 'Journey Pixel Coloring order $index',
+      );
+    }
+  });
+
+  test('matrix size is not the only Journey difficulty measure', () {
+    final assessments =
+        PixelPictureCatalog.templates
+            .map(PixelPictureDifficultyEvaluator.evaluate)
+            .toList();
+    final hasComplexSmallerTemplate = assessments.any(
+      (smaller) => assessments.any(
+        (larger) =>
+            smaller.template.size < larger.template.size &&
+            smaller.score > larger.score,
+      ),
+    );
+    expect(hasComplexSmallerTemplate, isTrue);
+  });
+
+  test('post-catalog Journey retains deterministic expert variety', () {
+    const generator = JourneyLevelGenerator();
+    final pictureLevels = <int>[];
+    for (var number = 1; pictureLevels.length < 135; number++) {
+      if (generator.puzzleTypeFor(number) == JourneyPuzzleType.pixelPicture) {
+        pictureLevels.add(number);
+      }
+    }
+    final firstCycle =
+        pictureLevels
+            .skip(100)
+            .take(30)
+            .map((number) => generator.generate(number).pictureTemplateId)
+            .toList();
+    expect(firstCycle.toSet(), hasLength(30));
+    expect(
+      firstCycle,
+      everyElement(
+        isIn(
+          PixelPictureCatalog.journeyTemplates.skip(70).map((item) => item.id),
+        ),
+      ),
+    );
+    expect(
+      generator.generate(pictureLevels[100]).pictureTemplateId,
+      generator.generate(pictureLevels[130]).pictureTemplateId,
+    );
   });
 
   test('paintable detail trends upward across all five curated tiers', () {

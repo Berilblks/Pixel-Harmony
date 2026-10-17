@@ -3,15 +3,17 @@ import 'dart:math' as math;
 import 'package:pixel_harmony/game/generation/difficulty_evaluator.dart';
 import 'package:pixel_harmony/game/generation/seeded_random.dart';
 import 'package:pixel_harmony/game/levels/journey_gradient.dart';
+import 'package:pixel_harmony/game/levels/journey_color_family.dart';
 import 'package:pixel_harmony/game/levels/journey_level_fingerprint.dart';
 import 'package:pixel_harmony/game/levels/journey_perceptual_color.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
+import 'package:pixel_harmony/game/levels/pixel_picture_difficulty.dart';
 
 class JourneyLevelGenerator {
   const JourneyLevelGenerator();
 
-  static const generationVersion = 5;
+  static const generationVersion = 6;
   static const _gradientGenerationVersion = 3;
   static const maximumBoardSize = 8;
   static const recentComparisonWindow = 8;
@@ -53,21 +55,12 @@ class JourneyLevelGenerator {
     for (var reroll = 0; reroll < 24; reroll++) {
       final candidate = _candidate(levelNumber, reroll);
       final fingerprint = JourneyLevelFingerprint.fromLevel(candidate);
-      final gradientFamilies = recent
-          .where((item) => item.puzzleType == JourneyPuzzleType.gradient)
-          .toList(growable: false);
-      final recentFamilies = gradientFamilies.skip(
-        math.max(0, gradientFamilies.length - 3),
-      );
       if (recent.every(
-            (item) =>
-                !fingerprint.isObviousRepeatOf(item) &&
-                (item.puzzleType != JourneyPuzzleType.gradient ||
-                    item.shuffleShape != fingerprint.shuffleShape),
-          ) &&
-          recentFamilies.every(
-            (item) => item.hueFamily != fingerprint.hueFamily,
-          )) {
+        (item) =>
+            !fingerprint.isObviousRepeatOf(item) &&
+            (item.puzzleType != JourneyPuzzleType.gradient ||
+                item.shuffleShape != fingerprint.shuffleShape),
+      )) {
         return candidate;
       }
     }
@@ -159,9 +152,10 @@ class JourneyLevelGenerator {
     LevelDifficulty difficulty,
   ) {
     final progress = (math.log(number + 1) / math.log(10000)).clamp(0.0, 1.0);
-    final familyIndex =
-        (number * 7 + (number ~/ 18) * 5 + _gradientGenerationVersion * 3) % 18;
-    final baseHue = familyIndex * 20.0 + 7 + random.nextDouble() * 6;
+    final family = JourneyColorFamily.forGradientOrdinal(
+      _gradientOrdinal(number),
+    );
+    final baseHue = family.hue + random.nextSignedDouble() * 2.25;
     return _shadePalette(
       count: boardSize * boardSize,
       baseHue: baseHue,
@@ -171,6 +165,14 @@ class JourneyLevelGenerator {
       hueVariation: 2.0 + random.nextDouble() * 2.5,
       minimumDeltaE: perceptualThresholdForLevel(number),
     );
+  }
+
+  int _gradientOrdinal(int levelNumber) {
+    var ordinal = -1;
+    for (var number = 1; number <= levelNumber; number++) {
+      if (puzzleTypeFor(number) == JourneyPuzzleType.gradient) ordinal++;
+    }
+    return ordinal;
   }
 
   LevelDefinition _picture(int number) {
@@ -193,8 +195,8 @@ class JourneyLevelGenerator {
       number: number,
       nameKey: 'numberedLevel',
       boardSize: template.size,
-      difficulty: _difficultyFor(number),
-      difficultyScore: _scoreInside(_difficultyFor(number), 8 + number ~/ 4),
+      difficulty: _difficultyForPictureOrdinal(pictureOrdinal),
+      difficultyScore: _progressScoreForPictureOrdinal(pictureOrdinal),
       puzzleType: JourneyPuzzleType.pixelPicture,
       pictureTemplateId: template.id,
       tiles: [
@@ -208,6 +210,35 @@ class JourneyLevelGenerator {
 
   int _pictureOrdinal(int number) {
     return number == 5 ? 0 : (number - 1) ~/ 5;
+  }
+
+  LevelDifficulty _difficultyForPictureOrdinal(int ordinal) {
+    if (ordinal >= PixelPictureCatalog.templates.length) {
+      return LevelDifficulty.expert;
+    }
+    return switch (PixelPictureDifficultyEvaluator.tierForJourneyIndex(
+      ordinal,
+    )) {
+      JourneyPixelDifficultyTier.starter => LevelDifficulty.tutorial,
+      JourneyPixelDifficultyTier.easy => LevelDifficulty.easy,
+      JourneyPixelDifficultyTier.medium => LevelDifficulty.medium,
+      JourneyPixelDifficultyTier.hard => LevelDifficulty.hard,
+      JourneyPixelDifficultyTier.expert => LevelDifficulty.expert,
+    };
+  }
+
+  int _progressScoreForPictureOrdinal(int ordinal) {
+    if (ordinal >= PixelPictureCatalog.templates.length) return 90;
+    final position = ordinal % 20;
+    return switch (PixelPictureDifficultyEvaluator.tierForJourneyIndex(
+      ordinal,
+    )) {
+      JourneyPixelDifficultyTier.starter => 2 + (position * 8 ~/ 19),
+      JourneyPixelDifficultyTier.easy => 11 + (position * 19 ~/ 19),
+      JourneyPixelDifficultyTier.medium => 31 + (position * 24 ~/ 19),
+      JourneyPixelDifficultyTier.hard => 56 + (position * 24 ~/ 19),
+      JourneyPixelDifficultyTier.expert => 81 + (position * 19 ~/ 19),
+    };
   }
 
   static int _mix(int value) {
@@ -282,7 +313,6 @@ class JourneyLevelGenerator {
   }
 
   LevelDefinition _tutorial(int number) {
-    const hues = [220.0, 24.0, 145.0];
     const permutations = [
       [1, 0, 2, 3],
       [2, 1, 0, 3],
@@ -292,7 +322,7 @@ class JourneyLevelGenerator {
     final solution = List.generate(4, (index) => '${id}_tile_$index');
     final palette = _shadePalette(
       count: 4,
-      baseHue: hues[number - 1],
+      baseHue: JourneyColorFamily.forGradientOrdinal(number - 1).hue,
       saturation: 0.72,
       lowLuminance: 0.025 + number * 0.005,
       highLuminance: 0.76 - number * 0.025,
@@ -330,30 +360,52 @@ class JourneyLevelGenerator {
     required double minimumDeltaE,
   }) {
     var previousLuminance = -1.0;
+    int? previousColor;
     final colors = List.generate(count, (index) {
       final t = index / (count - 1);
       final linearTarget = lowLuminance + (highLuminance - lowLuminance) * t;
-      final targetLuminance = math.max(
+      var targetLuminance = math.max(
         linearTarget,
         previousLuminance + minimumNeighborLuminanceDelta + 0.003,
       );
       final hue = baseHue + math.sin(t * math.pi * 2) * hueVariation;
       final localSaturation = (saturation + math.sin(t * math.pi) * 0.025)
           .clamp(0.42, 0.78);
-      var lower = 0.0;
-      var upper = 1.0;
-      var color = _hslToArgb(hue, localSaturation, 0.5);
-      for (var attempt = 0; attempt < 18; attempt++) {
-        final lightness = (lower + upper) / 2;
-        color = _hslToArgb(hue, localSaturation, lightness);
-        if (JourneyGradient.relativeLuminance(color) < targetLuminance) {
-          lower = lightness;
-        } else {
-          upper = lightness;
+      int colorForTarget() {
+        var lower = 0.0;
+        var upper = 1.0;
+        for (var attempt = 0; attempt < 18; attempt++) {
+          final lightness = (lower + upper) / 2;
+          final candidate = _hslToArgb(hue, localSaturation, lightness);
+          if (JourneyGradient.relativeLuminance(candidate) < targetLuminance) {
+            lower = lightness;
+          } else {
+            upper = lightness;
+          }
         }
+        return _hslToArgb(hue, localSaturation, upper);
       }
-      color = _hslToArgb(hue, localSaturation, upper);
+
+      var color = colorForTarget();
+      for (
+        var adjustment = 0;
+        previousColor != null &&
+            JourneyPerceptualColor.deltaE(previousColor!, color) <
+                minimumDeltaE &&
+            adjustment < 20;
+        adjustment++
+      ) {
+        targetLuminance = math.min(
+          0.96,
+          math.max(
+            targetLuminance + 0.006,
+            previousLuminance + minimumNeighborLuminanceDelta + 0.006,
+          ),
+        );
+        color = colorForTarget();
+      }
       previousLuminance = JourneyGradient.relativeLuminance(color);
+      previousColor = color;
       return color;
     }, growable: false);
     for (var index = 1; index < colors.length; index++) {

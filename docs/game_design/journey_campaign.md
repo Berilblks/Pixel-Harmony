@@ -15,6 +15,14 @@ Journey mixes two puzzle types:
   from 2×2 (levels 1–5), through 3×3, 4×4, 5×5, 6×6, and 7×7 tiers, reaching
   8×8 at level 201 and beyond. Pixel Coloring appearances retain their own
   canonical template dimensions.
+
+Gradient presentation rotates deterministically through 14 named families:
+pink, purple, lavender, blue, turquoise, mint, emerald, yellow, gold, orange,
+coral, red, peach, and fuchsia. Each 14-Gradient block uses every family once;
+block offsets vary deterministically, the previous five exact families are
+avoided, and immediately adjacent near-hue families are rejected. A small hue
+jitter keeps repeated long-term appearances fresh without crossing into an
+unrelated family.
 - Pixel Coloring puzzles color a predefined 5×5–16×16 figure from a curated
   color-by-number template. They begin at level 5 and occupy about one level in
   five. The template, numbered cells, and required palette are deterministic for
@@ -33,10 +41,19 @@ A hint fills exactly one correct unfinished cell. Restart clears the current
 in-memory coloring; partial coloring is intentionally not persisted in this MVP.
 The production content library contains 100 individually authored canonical
 templates across symbols, nature, food, animals, objects, vehicles, and scenes.
-The first 100 Pixel Coloring occurrences present each artwork once in curated
-difficulty order before normal deterministic reuse begins. Grid sizes grow from
-5×5 to 16×16 and later art contains newly authored detail rather than scaled-up
-early silhouettes. Cells have one-logical-pixel grid lines,
+The first 100 Pixel Coloring occurrences present each artwork once in measured
+difficulty order before deterministic expert reuse begins. Difficulty combines
+matrix area, paintable cells, palette size and similarity, fragmented/small
+color regions, and edge detail; matrix size is never the sole measure. The
+catalog is divided into five smooth 20-art Journey bands from starter through
+expert. After the first pass, Journey cycles deterministically through the 30
+hardest artworks with a full-cycle stride, avoiding a sudden return to starter
+content. Within narrow three-point complexity windows, templates are ordered
+to reduce repeated subject categories and similar average palette families;
+this adds visual variety without introducing a meaningful difficulty jump.
+Grid sizes remain between 5×5 and 16×16, while later art contains
+authored detail rather than scaled-up early silhouettes. Cells have
+one-logical-pixel grid lines,
 square styling, no card shadows, and one outer canvas frame. On completion, the
 solved pixel art remains visible for 500 ms. Puzzle assistance then fades away
 and the exact same template cells and palette are rendered gaplessly at a larger
@@ -65,8 +82,8 @@ Analytics continues to emit the existing `pixel_picture` puzzle-type value for
 dashboard compatibility even though the user-facing mechanic is now Pixel
 Coloring. No event names or historical dimensions were migrated.
 
-Journey generation version 5 intentionally replaces procedural silhouette
-recipes with the 100-art curated content library. Gradient seeds remain pinned
-to their version-3 inputs, and stable level IDs preserve existing completion
-progress. Existing completed levels are not reset; uncompleted Pixel Coloring
-levels resolve to their version-5 canonical artwork when opened.
+Journey generation version 6 orders the existing 100-art library by measured
+Pixel Coloring complexity. It does not alter any artwork, template ID, palette,
+or Gradient seed. Stable level IDs preserve completion and unlock progress;
+partial Pixel Coloring state is not persisted, so an unfinished level safely
+resolves to its version-6 deterministic template when reopened.

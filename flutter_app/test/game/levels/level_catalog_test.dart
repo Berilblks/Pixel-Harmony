@@ -196,8 +196,25 @@ void main() {
     }
 
     expectDifficulties(1, 3, {LevelDifficulty.tutorial});
-    expectDifficulties(4, 8, {LevelDifficulty.easy});
-    expectDifficulties(9, 100, {LevelDifficulty.medium, LevelDifficulty.hard});
+    for (final level in LevelCatalog.levels.skip(3)) {
+      if (level.puzzleType == JourneyPuzzleType.pixelPicture) continue;
+      expect(
+        level.difficulty,
+        level.number <= 8
+            ? LevelDifficulty.easy
+            : isIn({LevelDifficulty.medium, LevelDifficulty.hard}),
+        reason: level.id,
+      );
+    }
+
+    final pixelDifficulties =
+        LevelCatalog.levels
+            .where(
+              (level) => level.puzzleType == JourneyPuzzleType.pixelPicture,
+            )
+            .map((level) => level.difficulty)
+            .toList();
+    expect(pixelDifficulties, everyElement(LevelDifficulty.tutorial));
   });
 
   test('catalog resolves levels beyond the original milestone', () {

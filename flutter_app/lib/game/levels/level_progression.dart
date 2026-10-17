@@ -20,6 +20,11 @@ class LevelProgression {
   final JourneyLevelGenerator? _journeyGenerator;
 
   bool isUnlocked(String levelId, Set<String> completedLevelIds) {
+    const unlockAllForTesting = bool.fromEnvironment(
+      'PIXEL_HARMONY_UNLOCK_ALL',
+    );
+    if (unlockAllForTesting) return true;
+
     if (_journeyGenerator != null) {
       final number = _numberFromId(levelId);
       if (number == 1 || completedLevelIds.contains(levelId)) return true;

@@ -20,7 +20,7 @@ void main() {
         reason: 'Level $number',
       );
     }
-    expect(JourneyLevelGenerator.generationVersion, 5);
+    expect(JourneyLevelGenerator.generationVersion, 6);
   });
 
   test('levels 1-5000 preserve mixed-Journey invariants', () {
