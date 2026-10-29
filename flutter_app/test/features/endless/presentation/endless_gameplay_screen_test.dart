@@ -8,7 +8,6 @@ import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
 import 'package:pixel_harmony/core/analytics/analytics_taxonomy.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
-import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/application/endless_progress_providers.dart';
 import 'package:pixel_harmony/features/endless/presentation/endless_gameplay_screen.dart';
 import 'package:pixel_harmony/features/home/presentation/home_screen.dart';
@@ -19,7 +18,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../support/fake_endless_progress_repository.dart';
 import '../../../support/fake_app_analytics_service.dart';
-import '../../../support/fake_daily_progress_repository.dart';
 import '../../../support/fake_achievement_repository.dart';
 import '../../../support/fake_level_progress_repository.dart';
 import '../../../support/fake_player_statistics_repository.dart';
@@ -30,7 +28,6 @@ void main() {
   Widget buildApp({
     required FakeEndlessProgressRepository endlessRepository,
     FakeLevelProgressRepository? journeyRepository,
-    FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
     FakeAchievementRepository? achievementRepository,
     FakeAppAnalyticsService? analytics,
@@ -40,9 +37,6 @@ void main() {
         endlessProgressRepositoryProvider.overrideWithValue(endlessRepository),
         levelProgressRepositoryProvider.overrideWithValue(
           journeyRepository ?? FakeLevelProgressRepository(),
-        ),
-        dailyProgressRepositoryProvider.overrideWithValue(
-          dailyRepository ?? FakeDailyProgressRepository(),
         ),
         playerStatisticsRepositoryProvider.overrideWithValue(
           statisticsRepository ?? FakePlayerStatisticsRepository(),
@@ -61,7 +55,6 @@ void main() {
     WidgetTester tester,
     FakeEndlessProgressRepository repository, {
     FakeLevelProgressRepository? journeyRepository,
-    FakeDailyProgressRepository? dailyRepository,
     FakePlayerStatisticsRepository? statisticsRepository,
     FakeAchievementRepository? achievementRepository,
     FakeAppAnalyticsService? analytics,
@@ -70,7 +63,6 @@ void main() {
       buildApp(
         endlessRepository: repository,
         journeyRepository: journeyRepository,
-        dailyRepository: dailyRepository,
         statisticsRepository: statisticsRepository,
         achievementRepository: achievementRepository,
         analytics: analytics,
@@ -224,17 +216,14 @@ void main() {
   ) async {
     final endlessRepository = FakeEndlessProgressRepository();
     final journeyRepository = FakeLevelProgressRepository();
-    final dailyRepository = FakeDailyProgressRepository();
     await openEndless(
       tester,
       endlessRepository,
       journeyRepository: journeyRepository,
-      dailyRepository: dailyRepository,
     );
     await complete(tester);
     expect(journeyRepository.completedLevelIds, isEmpty);
     expect(journeyRepository.markCompletedCallCount, 0);
-    expect(dailyRepository.completeCallCount, 0);
   });
 
   testWidgets('Back Home returns from Endless completion', (tester) async {

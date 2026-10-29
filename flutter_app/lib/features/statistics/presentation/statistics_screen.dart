@@ -103,21 +103,6 @@ class _StatisticsContent extends StatelessWidget {
                   label: localizations.endlessMode,
                   value: statistics.endlessPuzzlesCompleted,
                 ),
-                _StatRow(
-                  label: localizations.dailyPuzzle,
-                  value: statistics.dailyPuzzlesCompleted,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _SectionTitle(localizations.dailyPuzzle),
-                const SizedBox(height: AppSpacing.sm),
-                _StatRow(
-                  label: localizations.currentStreak,
-                  value: statistics.currentDailyStreak,
-                ),
-                _StatRow(
-                  label: localizations.bestStreak,
-                  value: statistics.bestDailyStreak,
-                ),
               ],
             ),
           ),

@@ -1,4 +1,5 @@
 import 'package:pixel_harmony/game/levels/journey_color_family.dart';
+import 'package:pixel_harmony/game/levels/journey_pixel_picture_selector.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_difficulty.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 import 'package:pixel_harmony/game/pixel_art/templates/tier_1_templates.dart';
@@ -29,6 +30,17 @@ abstract final class PixelPictureCatalog {
     journeyAssessments.map((assessment) => assessment.template),
   );
 
+  static final JourneyPixelPictureSelector journeySelector =
+      JourneyPixelPictureSelector(
+        metadata: [
+          for (final assessment in journeyAssessments)
+            JourneyPixelTemplateMetadata(
+              assessment: assessment,
+              paletteFamily: _paletteFamily(assessment.template),
+            ),
+        ],
+      );
+
   static PixelPictureTemplate byId(String id) =>
       _byId[id] ??
       templates.firstWhere(
@@ -45,19 +57,7 @@ abstract final class PixelPictureCatalog {
     if (levelNumber < 1 || pictureOrdinal < 0) {
       throw ArgumentError('Journey inputs must be non-negative.');
     }
-    if (pictureOrdinal < journeyTemplates.length) {
-      return journeyTemplates[pictureOrdinal];
-    }
-    // Once every artwork has appeared, retain expert-level variety instead of
-    // abruptly returning to beginner content. The stride is coprime with the
-    // 30-item pool, so every item appears before the deterministic cycle repeats.
-    const advancedPoolSize = 30;
-    const advancedStride = 17;
-    final advancedStart = journeyTemplates.length - advancedPoolSize;
-    final cycleIndex =
-        ((pictureOrdinal - journeyTemplates.length) * advancedStride) %
-        advancedPoolSize;
-    return journeyTemplates[advancedStart + cycleIndex];
+    return journeySelector.select(pictureOrdinal);
   }
 
   static List<PixelPictureTemplate> eligibleForLevel(int levelNumber) {

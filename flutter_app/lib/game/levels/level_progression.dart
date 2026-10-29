@@ -2,6 +2,11 @@ import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/journey_level_generator.dart';
 
 class LevelProgression {
+  static const _unlockAllRequested = bool.fromEnvironment(
+    'PIXEL_HARMONY_UNLOCK_ALL',
+  );
+  static const _isProductBuild = bool.fromEnvironment('dart.vm.product');
+
   LevelProgression({required List<LevelDefinition> levels})
     : levels = List.unmodifiable(levels),
       _journeyGenerator = null {
@@ -20,10 +25,7 @@ class LevelProgression {
   final JourneyLevelGenerator? _journeyGenerator;
 
   bool isUnlocked(String levelId, Set<String> completedLevelIds) {
-    const unlockAllForTesting = bool.fromEnvironment(
-      'PIXEL_HARMONY_UNLOCK_ALL',
-    );
-    if (unlockAllForTesting) return true;
+    if (_unlockAllRequested && !_isProductBuild) return true;
 
     if (_journeyGenerator != null) {
       final number = _numberFromId(levelId);

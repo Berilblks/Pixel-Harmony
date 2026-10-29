@@ -134,24 +134,6 @@ abstract class AppLocalizations {
   /// **'A new deterministic harmony awaits.'**
   String get continuingJourneyDescription;
 
-  /// No description provided for @dailyPuzzle.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Puzzle'**
-  String get dailyPuzzle;
-
-  /// No description provided for @dailyCompleteTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Complete'**
-  String get dailyCompleteTitle;
-
-  /// No description provided for @dailyCompleteSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s harmony is restored.'**
-  String get dailyCompleteSubtitle;
-
   /// No description provided for @endlessMode.
   ///
   /// In en, this message translates to:
@@ -175,24 +157,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Level {number}'**
   String journeyProgressLevel(int number);
-
-  /// No description provided for @todayPuzzleReady.
-  ///
-  /// In en, this message translates to:
-  /// **'Today\'s puzzle is ready'**
-  String get todayPuzzleReady;
-
-  /// No description provided for @completedToday.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed today'**
-  String get completedToday;
-
-  /// No description provided for @dailyStreakDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{count} day streak'**
-  String dailyStreakDays(int count);
 
   /// No description provided for @freePlayDescription.
   ///
@@ -530,12 +494,6 @@ abstract class AppLocalizations {
   /// **'{current} / {target}'**
   String achievementProgress(int current, int target);
 
-  /// No description provided for @achievementProgressDays.
-  ///
-  /// In en, this message translates to:
-  /// **'{current} / {target} days'**
-  String achievementProgressDays(int current, int target);
-
   /// No description provided for @achievementUnlocked.
   ///
   /// In en, this message translates to:
@@ -656,30 +614,6 @@ abstract class AppLocalizations {
   /// **'Complete 100 Endless puzzles.'**
   String get achievementEndlessDevotionDescription;
 
-  /// No description provided for @achievementDailyRhythmTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Rhythm'**
-  String get achievementDailyRhythmTitle;
-
-  /// No description provided for @achievementDailyRhythmDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Reach a 7-day Daily streak.'**
-  String get achievementDailyRhythmDescription;
-
-  /// No description provided for @achievementDailyDevotionTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily Devotion'**
-  String get achievementDailyDevotionTitle;
-
-  /// No description provided for @achievementDailyDevotionDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Complete 30 Daily puzzles.'**
-  String get achievementDailyDevotionDescription;
-
   /// No description provided for @achievementChapterMasterTitle.
   ///
   /// In en, this message translates to:
@@ -739,18 +673,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Moves'**
   String get totalMoves;
-
-  /// No description provided for @currentStreak.
-  ///
-  /// In en, this message translates to:
-  /// **'Current Streak'**
-  String get currentStreak;
-
-  /// No description provided for @bestStreak.
-  ///
-  /// In en, this message translates to:
-  /// **'Best Streak'**
-  String get bestStreak;
 
   /// No description provided for @statisticsLoadError.
   ///

@@ -14,117 +14,8 @@ import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../support/fake_daily_progress_repository.dart';
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
-
-  testWidgets(
-    'Daily Pixel Coloring exposes every template color and supports painting',
-    (tester) async {
-      tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(320, 640);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      addTearDown(tester.view.resetPhysicalSize);
-
-      final template = _templateWithMostColors();
-      final level = _pictureLevel(template, id: 'daily_picture_test');
-      final daily = FakeDailyProgressRepository();
-      await tester.pumpWidget(
-        _testApp(
-          GameplayScreen.daily(
-            level: level,
-            dailyDateKey: '2026-10-17',
-            onDailyCompleted: (state) async {
-              if (state.completed) await daily.complete('2026-10-17');
-            },
-            onBackHome: () {},
-          ),
-        ),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 100));
-
-      final palette = find.byKey(const Key('pixelColorPalette'));
-      expect(palette, findsOneWidget);
-      expect(
-        tester.getBottomLeft(palette).dy,
-        lessThanOrEqualTo(tester.view.physicalSize.height),
-      );
-      for (final paletteIndex in template.requiredPaletteIndices) {
-        final identifier = template.identifierForPalette(paletteIndex);
-        final swatch = find.byKey(Key('pixelColorSwatch_$identifier'));
-        expect(swatch, findsOneWidget);
-        final colorContainer = tester.widget<Container>(
-          find.descendant(of: swatch, matching: find.byType(Container)),
-        );
-        final decoration = colorContainer.decoration! as BoxDecoration;
-        expect(decoration.color, Color(template.palette[paletteIndex]));
-      }
-
-      final game = _currentGame(tester);
-      final board =
-          game.children.whereType<PixelColoringBoardComponent>().single;
-      final initialSelection = game.coloringSession!.state.selectedPaletteIndex;
-      final wrongCell = board.children
-          .whereType<PixelColoringCellComponent>()
-          .firstWhere(
-            (cell) =>
-                cell.paintable &&
-                template.pixels[cell.cellIndex] != initialSelection,
-          );
-      wrongCell.onTapped(wrongCell.cellIndex);
-      expect(
-        game.coloringSession!.state.paintedCells[wrongCell.cellIndex],
-        isFalse,
-      );
-
-      final selectedCell = board.children
-          .whereType<PixelColoringCellComponent>()
-          .firstWhere(
-            (cell) =>
-                cell.paintable &&
-                template.pixels[cell.cellIndex] == initialSelection,
-          );
-      selectedCell.onTapped(selectedCell.cellIndex);
-      await tester.pump();
-      expect(
-        game.coloringSession!.state.paintedCells[selectedCell.cellIndex],
-        isTrue,
-      );
-
-      final anotherPaletteIndex = template.requiredPaletteIndices.firstWhere(
-        (index) => index != game.coloringSession!.state.selectedPaletteIndex,
-      );
-      final anotherIdentifier = template.identifierForPalette(
-        anotherPaletteIndex,
-      );
-      final anotherSwatch = find.byKey(
-        Key('pixelColorSwatch_$anotherIdentifier'),
-      );
-      await tester.ensureVisible(anotherSwatch);
-      await tester.pump();
-      await tester.tap(anotherSwatch);
-      await tester.pump();
-      expect(
-        game.coloringSession!.state.selectedPaletteIndex,
-        anotherPaletteIndex,
-      );
-
-      while (!game.coloringSession!.state.completed) {
-        expect(game.requestHint(), isTrue);
-      }
-      await tester.pump(const Duration(milliseconds: 3100));
-      expect(daily.completeCallCount, 1);
-      expect(daily.progress.isCompleted('2026-10-17'), isTrue);
-      expect(
-        find.byKey(const Key('completedPixelArtPresentation')),
-        findsOneWidget,
-      );
-      expect(find.byKey(const Key('pixelColorPalette')), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
 
   testWidgets('Free Play Pixel Coloring uses the shared palette', (
     tester,
@@ -145,6 +36,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byKey(const Key('pixelColorPalette')), findsOneWidget);
+    expect(find.text(template.englishName), findsOneWidget);
     final firstPaletteIndex = template.requiredPaletteIndices.first;
     final firstIdentifier = template.identifierForPalette(firstPaletteIndex);
     await tester.tap(find.byKey(Key('pixelColorSwatch_$firstIdentifier')));
@@ -159,7 +51,7 @@ void main() {
     '16x16 zoom keeps palette fixed, blocks multi-touch paint, and maps taps',
     (tester) async {
       tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(360, 720);
+      tester.view.physicalSize = const Size(320, 720);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.view.resetPhysicalSize);
       final template = PixelPictureCatalog.byId('northern_lights');
@@ -178,6 +70,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       final palette = find.byKey(const Key('pixelColorPalette'));
+      expect(find.text(template.englishName), findsOneWidget);
       final palettePosition = tester.getTopLeft(palette);
       final game = _currentGame(tester);
       final board =
@@ -219,8 +112,41 @@ void main() {
         game.coloringSession!.state.paintedCells[selected.cellIndex],
         isTrue,
       );
+      expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('long Pixel Coloring name is localized through completion', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 640);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(tester.view.resetPhysicalSize);
+    final template = PixelPictureCatalog.byId('northern_lights');
+    await tester.pumpWidget(
+      _testApp(
+        GameplayScreen.endless(
+          level: _pictureLevel(template, id: 'localized_picture_test'),
+          puzzleNumber: 1,
+          onEndlessCompleted: (_) async {},
+          onNextPuzzle: () {},
+          onBackHome: () {},
+        ),
+        locale: const Locale('tr'),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text(template.turkishName), findsOneWidget);
+    final game = _currentGame(tester);
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump(const Duration(milliseconds: 3100));
+
+    expect(find.byKey(const Key('completionPixelPictureName')), findsOneWidget);
+    expect(find.text(template.turkishName), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Future<void> _pinchGameplay(WidgetTester tester) async {
@@ -239,9 +165,10 @@ Future<void> _pinchGameplay(WidgetTester tester) async {
   await tester.pump();
 }
 
-Widget _testApp(Widget home) {
+Widget _testApp(Widget home, {Locale? locale}) {
   return ProviderScope(
     child: MaterialApp(
+      locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -284,7 +211,7 @@ LevelDefinition _pictureLevel(
   return LevelDefinition(
     id: id,
     number: 1,
-    nameKey: 'dailyPuzzle',
+    nameKey: 'freePlay',
     boardSize: template.size,
     difficulty: LevelDifficulty.medium,
     difficultyScore: 43,

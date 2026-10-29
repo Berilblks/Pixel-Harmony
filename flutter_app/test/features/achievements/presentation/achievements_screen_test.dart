@@ -47,37 +47,38 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Achievements screen shows all 14 locked and unlocked items', (
-    tester,
-  ) async {
-    await openFromHome(
-      tester,
-      buildApp(
-        achievements: FakeAchievementRepository(
-          unlocked: {'first_harmony': DateTime(2026, 8, 21)},
+  testWidgets(
+    'Achievements screen shows all active locked and unlocked items',
+    (tester) async {
+      await openFromHome(
+        tester,
+        buildApp(
+          achievements: FakeAchievementRepository(
+            unlocked: {'first_harmony': DateTime(2026, 8, 21)},
+          ),
+          statistics: const PlayerStatistics(totalPuzzlesCompleted: 3),
         ),
-        statistics: const PlayerStatistics(totalPuzzlesCompleted: 3),
-      ),
-    );
+      );
 
-    expect(find.byType(AchievementsScreen), findsOneWidget);
-    final list = tester.widget<ListView>(
-      find.byKey(const Key('achievementsList')),
-    );
-    // ListView.separated builds 14 cards with 13 separator slots.
-    expect(list.childrenDelegate.estimatedChildCount, 27);
-    expect(find.text('First Harmony'), findsOneWidget);
-    expect(find.text('Unlocked'), findsOneWidget);
-    expect(find.text('Locked'), findsWidgets);
-    expect(find.text('3 / 10'), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.byKey(const Key('achievement_thousand_moves')),
-      300,
-      scrollable: find.byType(Scrollable).last,
-    );
-    expect(find.text('A Thousand Moves'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.byType(AchievementsScreen), findsOneWidget);
+      final list = tester.widget<ListView>(
+        find.byKey(const Key('achievementsList')),
+      );
+      // ListView.separated builds 12 cards with 11 separator slots.
+      expect(list.childrenDelegate.estimatedChildCount, 23);
+      expect(find.text('First Harmony'), findsOneWidget);
+      expect(find.text('Unlocked'), findsOneWidget);
+      expect(find.text('Locked'), findsWidgets);
+      expect(find.text('3 / 10'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.byKey(const Key('achievement_thousand_moves')),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
+      expect(find.text('A Thousand Moves'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('Achievements copy is localized in Turkish', (tester) async {
     tester.binding.platformDispatcher.localesTestValue = const [Locale('tr')];

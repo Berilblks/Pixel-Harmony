@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/achievements/presentation/achievements_screen.dart';
-import 'package:pixel_harmony/features/daily/presentation/daily_gameplay_screen.dart';
 import 'package:pixel_harmony/features/endless/domain/free_play_configuration.dart';
 import 'package:pixel_harmony/features/endless/presentation/free_play_gameplay_screen.dart';
 import 'package:pixel_harmony/features/endless/presentation/free_play_setup_screen.dart';
@@ -17,7 +16,6 @@ abstract final class AppRoutes {
   static const home = 'home';
   static const levelSelect = 'level-select';
   static const gameplay = 'gameplay';
-  static const daily = 'daily';
   static const endless = 'endless';
   static const freePlaySetup = 'free-play-setup';
   static const freePlayGame = 'free-play-game';
@@ -33,11 +31,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/achievements',
         name: AppRoutes.achievements,
         builder: (context, state) => const AchievementsScreen(),
-      ),
-      GoRoute(
-        path: '/daily',
-        name: AppRoutes.daily,
-        builder: (context, state) => const DailyGameplayScreen(),
       ),
       GoRoute(
         path: '/endless',

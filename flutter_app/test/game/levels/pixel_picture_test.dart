@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_session.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_state.dart';
 import 'package:pixel_harmony/game/levels/journey_level_generator.dart';
+import 'package:pixel_harmony/game/levels/journey_pixel_picture_selector.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_difficulty.dart';
@@ -27,6 +28,10 @@ void main() {
         expect(template.identifierForPalette(paletteIndex), greaterThan(0));
       }
     }
+  });
+
+  test('all 100 approved template assets retain their stable content', () {
+    expect(_catalogDigest(PixelPictureCatalog.templates), -6611065927770145330);
   });
 
   test('Level 5 introduces a deterministic beginner Heart coloring puzzle', () {
@@ -204,7 +209,7 @@ void main() {
   test('post-catalog Journey retains deterministic expert variety', () {
     const generator = JourneyLevelGenerator();
     final pictureLevels = <int>[];
-    for (var number = 1; pictureLevels.length < 135; number++) {
+    for (var number = 1; pictureLevels.length < 145; number++) {
       if (generator.puzzleTypeFor(number) == JourneyPuzzleType.pixelPicture) {
         pictureLevels.add(number);
       }
@@ -212,22 +217,113 @@ void main() {
     final firstCycle =
         pictureLevels
             .skip(100)
-            .take(30)
+            .take(40)
             .map((number) => generator.generate(number).pictureTemplateId)
             .toList();
-    expect(firstCycle.toSet(), hasLength(30));
+    expect(firstCycle.toSet(), hasLength(40));
     expect(
       firstCycle,
       everyElement(
         isIn(
-          PixelPictureCatalog.journeyTemplates.skip(70).map((item) => item.id),
+          PixelPictureCatalog.journeyTemplates.skip(60).map((item) => item.id),
         ),
       ),
     );
+  });
+
+  test('post-legacy reuse separates IDs and improves category variety', () {
+    final selections = [
+      for (var ordinal = 85; ordinal < 250; ordinal++)
+        PixelPictureCatalog.journeySelector.select(ordinal),
+    ];
+    final lastSeen = <String, int>{};
+    final repeatDistances = <int>[];
+    var adjacentCategoryRepeats = 0;
+    for (var index = 0; index < selections.length; index++) {
+      final template = selections[index];
+      final previous = lastSeen[template.id];
+      if (previous != null) repeatDistances.add(index - previous);
+      lastSeen[template.id] = index;
+      if (index > 0 && selections[index - 1].category == template.category) {
+        adjacentCategoryRepeats++;
+      }
+    }
+    expect(PixelPictureCatalog.journeySelector.reusePoolSize, 40);
+    expect(repeatDistances, everyElement(greaterThanOrEqualTo(15)));
+    expect(adjacentCategoryRepeats, lessThan(20));
     expect(
-      generator.generate(pictureLevels[100]).pictureTemplateId,
-      generator.generate(pictureLevels[130]).pictureTemplateId,
+      selections.skip(15).take(40).map((template) => template.id).toSet(),
+      hasLength(40),
     );
+  });
+
+  test('Journey selection stays deterministic at distant occurrences', () {
+    for (final ordinal in [0, 99, 100, 129, 130, 169, 500, 1000]) {
+      expect(
+        PixelPictureCatalog.journeySelector.select(ordinal).id,
+        PixelPictureCatalog.journeySelector.select(ordinal).id,
+      );
+    }
+  });
+
+  test('selector accepts catalog expansion without rewriting its logic', () {
+    final added = PixelPictureTemplate(
+      id: 'future_pixel_101',
+      familyId: 'future_pixel_101',
+      englishName: 'Future Template',
+      turkishName: 'Gelecek Şablonu',
+      category: PixelPictureCategory.object,
+      minimumJourneyLevel: 501,
+      difficulty: PixelPictureDifficulty.advanced,
+      rows: 5,
+      columns: 5,
+      palette: const [0xffffffff, 0xff553388],
+      pixels: const [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+      ],
+    );
+    final metadata = [
+      for (final assessment in PixelPictureCatalog.journeyAssessments)
+        JourneyPixelTemplateMetadata(assessment: assessment, paletteFamily: 0),
+      JourneyPixelTemplateMetadata(
+        assessment: PixelPictureDifficultyEvaluator.evaluate(added),
+        paletteFamily: 1,
+      ),
+    ];
+    final expanded = JourneyPixelPictureSelector(metadata: metadata);
+
+    for (var ordinal = 0; ordinal < 100; ordinal++) {
+      expect(
+        expanded.select(ordinal).id,
+        PixelPictureCatalog.journeyTemplates[ordinal].id,
+      );
+    }
+    expect(expanded.catalogSize, 101);
+    expect(expanded.select(100).id, added.id);
   });
 
   test('paintable detail trends upward across all five curated tiers', () {
@@ -343,4 +439,29 @@ void _complete(PixelColoringSession session) {
       if (template.pixels[index] == paletteIndex) session.paint(index);
     }
   }
+}
+
+int _catalogDigest(List<PixelPictureTemplate> templates) {
+  var hash = 0xcbf29ce484222325;
+  for (final template in templates) {
+    final content = [
+      template.id,
+      template.familyId,
+      template.englishName,
+      template.turkishName,
+      template.category.name,
+      template.minimumJourneyLevel,
+      template.difficulty.name,
+      template.rows,
+      template.columns,
+      template.backgroundPaletteIndex,
+      ...template.palette,
+      ...template.pixels,
+    ].join(':');
+    for (final unit in content.codeUnits) {
+      hash ^= unit;
+      hash = (hash * 0x100000001b3) & 0xffffffffffffffff;
+    }
+  }
+  return hash;
 }

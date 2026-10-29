@@ -28,15 +28,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Yeni bir deterministik uyum seni bekliyor.';
 
   @override
-  String get dailyPuzzle => 'Günün Bulmacası';
-
-  @override
-  String get dailyCompleteTitle => 'Günün Bulmacası Tamamlandı';
-
-  @override
-  String get dailyCompleteSubtitle => 'Bugünün uyumu tamamlandı.';
-
-  @override
   String get endlessMode => 'Serbest Oyun';
 
   @override
@@ -48,17 +39,6 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String journeyProgressLevel(int number) {
     return 'Seviye $number';
-  }
-
-  @override
-  String get todayPuzzleReady => 'Bugünkü bulmaca hazır';
-
-  @override
-  String get completedToday => 'Bugün tamamlandı';
-
-  @override
-  String dailyStreakDays(int count) {
-    return '$count günlük seri';
   }
 
   @override
@@ -245,11 +225,6 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String achievementProgressDays(int current, int target) {
-    return '$current / $target gün';
-  }
-
-  @override
   String get achievementUnlocked => 'Başarım Açıldı';
 
   @override
@@ -318,19 +293,6 @@ class AppLocalizationsTr extends AppLocalizations {
       '100 Sonsuz bulmaca tamamla.';
 
   @override
-  String get achievementDailyRhythmTitle => 'Günlük Ritim';
-
-  @override
-  String get achievementDailyRhythmDescription => '7 günlük seri yakala.';
-
-  @override
-  String get achievementDailyDevotionTitle => 'Günlük Bağlılık';
-
-  @override
-  String get achievementDailyDevotionDescription =>
-      '30 Günlük bulmaca tamamla.';
-
-  @override
   String get achievementChapterMasterTitle => 'Yolculuk 10';
 
   @override
@@ -362,12 +324,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get totalMoves => 'Toplam Hamle';
-
-  @override
-  String get currentStreak => 'Mevcut Seri';
-
-  @override
-  String get bestStreak => 'En İyi Seri';
 
   @override
   String get statisticsLoadError => 'İstatistiklere şu anda ulaşılamıyor.';

@@ -7,11 +7,11 @@ import 'package:pixel_harmony/game/levels/level_catalog.dart';
 void main() {
   const evaluator = AchievementEvaluator();
 
-  test('catalog contains exactly the approved 14 achievements', () {
-    expect(AchievementCatalog.definitions, hasLength(14));
+  test('catalog contains the active non-Daily achievements', () {
+    expect(AchievementCatalog.definitions, hasLength(12));
     expect(
       AchievementCatalog.definitions.map((item) => item.id).toSet(),
-      hasLength(14),
+      hasLength(12),
     );
   });
 
@@ -25,8 +25,6 @@ void main() {
     ('endless_explorer', 'endless', 10),
     ('endless_wanderer', 'endless', 50),
     ('endless_devotion', 'endless', 100),
-    ('daily_rhythm', 'streak', 7),
-    ('daily_devotion', 'daily', 30),
     ('thousand_moves', 'moves', 1000),
   ]) {
     test('${testCase.$1} stays locked below and unlocks at threshold', () {
@@ -34,8 +32,6 @@ void main() {
         'total' => PlayerStatistics(totalPuzzlesCompleted: value),
         'journey' => PlayerStatistics(journeyPuzzlesCompleted: value),
         'endless' => PlayerStatistics(endlessPuzzlesCompleted: value),
-        'daily' => PlayerStatistics(dailyPuzzlesCompleted: value),
-        'streak' => PlayerStatistics(currentDailyStreak: value),
         'moves' => PlayerStatistics(totalMoves: value),
         _ => throw StateError('Unknown test metric.'),
       };

@@ -1,47 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
-import 'package:pixel_harmony/features/daily/application/daily_progress_providers.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen>
-    with WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      ref.invalidate(dailyPuzzleIdentityProvider);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final dailyIdentity = ref.watch(dailyPuzzleIdentityProvider);
-    final dailyProgress = ref.watch(dailyProgressControllerProvider).value;
-    final todayCompleted =
-        dailyProgress?.isCompleted(dailyIdentity.dateKey) ?? false;
-    final streak = dailyProgress?.currentStreak ?? 0;
 
     return Scaffold(
       extendBody: true,
@@ -99,58 +67,27 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                                     ),
                               ),
                               const SizedBox(height: AppSpacing.md),
-                              SizedBox(
-                                height: 116,
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      child: _ModeButton(
-                                        key: const Key('homeDailyButton'),
-                                        icon:
-                                            todayCompleted
-                                                ? Icons.check_circle_outline
-                                                : Icons.wb_sunny_outlined,
-                                        title: l10n.dailyPuzzle,
-                                        status:
-                                            todayCompleted
-                                                ? l10n.completedToday
-                                                : l10n.todayPuzzleReady,
-                                        statusKey:
-                                            todayCompleted
-                                                ? const Key(
-                                                  'homeDailyCompleted',
-                                                )
-                                                : null,
-                                        badge:
-                                            todayCompleted && streak > 0
-                                                ? l10n.dailyStreakDays(streak)
-                                                : null,
-                                        color: const Color(0xFFFFF0E4),
-                                        iconColor: const Color(0xFFB86D51),
-                                        onTap:
-                                            () => context.pushNamed(
-                                              AppRoutes.daily,
-                                            ),
-                                      ),
+                              Center(
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(
+                                    maxWidth: 320,
+                                  ),
+                                  child: SizedBox(
+                                    height: 116,
+                                    width: double.infinity,
+                                    child: _ModeButton(
+                                      key: const Key('homeEndlessButton'),
+                                      icon: Icons.all_inclusive_rounded,
+                                      title: l10n.endlessMode,
+                                      status: l10n.freePlayDescription,
+                                      color: const Color(0xFFEAF2F7),
+                                      iconColor: const Color(0xFF4F7E91),
+                                      onTap:
+                                          () => context.pushNamed(
+                                            AppRoutes.freePlaySetup,
+                                          ),
                                     ),
-                                    const SizedBox(width: AppSpacing.compact),
-                                    Expanded(
-                                      child: _ModeButton(
-                                        key: const Key('homeEndlessButton'),
-                                        icon: Icons.all_inclusive_rounded,
-                                        title: l10n.endlessMode,
-                                        status: l10n.freePlayDescription,
-                                        color: const Color(0xFFEAF2F7),
-                                        iconColor: const Color(0xFF4F7E91),
-                                        onTap:
-                                            () => context.pushNamed(
-                                              AppRoutes.freePlaySetup,
-                                            ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -295,8 +232,6 @@ class _ModeButton extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.status,
-    this.statusKey,
-    this.badge,
     required this.color,
     required this.iconColor,
     required this.onTap,
@@ -305,15 +240,13 @@ class _ModeButton extends StatelessWidget {
   final IconData icon;
   final String title;
   final String status;
-  final Key? statusKey;
-  final String? badge;
   final Color color;
   final Color iconColor;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: [title, status, if (badge != null) badge].join(', '),
+    label: '$title, $status',
     button: true,
     child: Material(
       color: color,
@@ -343,8 +276,7 @@ class _ModeButton extends StatelessWidget {
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               Text(
-                badge ?? status,
-                key: statusKey,
+                status,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

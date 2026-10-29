@@ -28,15 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'A new deterministic harmony awaits.';
 
   @override
-  String get dailyPuzzle => 'Daily Puzzle';
-
-  @override
-  String get dailyCompleteTitle => 'Daily Complete';
-
-  @override
-  String get dailyCompleteSubtitle => 'Today\'s harmony is restored.';
-
-  @override
   String get endlessMode => 'Free Play';
 
   @override
@@ -48,17 +39,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String journeyProgressLevel(int number) {
     return 'Level $number';
-  }
-
-  @override
-  String get todayPuzzleReady => 'Today\'s puzzle is ready';
-
-  @override
-  String get completedToday => 'Completed today';
-
-  @override
-  String dailyStreakDays(int count) {
-    return '$count day streak';
   }
 
   @override
@@ -244,11 +224,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String achievementProgressDays(int current, int target) {
-    return '$current / $target days';
-  }
-
-  @override
   String get achievementUnlocked => 'Achievement Unlocked';
 
   @override
@@ -318,19 +293,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Complete 100 Endless puzzles.';
 
   @override
-  String get achievementDailyRhythmTitle => 'Daily Rhythm';
-
-  @override
-  String get achievementDailyRhythmDescription => 'Reach a 7-day Daily streak.';
-
-  @override
-  String get achievementDailyDevotionTitle => 'Daily Devotion';
-
-  @override
-  String get achievementDailyDevotionDescription =>
-      'Complete 30 Daily puzzles.';
-
-  @override
   String get achievementChapterMasterTitle => 'Journey 10';
 
   @override
@@ -362,12 +324,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalMoves => 'Total Moves';
-
-  @override
-  String get currentStreak => 'Current Streak';
-
-  @override
-  String get bestStreak => 'Best Streak';
 
   @override
   String get statisticsLoadError => 'Statistics are unavailable right now.';

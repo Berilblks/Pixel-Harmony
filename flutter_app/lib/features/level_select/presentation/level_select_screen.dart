@@ -22,17 +22,20 @@ class LevelSelectScreen extends ConsumerStatefulWidget {
 class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
     with SingleTickerProviderStateMixin {
   static const _stopExtent = 124.0;
-  static const _minimumVisibleLevels = 100;
+  static const _initialVisibleLevels = 120;
+  static const _loadBatchSize = 100;
+  static const _prefetchThreshold = 10;
   static const _futureBuffer = 40;
 
   late final ScrollController _scrollController;
   late final AnimationController _focusController;
   int? _positionedAtLevel;
+  int _visibleLevelCount = _initialVisibleLevels;
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
+    _scrollController = ScrollController()..addListener(_extendJourneyMap);
     _focusController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
@@ -53,7 +56,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
     final completedLevelIds = progress.asData?.value ?? const <String>{};
     final currentLevel = _firstIncompleteLevel(completedLevelIds);
     final itemCount = math.max(
-      _minimumVisibleLevels,
+      _visibleLevelCount,
       currentLevel + _futureBuffer,
     );
     _positionNearCurrentLevel(currentLevel);
@@ -161,6 +164,17 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
       number++;
     }
     return number;
+  }
+
+  void _extendJourneyMap() {
+    if (!_scrollController.hasClients ||
+        _scrollController.position.extentAfter >
+            _stopExtent * _prefetchThreshold) {
+      return;
+    }
+    setState(() {
+      _visibleLevelCount += _loadBatchSize;
+    });
   }
 
   void _positionNearCurrentLevel(int currentLevel) {

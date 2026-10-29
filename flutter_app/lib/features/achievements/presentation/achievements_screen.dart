@@ -125,16 +125,10 @@ class _AchievementCard extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      state.definition.conditionType ==
-                              AchievementConditionType.currentDailyStreak
-                          ? localizations.achievementProgressDays(
-                            state.displayedCurrentValue,
-                            state.targetValue,
-                          )
-                          : localizations.achievementProgress(
-                            state.displayedCurrentValue,
-                            state.targetValue,
-                          ),
+                      localizations.achievementProgress(
+                        state.displayedCurrentValue,
+                        state.targetValue,
+                      ),
                       key: Key('achievementProgress_${state.definition.id}'),
                       style: Theme.of(context).textTheme.labelLarge,
                     ),
@@ -159,7 +153,6 @@ class _AchievementCard extends StatelessWidget {
     AchievementIconType.harmony => Icons.auto_awesome_outlined,
     AchievementIconType.journey => Icons.route_outlined,
     AchievementIconType.endless => Icons.all_inclusive,
-    AchievementIconType.daily => Icons.calendar_today_outlined,
     AchievementIconType.chapter => Icons.menu_book_outlined,
     AchievementIconType.moves => Icons.swap_horiz_rounded,
   };

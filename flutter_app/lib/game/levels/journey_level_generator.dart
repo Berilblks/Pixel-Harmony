@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:pixel_harmony/game/generation/difficulty_evaluator.dart';
@@ -13,7 +14,7 @@ import 'package:pixel_harmony/game/levels/pixel_picture_difficulty.dart';
 class JourneyLevelGenerator {
   const JourneyLevelGenerator();
 
-  static const generationVersion = 6;
+  static const generationVersion = 8;
   static const _gradientGenerationVersion = 3;
   static const maximumBoardSize = 8;
   static const recentComparisonWindow = 8;
@@ -21,14 +22,68 @@ class JourneyLevelGenerator {
   static const minimumPerceptualDeltaE = 0.25;
   static const maximumHueVariationDegrees = 8.0;
   static const _generationSalt = 0x50484a31;
+  static final List<int> _gradientOrdinalCache = [-1];
+  static final LinkedHashMap<int, JourneyLevelFingerprint>
+  _recentFingerprintCache = LinkedHashMap();
 
   static double perceptualThresholdForLevel(int levelNumber) =>
       switch (levelNumber) {
         <= 10 => 6.0,
         <= 30 => 3.0,
         <= 70 => 1.0,
+        <= 100 => minimumPerceptualDeltaE,
+        <= 200 => 0.35 - ((levelNumber - 101) / 99) * 0.10,
         _ => minimumPerceptualDeltaE,
       };
+
+  JourneyGradientDifficultyProfile gradientProfileFor(int levelNumber) {
+    if (levelNumber <= 0) throw ArgumentError.value(levelNumber, 'levelNumber');
+    final boardSize = _gradientBoardSizeFor(levelNumber);
+    if (levelNumber <= 100) {
+      final progress = (math.log(levelNumber + 1) / math.log(10000)).clamp(
+        0.0,
+        1.0,
+      );
+      return JourneyGradientDifficultyProfile(
+        boardSize: boardSize,
+        progression: progress,
+        minimumDeltaE: perceptualThresholdForLevel(levelNumber),
+        lowLuminance: levelNumber <= 10 ? 0.015 : 0.025 + progress * 0.045,
+        highLuminance: levelNumber <= 10 ? 0.84 : 0.80 - progress * 0.22,
+        shuffleFraction: _legacyShuffleFraction(levelNumber),
+      );
+    }
+
+    final progression = ((levelNumber - 100) / 100).clamp(0.0, 1.0);
+    final (tierStart, tierEnd) = switch (levelNumber) {
+      <= 120 => (101, 120),
+      <= 150 => (121, 150),
+      <= 180 => (151, 180),
+      _ => (181, 200),
+    };
+    final tierProgress = ((levelNumber - tierStart) / (tierEnd - tierStart))
+        .clamp(0.0, 1.0);
+    final introductionRelief =
+        tierStart == 101
+            ? 0.0
+            : 0.04 * (1 - (tierProgress * 3).clamp(0.0, 1.0));
+    final wave = ((levelNumber % 7) - 3) * 0.006;
+    final baseShuffle =
+        tierStart == 101
+            ? 0.78 + progression * 0.05
+            : 0.75 + progression * 0.10;
+    return JourneyGradientDifficultyProfile(
+      boardSize: boardSize,
+      progression: progression,
+      minimumDeltaE: perceptualThresholdForLevel(levelNumber),
+      lowLuminance: 0.048 + progression * 0.024,
+      highLuminance: 0.690 - progression * 0.070,
+      shuffleFraction: (baseShuffle - introductionRelief + wave).clamp(
+        0.70,
+        0.87,
+      ),
+    );
+  }
 
   LevelDefinition generate(int levelNumber) {
     if (levelNumber <= 0) {
@@ -40,17 +95,18 @@ class JourneyLevelGenerator {
     }
     if (levelNumber <= 3) return _tutorial(levelNumber);
     if (puzzleTypeFor(levelNumber) == JourneyPuzzleType.pixelPicture) {
-      return _picture(levelNumber);
+      final picture = _picture(levelNumber);
+      _rememberFingerprint(
+        levelNumber,
+        JourneyLevelFingerprint.fromLevel(picture),
+      );
+      return picture;
     }
 
     final recent = <JourneyLevelFingerprint>[];
     final firstRecent = math.max(4, levelNumber - recentComparisonWindow);
     for (var previous = firstRecent; previous < levelNumber; previous++) {
-      final previousLevel =
-          puzzleTypeFor(previous) == JourneyPuzzleType.pixelPicture
-              ? _picture(previous)
-              : _candidate(previous, 0);
-      recent.add(JourneyLevelFingerprint.fromLevel(previousLevel));
+      recent.add(_fingerprintFor(previous));
     }
     for (var reroll = 0; reroll < 24; reroll++) {
       final candidate = _candidate(levelNumber, reroll);
@@ -61,10 +117,37 @@ class JourneyLevelGenerator {
             (item.puzzleType != JourneyPuzzleType.gradient ||
                 item.shuffleShape != fingerprint.shuffleShape),
       )) {
+        _rememberFingerprint(levelNumber, fingerprint);
         return candidate;
       }
     }
     throw StateError('Unable to create a distinct Journey level $levelNumber.');
+  }
+
+  JourneyLevelFingerprint _fingerprintFor(int levelNumber) {
+    final cached = _recentFingerprintCache.remove(levelNumber);
+    if (cached != null) {
+      _recentFingerprintCache[levelNumber] = cached;
+      return cached;
+    }
+    final level =
+        puzzleTypeFor(levelNumber) == JourneyPuzzleType.pixelPicture
+            ? _picture(levelNumber)
+            : _candidate(levelNumber, 0);
+    final fingerprint = JourneyLevelFingerprint.fromLevel(level);
+    _rememberFingerprint(levelNumber, fingerprint);
+    return fingerprint;
+  }
+
+  void _rememberFingerprint(
+    int levelNumber,
+    JourneyLevelFingerprint fingerprint,
+  ) {
+    _recentFingerprintCache.remove(levelNumber);
+    _recentFingerprintCache[levelNumber] = fingerprint;
+    while (_recentFingerprintCache.length > recentComparisonWindow * 4) {
+      _recentFingerprintCache.remove(_recentFingerprintCache.keys.first);
+    }
   }
 
   int boardSizeFor(int levelNumber) {
@@ -75,13 +158,17 @@ class JourneyLevelGenerator {
         pictureOrdinal: _pictureOrdinal(levelNumber),
       ).size;
     }
+    return _gradientBoardSizeFor(levelNumber);
+  }
+
+  int _gradientBoardSizeFor(int levelNumber) {
     return switch (levelNumber) {
       <= 5 => 2,
       <= 15 => 3,
       <= 35 => 4,
       <= 70 => 5,
       <= 120 => 6,
-      <= 200 => 7,
+      <= 180 => 7,
       _ => maximumBoardSize,
     };
   }
@@ -151,6 +238,25 @@ class JourneyLevelGenerator {
     SeededRandom random,
     LevelDifficulty difficulty,
   ) {
+    if (number > 100) {
+      final profile = gradientProfileFor(number);
+      final family = JourneyColorFamily.forGradientOrdinal(
+        _gradientOrdinal(number),
+      );
+      final baseHue = family.hue + random.nextSignedDouble() * 2.25;
+      return _shadePalette(
+        count: boardSize * boardSize,
+        baseHue: baseHue,
+        saturation:
+            0.60 -
+            profile.progression * 0.07 +
+            random.nextSignedDouble() * 0.02,
+        lowLuminance: profile.lowLuminance,
+        highLuminance: profile.highLuminance,
+        hueVariation: 2.5 + profile.progression * 1.5,
+        minimumDeltaE: profile.minimumDeltaE,
+      );
+    }
     final progress = (math.log(number + 1) / math.log(10000)).clamp(0.0, 1.0);
     final family = JourneyColorFamily.forGradientOrdinal(
       _gradientOrdinal(number),
@@ -168,11 +274,14 @@ class JourneyLevelGenerator {
   }
 
   int _gradientOrdinal(int levelNumber) {
-    var ordinal = -1;
-    for (var number = 1; number <= levelNumber; number++) {
-      if (puzzleTypeFor(number) == JourneyPuzzleType.gradient) ordinal++;
+    while (_gradientOrdinalCache.length <= levelNumber) {
+      final number = _gradientOrdinalCache.length;
+      _gradientOrdinalCache.add(
+        _gradientOrdinalCache.last +
+            (puzzleTypeFor(number) == JourneyPuzzleType.gradient ? 1 : 0),
+      );
     }
-    return ordinal;
+    return _gradientOrdinalCache[levelNumber];
   }
 
   LevelDefinition _picture(int number) {
@@ -257,6 +366,28 @@ class JourneyLevelGenerator {
     LevelDifficulty difficulty,
   ) {
     final result = List<String>.of(solution);
+    if (number > 100) {
+      final profile = gradientProfileFor(number);
+      final target = (solution.length * profile.shuffleFraction).round().clamp(
+        2,
+        solution.length - 1,
+      );
+      final positions = List.generate(solution.length, (index) => index);
+      for (var index = positions.length - 1; index > 0; index--) {
+        final other = random.nextInt(index + 1);
+        final value = positions[index];
+        positions[index] = positions[other];
+        positions[other] = value;
+      }
+      final anchor = positions.first;
+      for (var index = 1; index <= target; index++) {
+        final other = positions[index];
+        final value = result[anchor];
+        result[anchor] = result[other];
+        result[other] = value;
+      }
+      return result;
+    }
     final progress = (math.log(number + 1) / math.log(10000)).clamp(0.0, 1.0);
     final baseFraction = switch (difficulty) {
       LevelDifficulty.tutorial => 0.20,
@@ -284,6 +415,27 @@ class JourneyLevelGenerator {
       result[other] = value;
     }
     return result;
+  }
+
+  static double _legacyShuffleFraction(int number) {
+    final progress = (math.log(number + 1) / math.log(10000)).clamp(0.0, 1.0);
+    final difficulty =
+        number <= 3
+            ? LevelDifficulty.tutorial
+            : number <= 8
+            ? LevelDifficulty.easy
+            : number <= 24
+            ? LevelDifficulty.medium
+            : LevelDifficulty.hard;
+    final baseFraction = switch (difficulty) {
+      LevelDifficulty.tutorial => 0.20,
+      LevelDifficulty.easy => 0.34,
+      LevelDifficulty.medium => 0.52,
+      LevelDifficulty.hard => 0.70,
+      LevelDifficulty.expert => 0.86,
+    };
+    final wave = ((number % 7) - 3) * 0.018;
+    return baseFraction + progress * 0.08 + wave;
   }
 
   LevelDifficulty _difficultyFor(int number) {
@@ -436,4 +588,22 @@ class JourneyLevelGenerator {
     int byte(double value) => ((value + match) * 255).round().clamp(0, 255);
     return 0xff000000 | (byte(red) << 16) | (byte(green) << 8) | byte(blue);
   }
+}
+
+class JourneyGradientDifficultyProfile {
+  const JourneyGradientDifficultyProfile({
+    required this.boardSize,
+    required this.progression,
+    required this.minimumDeltaE,
+    required this.lowLuminance,
+    required this.highLuminance,
+    required this.shuffleFraction,
+  });
+
+  final int boardSize;
+  final double progression;
+  final double minimumDeltaE;
+  final double lowLuminance;
+  final double highLuminance;
+  final double shuffleFraction;
 }

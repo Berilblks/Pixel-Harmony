@@ -31,7 +31,7 @@ import 'package:pixel_harmony/game/coloring/pixel_coloring_state.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
-enum GameplayContentSource { journey, daily, endless }
+enum GameplayContentSource { journey, endless }
 
 class GameplayScreen extends ConsumerStatefulWidget {
   const GameplayScreen({
@@ -41,8 +41,6 @@ class GameplayScreen extends ConsumerStatefulWidget {
   }) : contentSource = GameplayContentSource.journey,
        puzzleNumber = null,
        onEndlessCompleted = null,
-       onDailyCompleted = null,
-       dailyDateKey = null,
        onNextPuzzle = null,
        onBackHome = null;
 
@@ -54,29 +52,13 @@ class GameplayScreen extends ConsumerStatefulWidget {
     required this.onNextPuzzle,
     required this.onBackHome,
     this.completionController,
-  }) : contentSource = GameplayContentSource.endless,
-       onDailyCompleted = null,
-       dailyDateKey = null;
-
-  const GameplayScreen.daily({
-    super.key,
-    required this.level,
-    required this.dailyDateKey,
-    required this.onDailyCompleted,
-    required this.onBackHome,
-    this.completionController,
-  }) : contentSource = GameplayContentSource.daily,
-       puzzleNumber = null,
-       onEndlessCompleted = null,
-       onNextPuzzle = null;
+  }) : contentSource = GameplayContentSource.endless;
 
   final LevelDefinition? level;
   final GameplayCompletionController? completionController;
   final GameplayContentSource contentSource;
   final int? puzzleNumber;
   final Future<void> Function(BoardState state)? onEndlessCompleted;
-  final Future<void> Function(BoardState state)? onDailyCompleted;
-  final String? dailyDateKey;
   final VoidCallback? onNextPuzzle;
   final VoidCallback? onBackHome;
 
@@ -119,8 +101,6 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                   ? null
                   : widget.contentSource == GameplayContentSource.endless
                   ? widget.onEndlessCompleted
-                  : widget.contentSource == GameplayContentSource.daily
-                  ? widget.onDailyCompleted
                   : (state) => _completeJourney(level, state),
         );
   }
@@ -241,7 +221,6 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   String get _analyticsMode => switch (widget.contentSource) {
     GameplayContentSource.journey => AnalyticsValues.journey,
     GameplayContentSource.endless => AnalyticsValues.endless,
-    GameplayContentSource.daily => AnalyticsValues.daily,
   };
 
   void _requestHint(PixelHarmonyGame game) {
@@ -380,7 +359,6 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       error: (_, _) => true,
     );
     final showPixelPictureHeader =
-        widget.contentSource == GameplayContentSource.journey &&
         level.puzzleType == JourneyPuzzleType.pixelPicture;
     final pixelPictureCompleted = coloringState?.completed ?? false;
     final isPixelPicture = level.puzzleType == JourneyPuzzleType.pixelPicture;
@@ -414,8 +392,6 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
           child: Text(
             widget.contentSource == GameplayContentSource.endless
                 ? localizations.puzzleLabel(widget.puzzleNumber!)
-                : widget.contentSource == GameplayContentSource.daily
-                ? localizations.dailyPuzzle
                 : localizedLevelName(localizations, level),
             key: const Key('gameplayLevelTitle'),
             style: Theme.of(
@@ -559,9 +535,15 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                           isEndless:
                               widget.contentSource ==
                               GameplayContentSource.endless,
-                          isDaily:
-                              widget.contentSource ==
-                              GameplayContentSource.daily,
+                          pixelFigureName:
+                              level.puzzleType == JourneyPuzzleType.pixelPicture
+                                  ? localizedPixelFigureName(
+                                    localizations,
+                                    PixelPictureCatalog.byId(
+                                      level.pictureTemplateId!,
+                                    ),
+                                  )
+                                  : null,
                           isFinalLevel: nextLevel == null,
                           onNextLevel:
                               widget.contentSource ==
@@ -602,12 +584,17 @@ class _PixelPictureGoalHeader extends StatelessWidget {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.only(top: AppSpacing.sm),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.sm,
+          AppSpacing.md,
+          0,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(
                   Icons.extension_rounded,
@@ -615,10 +602,15 @@ class _PixelPictureGoalHeader extends StatelessWidget {
                   color: AppPalette.completed,
                 ),
                 const SizedBox(width: AppSpacing.compact),
-                Text(
-                  localizations.pixelPictureCreateTarget(figure).toUpperCase(),
-                  key: const Key('pixelPictureTargetName'),
-                  style: Theme.of(context).textTheme.titleMedium,
+                Flexible(
+                  child: Text(
+                    figure,
+                    key: const Key('pixelPictureTargetName'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
               ],
             ),
@@ -952,7 +944,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
     required this.moveCount,
     required this.puzzleNumber,
     required this.isEndless,
-    required this.isDaily,
+    required this.pixelFigureName,
     required this.isFinalLevel,
     required this.onNextLevel,
     required this.onBackToLevels,
@@ -961,7 +953,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
   final int moveCount;
   final int? puzzleNumber;
   final bool isEndless;
-  final bool isDaily;
+  final String? pixelFigureName;
   final bool isFinalLevel;
   final VoidCallback? onNextLevel;
   final VoidCallback onBackToLevels;
@@ -1008,9 +1000,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.compact),
                     Text(
-                      isDaily
-                          ? localizations.dailyCompleteTitle
-                          : isEndless
+                      isEndless
                           ? localizations.completionTitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteTitle
@@ -1020,9 +1010,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      isDaily
-                          ? localizations.dailyCompleteSubtitle
-                          : isEndless
+                      isEndless
                           ? localizations.completionSubtitle
                           : isFinalLevel
                           ? localizations.allLevelsCompleteSubtitle
@@ -1030,6 +1018,17 @@ class _LevelCompleteOverlay extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.md),
+                    if (pixelFigureName != null) ...[
+                      Text(
+                        pixelFigureName!,
+                        key: const Key('completionPixelPictureName'),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     if (isEndless) ...[
                       Text(
                         localizations.puzzleLabel(puzzleNumber!),
@@ -1059,22 +1058,18 @@ class _LevelCompleteOverlay extends StatelessWidget {
                       width: double.infinity,
                       child: FilledButton(
                         key: Key(
-                          isDaily
-                              ? 'dailyBackHomeButton'
-                              : isEndless
+                          isEndless
                               ? 'nextPuzzleButton'
                               : isFinalLevel
                               ? 'finalBackToLevelsButton'
                               : 'nextLevelButton',
                         ),
                         onPressed:
-                            isDaily || (!isEndless && isFinalLevel)
+                            !isEndless && isFinalLevel
                                 ? onBackToLevels
                                 : onNextLevel,
                         child: Text(
-                          isDaily
-                              ? localizations.backHome
-                              : isEndless
+                          isEndless
                               ? localizations.nextPuzzle
                               : isFinalLevel
                               ? localizations.backToLevels
@@ -1082,7 +1077,7 @@ class _LevelCompleteOverlay extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (!isDaily && (isEndless || !isFinalLevel)) ...[
+                    if (isEndless || !isFinalLevel) ...[
                       const SizedBox(height: AppSpacing.sm),
                       TextButton(
                         key: Key(

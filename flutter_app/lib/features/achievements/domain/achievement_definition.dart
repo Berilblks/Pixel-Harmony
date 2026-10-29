@@ -1,16 +1,14 @@
-enum AchievementCategory { general, journey, endless, daily }
+enum AchievementCategory { general, journey, endless }
 
 enum AchievementConditionType {
   totalPuzzles,
   journeyPuzzles,
   endlessPuzzles,
-  dailyPuzzles,
-  currentDailyStreak,
   completedChapters,
   totalMoves,
 }
 
-enum AchievementIconType { harmony, journey, endless, daily, chapter, moves }
+enum AchievementIconType { harmony, journey, endless, chapter, moves }
 
 class AchievementDefinition {
   const AchievementDefinition({

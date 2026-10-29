@@ -1,0 +1,221 @@
+# Journey Pixel Coloring difficulty — levels 1–1000
+
+Difficulty is measured from matrix area, paintable cells, palette size and
+similarity, region fragmentation, small regions, and edge detail. The catalog
+contains finite authored content, so difficulty reaches an expert plateau after
+the first 100 unique appearances rather than increasing without limit.
+
+## Broad progression
+
+| Journey range | Pixel puzzles | Average complexity | Unique templates |
+|---|---:|---:|---:|
+| 1–200 | 40 | 26.7 | 40 |
+| 201–400 | 40 | 41.6 | 40 |
+| 401–600 | 40 | 49.8 | 36 |
+| 601–800 | 40 | 48.9 | 40 |
+| 801–1000 | 40 | 48.9 | 40 |
+
+## Selection details
+
+| Journey level | Pixel occurrence | Template ID | Matrix | Colors | Paintable | Regions | Small regions | Complexity | Repeat gap (occurrences) |
+|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|
+| 5 | 1 | `pixel_001_heart` | 5×5 | 2 | 18 | 2 | 0 | 11 | new |
+| 7 | 2 | `pixel_011_apple` | 7×7 | 2 | 30 | 2 | 1 | 13 | new |
+| 14 | 3 | `pixel_037_umbrella` | 9×9 | 3 | 27 | 3 | 0 | 16 | new |
+| 19 | 4 | `pixel_019_ice_cream` | 7×7 | 3 | 21 | 3 | 1 | 15 | new |
+| 22 | 5 | `pixel_005_moon` | 5×5 | 2 | 15 | 3 | 1 | 18 | new |
+| 28 | 6 | `pixel_042_sailboat` | 10×10 | 3 | 37 | 4 | 0 | 20 | new |
+| 34 | 7 | `pixel_014_watermelon_slice` | 7×7 | 3 | 21 | 4 | 3 | 21 | new |
+| 39 | 8 | `pixel_015_mushroom` | 7×7 | 3 | 27 | 4 | 2 | 21 | new |
+| 42 | 9 | `pixel_039_game_controller` | 9×9 | 3 | 45 | 4 | 3 | 22 | new |
+| 47 | 10 | `pixel_020_cupcake` | 7×7 | 3 | 29 | 5 | 3 | 23 | new |
+| 52 | 11 | `pixel_043_lighthouse` | 10×10 | 4 | 48 | 6 | 0 | 24 | new |
+| 58 | 12 | `pixel_008_lightning_bolt` | 12×12 | 3 | 34 | 5 | 2 | 25 | new |
+| 64 | 13 | `pixel_012_strawberry` | 7×7 | 3 | 29 | 5 | 3 | 24 | new |
+| 69 | 14 | `pixel_018_gift_box` | 7×7 | 2 | 42 | 6 | 2 | 24 | new |
+| 74 | 15 | `pixel_062_flamingo` | 12×12 | 2 | 44 | 5 | 3 | 26 | new |
+| 78 | 16 | `pixel_045_castle` | 10×10 | 3 | 84 | 5 | 2 | 26 | new |
+| 83 | 17 | `pixel_063_parrot` | 12×12 | 4 | 62 | 4 | 1 | 26 | new |
+| 88 | 18 | `pixel_007_rainbow` | 5×5 | 3 | 18 | 5 | 4 | 27 | new |
+| 94 | 19 | `pixel_028_dog_face` | 8×8 | 3 | 42 | 7 | 3 | 27 | new |
+| 97 | 20 | `pixel_044_small_house` | 10×10 | 5 | 60 | 5 | 1 | 27 | new |
+| 104 | 21 | `pixel_031_chick` | 9×9 | 3 | 45 | 6 | 5 | 27 | new |
+| 107 | 22 | `pixel_056_music_note` | 11×11 | 4 | 39 | 7 | 2 | 27 | new |
+| 113 | 23 | `pixel_070_crab` | 12×12 | 2 | 68 | 5 | 2 | 27 | new |
+| 117 | 24 | `pixel_055_hamburger` | 11×11 | 5 | 67 | 6 | 0 | 29 | new |
+| 122 | 25 | `pixel_027_cat_face` | 8×8 | 3 | 46 | 7 | 4 | 29 | new |
+| 129 | 26 | `pixel_002_star` | 12×12 | 3 | 43 | 8 | 4 | 31 | new |
+| 132 | 27 | `pixel_032_frog` | 9×9 | 3 | 51 | 7 | 6 | 30 | new |
+| 137 | 28 | `pixel_050_coffee_cup` | 10×10 | 2 | 41 | 7 | 5 | 32 | new |
+| 143 | 29 | `pixel_071_koala` | 13×13 | 2 | 100 | 6 | 2 | 30 | new |
+| 149 | 30 | `pixel_023_ladybug` | 8×8 | 2 | 44 | 7 | 5 | 31 | new |
+| 152 | 31 | `pixel_068_seahorse` | 12×12 | 5 | 45 | 7 | 6 | 32 | new |
+| 158 | 32 | `pixel_013_cherry` | 7×7 | 2 | 21 | 7 | 5 | 33 | new |
+| 164 | 33 | `pixel_030_owl` | 8×8 | 4 | 40 | 8 | 7 | 33 | new |
+| 168 | 34 | `pixel_048_airplane` | 10×10 | 2 | 35 | 7 | 6 | 33 | new |
+| 172 | 35 | `pixel_057_headphones` | 11×11 | 4 | 44 | 10 | 4 | 33 | new |
+| 177 | 36 | `pixel_006_cloud` | 12×12 | 3 | 64 | 5 | 3 | 34 | new |
+| 184 | 37 | `pixel_054_pizza_slice` | 11×11 | 3 | 46 | 9 | 7 | 34 | new |
+| 187 | 38 | `pixel_040_rocket` | 9×9 | 4 | 33 | 9 | 8 | 35 | new |
+| 194 | 39 | `pixel_065_dolphin` | 16×16 | 3 | 52 | 7 | 4 | 35 | new |
+| 198 | 40 | `pixel_058_book` | 14×14 | 4 | 97 | 6 | 1 | 36 | new |
+| 202 | 41 | `pixel_026_rabbit` | 8×8 | 3 | 32 | 9 | 7 | 36 | new |
+| 207 | 42 | `pixel_004_sun` | 5×5 | 2 | 17 | 9 | 8 | 37 | new |
+| 213 | 43 | `pixel_024_fish` | 14×14 | 4 | 56 | 10 | 6 | 37 | new |
+| 219 | 44 | `pixel_010_flower` | 5×5 | 3 | 9 | 8 | 8 | 37 | new |
+| 223 | 45 | `pixel_072_deer` | 13×13 | 2 | 67 | 10 | 9 | 38 | new |
+| 229 | 46 | `pixel_017_balloon` | 12×12 | 4 | 59 | 12 | 8 | 39 | new |
+| 234 | 47 | `pixel_029_penguin` | 14×14 | 3 | 95 | 10 | 6 | 39 | new |
+| 239 | 48 | `pixel_038_camera` | 14×14 | 4 | 105 | 7 | 3 | 39 | new |
+| 244 | 49 | `pixel_083_moon_over_mountains` | 14×14 | 4 | 196 | 5 | 0 | 39 | new |
+| 247 | 50 | `pixel_060_hourglass` | 11×11 | 2 | 49 | 13 | 9 | 39 | new |
+| 254 | 51 | `pixel_086_beach_palm_tree` | 14×14 | 4 | 196 | 5 | 0 | 39 | new |
+| 258 | 52 | `pixel_033_panda_face` | 14×14 | 3 | 107 | 12 | 4 | 40 | new |
+| 262 | 53 | `pixel_047_car` | 16×16 | 4 | 97 | 8 | 5 | 40 | new |
+| 267 | 54 | `pixel_077_unicorn` | 16×16 | 5 | 72 | 10 | 4 | 40 | new |
+| 273 | 55 | `pixel_087_small_island` | 16×16 | 5 | 133 | 6 | 0 | 40 | new |
+| 279 | 56 | `pixel_088_forest_cabin` | 14×14 | 4 | 196 | 6 | 0 | 40 | new |
+| 282 | 57 | `pixel_021_butterfly` | 8×8 | 3 | 42 | 15 | 9 | 41 | new |
+| 287 | 58 | `pixel_036_crown` | 14×14 | 4 | 71 | 12 | 7 | 41 | new |
+| 294 | 59 | `pixel_034_fox_face` | 14×14 | 4 | 72 | 12 | 7 | 41 | new |
+| 299 | 60 | `pixel_051_teapot` | 14×14 | 3 | 72 | 13 | 7 | 41 | new |
+| 304 | 61 | `pixel_089_flower_field` | 16×16 | 4 | 128 | 7 | 3 | 41 | new |
+| 307 | 62 | `pixel_016_leaf` | 12×12 | 3 | 43 | 17 | 14 | 42 | new |
+| 312 | 63 | `pixel_092_sailboat_at_sea` | 16×16 | 5 | 127 | 8 | 0 | 41 | new |
+| 317 | 64 | `pixel_079_hummingbird` | 16×16 | 5 | 42 | 10 | 5 | 42 | new |
+| 323 | 65 | `pixel_095_snowy_mountain` | 16×16 | 4 | 81 | 8 | 3 | 41 | new |
+| 328 | 66 | `pixel_049_train` | 16×16 | 5 | 140 | 8 | 0 | 43 | new |
+| 333 | 67 | `pixel_082_mountains_at_sunrise` | 16×16 | 5 | 144 | 6 | 0 | 42 | new |
+| 339 | 68 | `pixel_067_octopus` | 12×12 | 6 | 60 | 14 | 6 | 43 | new |
+| 342 | 69 | `pixel_094_desert_cactus` | 16×16 | 3 | 256 | 6 | 0 | 42 | new |
+| 349 | 70 | `pixel_080_koi_fish` | 16×16 | 4 | 72 | 12 | 7 | 43 | new |
+| 353 | 71 | `pixel_090_lake_mountains` | 14×14 | 3 | 196 | 16 | 0 | 43 | new |
+| 358 | 72 | `pixel_035_bear_face` | 14×14 | 4 | 127 | 10 | 6 | 44 | new |
+| 363 | 73 | `pixel_052_birthday_cake` | 11×11 | 4 | 82 | 13 | 11 | 44 | new |
+| 368 | 74 | `pixel_074_giraffe` | 16×16 | 4 | 70 | 10 | 7 | 45 | new |
+| 374 | 75 | `pixel_100_northern_lights` | 16×16 | 5 | 94 | 12 | 3 | 45 | new |
+| 377 | 76 | `pixel_003_smiley_face` | 12×12 | 4 | 81 | 17 | 15 | 47 | new |
+| 384 | 77 | `pixel_085_house_under_stars` | 14×14 | 5 | 196 | 11 | 6 | 47 | new |
+| 387 | 78 | `pixel_061_detailed_butterfly` | 12×12 | 4 | 96 | 19 | 11 | 48 | new |
+| 392 | 79 | `pixel_081_sunset_over_ocean` | 14×14 | 6 | 196 | 12 | 0 | 48 | new |
+| 399 | 80 | `pixel_041_hot_air_balloon` | 16×16 | 5 | 112 | 15 | 8 | 49 | new |
+| 402 | 81 | `pixel_096_waterfall_scene` | 16×16 | 5 | 256 | 7 | 0 | 49 | new |
+| 409 | 82 | `pixel_046_bicycle` | 16×16 | 3 | 60 | 23 | 20 | 50 | new |
+| 413 | 83 | `pixel_066_whale` | 16×16 | 4 | 101 | 16 | 9 | 50 | new |
+| 419 | 84 | `pixel_093_balloon_landscape` | 16×16 | 6 | 254 | 9 | 0 | 51 | new |
+| 424 | 85 | `pixel_078_swan` | 16×16 | 4 | 70 | 15 | 10 | 50 | new |
+| 429 | 86 | `pixel_097_cherry_blossom_tree` | 16×16 | 5 | 256 | 12 | 4 | 51 | new |
+| 432 | 87 | `pixel_025_turtle` | 14×14 | 3 | 72 | 19 | 12 | 51 | new |
+| 438 | 88 | `pixel_009_diamond` | 14×14 | 4 | 73 | 28 | 23 | 52 | new |
+| 444 | 89 | `pixel_069_jellyfish` | 12×12 | 6 | 80 | 19 | 14 | 51 | new |
+| 448 | 90 | `pixel_084_night_sky_stars` | 14×14 | 4 | 196 | 16 | 12 | 52 | new |
+| 452 | 91 | `pixel_022_bee` | 14×14 | 4 | 69 | 20 | 14 | 52 | new |
+| 458 | 92 | `pixel_075_lion` | 16×16 | 4 | 146 | 14 | 7 | 52 | new |
+| 463 | 93 | `pixel_091_lighthouse_sunset` | 16×16 | 6 | 256 | 15 | 0 | 53 | new |
+| 468 | 94 | `pixel_053_donut` | 14×14 | 4 | 100 | 25 | 23 | 54 | new |
+| 472 | 95 | `pixel_073_elephant` | 16×16 | 4 | 116 | 15 | 12 | 54 | new |
+| 479 | 96 | `pixel_098_city_skyline_night` | 16×16 | 4 | 140 | 16 | 13 | 54 | new |
+| 483 | 97 | `pixel_059_paint_palette` | 16×16 | 7 | 118 | 22 | 11 | 58 | new |
+| 489 | 98 | `pixel_076_tiger` | 16×16 | 4 | 113 | 27 | 19 | 60 | new |
+| 493 | 99 | `pixel_099_rainbow_landscape` | 16×16 | 6 | 256 | 31 | 22 | 67 | new |
+| 498 | 100 | `pixel_064_peacock` | 16×16 | 5 | 136 | 35 | 26 | 64 | new |
+| 503 | 101 | `pixel_093_balloon_landscape` | 16×16 | 6 | 254 | 9 | 0 | 51 | 17 |
+| 507 | 102 | `pixel_046_bicycle` | 16×16 | 3 | 60 | 23 | 20 | 50 | 20 |
+| 512 | 103 | `pixel_066_whale` | 16×16 | 4 | 101 | 16 | 9 | 50 | 20 |
+| 518 | 104 | `pixel_041_hot_air_balloon` | 16×16 | 5 | 112 | 15 | 8 | 49 | 24 |
+| 522 | 105 | `pixel_096_waterfall_scene` | 16×16 | 5 | 256 | 7 | 0 | 49 | 24 |
+| 528 | 106 | `pixel_061_detailed_butterfly` | 12×12 | 4 | 96 | 19 | 11 | 48 | 28 |
+| 533 | 107 | `pixel_081_sunset_over_ocean` | 14×14 | 6 | 196 | 12 | 0 | 48 | 28 |
+| 538 | 108 | `pixel_003_smiley_face` | 12×12 | 4 | 81 | 17 | 15 | 47 | 32 |
+| 544 | 109 | `pixel_085_house_under_stars` | 14×14 | 5 | 196 | 11 | 6 | 47 | 32 |
+| 549 | 110 | `pixel_074_giraffe` | 16×16 | 4 | 70 | 10 | 7 | 45 | 36 |
+| 552 | 111 | `pixel_100_northern_lights` | 16×16 | 5 | 94 | 12 | 3 | 45 | 36 |
+| 558 | 112 | `pixel_035_bear_face` | 14×14 | 4 | 127 | 10 | 6 | 44 | 40 |
+| 563 | 113 | `pixel_052_birthday_cake` | 11×11 | 4 | 82 | 13 | 11 | 44 | 40 |
+| 568 | 114 | `pixel_049_train` | 16×16 | 5 | 140 | 8 | 0 | 43 | 48 |
+| 574 | 115 | `pixel_067_octopus` | 12×12 | 6 | 60 | 14 | 6 | 43 | 47 |
+| 577 | 116 | `pixel_090_lake_mountains` | 14×14 | 3 | 196 | 16 | 0 | 43 | 45 |
+| 582 | 117 | `pixel_080_koi_fish` | 16×16 | 4 | 72 | 12 | 7 | 43 | 47 |
+| 588 | 118 | `pixel_016_leaf` | 12×12 | 3 | 43 | 17 | 14 | 42 | 56 |
+| 594 | 119 | `pixel_079_hummingbird` | 16×16 | 5 | 42 | 10 | 5 | 42 | 55 |
+| 598 | 120 | `pixel_082_mountains_at_sunrise` | 16×16 | 5 | 144 | 6 | 0 | 42 | 53 |
+| 603 | 121 | `pixel_025_turtle` | 14×14 | 3 | 72 | 19 | 12 | 51 | 34 |
+| 607 | 122 | `pixel_097_cherry_blossom_tree` | 16×16 | 5 | 256 | 12 | 4 | 51 | 36 |
+| 614 | 123 | `pixel_009_diamond` | 14×14 | 4 | 73 | 28 | 23 | 52 | 35 |
+| 617 | 124 | `pixel_022_bee` | 14×14 | 4 | 69 | 20 | 14 | 52 | 33 |
+| 622 | 125 | `pixel_084_night_sky_stars` | 14×14 | 4 | 196 | 16 | 12 | 52 | 35 |
+| 627 | 126 | `pixel_075_lion` | 16×16 | 4 | 146 | 14 | 7 | 52 | 34 |
+| 633 | 127 | `pixel_091_lighthouse_sunset` | 16×16 | 6 | 256 | 15 | 0 | 53 | 34 |
+| 638 | 128 | `pixel_053_donut` | 14×14 | 4 | 100 | 25 | 23 | 54 | 34 |
+| 642 | 129 | `pixel_073_elephant` | 16×16 | 4 | 116 | 15 | 12 | 54 | 34 |
+| 648 | 130 | `pixel_098_city_skyline_night` | 16×16 | 4 | 140 | 16 | 13 | 54 | 34 |
+| 653 | 131 | `pixel_069_jellyfish` | 12×12 | 6 | 80 | 19 | 14 | 51 | 42 |
+| 659 | 132 | `pixel_059_paint_palette` | 16×16 | 7 | 118 | 22 | 11 | 58 | 35 |
+| 662 | 133 | `pixel_064_peacock` | 16×16 | 5 | 136 | 35 | 26 | 64 | 33 |
+| 668 | 134 | `pixel_099_rainbow_landscape` | 16×16 | 6 | 256 | 31 | 22 | 67 | 35 |
+| 672 | 135 | `pixel_076_tiger` | 16×16 | 4 | 113 | 27 | 19 | 60 | 37 |
+| 677 | 136 | `pixel_094_desert_cactus` | 16×16 | 3 | 256 | 6 | 0 | 42 | 67 |
+| 684 | 137 | `pixel_078_swan` | 16×16 | 4 | 70 | 15 | 10 | 50 | 52 |
+| 688 | 138 | `pixel_089_flower_field` | 16×16 | 4 | 128 | 7 | 3 | 41 | 77 |
+| 692 | 139 | `pixel_092_sailboat_at_sea` | 16×16 | 5 | 127 | 8 | 0 | 41 | 76 |
+| 697 | 140 | `pixel_095_snowy_mountain` | 16×16 | 4 | 81 | 8 | 3 | 41 | 75 |
+| 704 | 141 | `pixel_093_balloon_landscape` | 16×16 | 6 | 254 | 9 | 0 | 51 | 40 |
+| 707 | 142 | `pixel_046_bicycle` | 16×16 | 3 | 60 | 23 | 20 | 50 | 40 |
+| 713 | 143 | `pixel_066_whale` | 16×16 | 4 | 101 | 16 | 9 | 50 | 40 |
+| 719 | 144 | `pixel_041_hot_air_balloon` | 16×16 | 5 | 112 | 15 | 8 | 49 | 40 |
+| 723 | 145 | `pixel_096_waterfall_scene` | 16×16 | 5 | 256 | 7 | 0 | 49 | 40 |
+| 729 | 146 | `pixel_061_detailed_butterfly` | 12×12 | 4 | 96 | 19 | 11 | 48 | 40 |
+| 732 | 147 | `pixel_081_sunset_over_ocean` | 14×14 | 6 | 196 | 12 | 0 | 48 | 40 |
+| 739 | 148 | `pixel_003_smiley_face` | 12×12 | 4 | 81 | 17 | 15 | 47 | 40 |
+| 744 | 149 | `pixel_085_house_under_stars` | 14×14 | 5 | 196 | 11 | 6 | 47 | 40 |
+| 748 | 150 | `pixel_074_giraffe` | 16×16 | 4 | 70 | 10 | 7 | 45 | 40 |
+| 754 | 151 | `pixel_100_northern_lights` | 16×16 | 5 | 94 | 12 | 3 | 45 | 40 |
+| 757 | 152 | `pixel_035_bear_face` | 14×14 | 4 | 127 | 10 | 6 | 44 | 40 |
+| 764 | 153 | `pixel_052_birthday_cake` | 11×11 | 4 | 82 | 13 | 11 | 44 | 40 |
+| 769 | 154 | `pixel_049_train` | 16×16 | 5 | 140 | 8 | 0 | 43 | 40 |
+| 773 | 155 | `pixel_067_octopus` | 12×12 | 6 | 60 | 14 | 6 | 43 | 40 |
+| 779 | 156 | `pixel_090_lake_mountains` | 14×14 | 3 | 196 | 16 | 0 | 43 | 40 |
+| 784 | 157 | `pixel_080_koi_fish` | 16×16 | 4 | 72 | 12 | 7 | 43 | 40 |
+| 789 | 158 | `pixel_016_leaf` | 12×12 | 3 | 43 | 17 | 14 | 42 | 40 |
+| 792 | 159 | `pixel_079_hummingbird` | 16×16 | 5 | 42 | 10 | 5 | 42 | 40 |
+| 799 | 160 | `pixel_082_mountains_at_sunrise` | 16×16 | 5 | 144 | 6 | 0 | 42 | 40 |
+| 804 | 161 | `pixel_025_turtle` | 14×14 | 3 | 72 | 19 | 12 | 51 | 40 |
+| 807 | 162 | `pixel_097_cherry_blossom_tree` | 16×16 | 5 | 256 | 12 | 4 | 51 | 40 |
+| 812 | 163 | `pixel_009_diamond` | 14×14 | 4 | 73 | 28 | 23 | 52 | 40 |
+| 817 | 164 | `pixel_022_bee` | 14×14 | 4 | 69 | 20 | 14 | 52 | 40 |
+| 824 | 165 | `pixel_084_night_sky_stars` | 14×14 | 4 | 196 | 16 | 12 | 52 | 40 |
+| 828 | 166 | `pixel_075_lion` | 16×16 | 4 | 146 | 14 | 7 | 52 | 40 |
+| 834 | 167 | `pixel_091_lighthouse_sunset` | 16×16 | 6 | 256 | 15 | 0 | 53 | 40 |
+| 839 | 168 | `pixel_053_donut` | 14×14 | 4 | 100 | 25 | 23 | 54 | 40 |
+| 844 | 169 | `pixel_073_elephant` | 16×16 | 4 | 116 | 15 | 12 | 54 | 40 |
+| 847 | 170 | `pixel_098_city_skyline_night` | 16×16 | 4 | 140 | 16 | 13 | 54 | 40 |
+| 854 | 171 | `pixel_069_jellyfish` | 12×12 | 6 | 80 | 19 | 14 | 51 | 40 |
+| 859 | 172 | `pixel_059_paint_palette` | 16×16 | 7 | 118 | 22 | 11 | 58 | 40 |
+| 863 | 173 | `pixel_064_peacock` | 16×16 | 5 | 136 | 35 | 26 | 64 | 40 |
+| 867 | 174 | `pixel_099_rainbow_landscape` | 16×16 | 6 | 256 | 31 | 22 | 67 | 40 |
+| 872 | 175 | `pixel_076_tiger` | 16×16 | 4 | 113 | 27 | 19 | 60 | 40 |
+| 878 | 176 | `pixel_094_desert_cactus` | 16×16 | 3 | 256 | 6 | 0 | 42 | 40 |
+| 883 | 177 | `pixel_078_swan` | 16×16 | 4 | 70 | 15 | 10 | 50 | 40 |
+| 888 | 178 | `pixel_089_flower_field` | 16×16 | 4 | 128 | 7 | 3 | 41 | 40 |
+| 893 | 179 | `pixel_092_sailboat_at_sea` | 16×16 | 5 | 127 | 8 | 0 | 41 | 40 |
+| 897 | 180 | `pixel_095_snowy_mountain` | 16×16 | 4 | 81 | 8 | 3 | 41 | 40 |
+| 904 | 181 | `pixel_093_balloon_landscape` | 16×16 | 6 | 254 | 9 | 0 | 51 | 40 |
+| 907 | 182 | `pixel_046_bicycle` | 16×16 | 3 | 60 | 23 | 20 | 50 | 40 |
+| 913 | 183 | `pixel_066_whale` | 16×16 | 4 | 101 | 16 | 9 | 50 | 40 |
+| 918 | 184 | `pixel_041_hot_air_balloon` | 16×16 | 5 | 112 | 15 | 8 | 49 | 40 |
+| 924 | 185 | `pixel_096_waterfall_scene` | 16×16 | 5 | 256 | 7 | 0 | 49 | 40 |
+| 928 | 186 | `pixel_061_detailed_butterfly` | 12×12 | 4 | 96 | 19 | 11 | 48 | 40 |
+| 933 | 187 | `pixel_081_sunset_over_ocean` | 14×14 | 6 | 196 | 12 | 0 | 48 | 40 |
+| 939 | 188 | `pixel_003_smiley_face` | 12×12 | 4 | 81 | 17 | 15 | 47 | 40 |
+| 943 | 189 | `pixel_085_house_under_stars` | 14×14 | 5 | 196 | 11 | 6 | 47 | 40 |
+| 948 | 190 | `pixel_074_giraffe` | 16×16 | 4 | 70 | 10 | 7 | 45 | 40 |
+| 954 | 191 | `pixel_100_northern_lights` | 16×16 | 5 | 94 | 12 | 3 | 45 | 40 |
+| 957 | 192 | `pixel_035_bear_face` | 14×14 | 4 | 127 | 10 | 6 | 44 | 40 |
+| 964 | 193 | `pixel_052_birthday_cake` | 11×11 | 4 | 82 | 13 | 11 | 44 | 40 |
+| 968 | 194 | `pixel_049_train` | 16×16 | 5 | 140 | 8 | 0 | 43 | 40 |
+| 974 | 195 | `pixel_067_octopus` | 12×12 | 6 | 60 | 14 | 6 | 43 | 40 |
+| 979 | 196 | `pixel_090_lake_mountains` | 14×14 | 3 | 196 | 16 | 0 | 43 | 40 |
+| 984 | 197 | `pixel_080_koi_fish` | 16×16 | 4 | 72 | 12 | 7 | 43 | 40 |
+| 987 | 198 | `pixel_016_leaf` | 12×12 | 3 | 43 | 17 | 14 | 42 | 40 |
+| 993 | 199 | `pixel_079_hummingbird` | 16×16 | 5 | 42 | 10 | 5 | 42 | 40 |
+| 997 | 200 | `pixel_082_mountains_at_sunrise` | 16×16 | 5 | 144 | 6 | 0 | 42 | 40 |

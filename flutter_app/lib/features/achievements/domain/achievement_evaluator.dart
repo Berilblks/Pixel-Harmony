@@ -52,9 +52,6 @@ class AchievementEvaluator {
       statistics.journeyPuzzlesCompleted,
     AchievementConditionType.endlessPuzzles =>
       statistics.endlessPuzzlesCompleted,
-    AchievementConditionType.dailyPuzzles => statistics.dailyPuzzlesCompleted,
-    AchievementConditionType.currentDailyStreak =>
-      statistics.currentDailyStreak,
     AchievementConditionType.completedChapters => completedChapters,
     AchievementConditionType.totalMoves => statistics.totalMoves,
   };

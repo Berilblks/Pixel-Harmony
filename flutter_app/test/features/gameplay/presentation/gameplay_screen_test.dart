@@ -148,7 +148,7 @@ void main() {
     await tester.pump();
     expect(currentGame(tester).coloringSession!.state.selectedPaletteIndex, 2);
     expect(find.byKey(const Key('pixelPictureFirstTutorial')), findsNothing);
-    expect(find.text('COLOR THE HEART'), findsOneWidget);
+    expect(find.text('Heart'), findsOneWidget);
     expect(
       find.text('Choose a color, then paint the matching numbers.'),
       findsOneWidget,
@@ -246,6 +246,8 @@ void main() {
     expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
     await tester.pump(const Duration(milliseconds: 2500));
     expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
+    expect(find.byKey(const Key('completionPixelPictureName')), findsOneWidget);
+    expect(find.text('Heart'), findsWidgets);
   });
 
   testWidgets('Pixel Picture names the target without hidden-picture copy', (
@@ -264,7 +266,7 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('COLOR THE HEART'), findsOneWidget);
+    expect(find.text('Heart'), findsOneWidget);
     expect(
       find.text('Choose a color, then paint the matching numbers.'),
       findsOneWidget,

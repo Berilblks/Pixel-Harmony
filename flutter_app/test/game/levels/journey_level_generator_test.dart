@@ -20,7 +20,92 @@ void main() {
         reason: 'Level $number',
       );
     }
-    expect(JourneyLevelGenerator.generationVersion, 6);
+    expect(JourneyLevelGenerator.generationVersion, 8);
+  });
+
+  test('levels 1-100 retain their version-6 deterministic content', () {
+    expect(_firstHundredDigest(generator), -651169883785633080);
+  });
+
+  test('levels 101-200 retain their version-7 deterministic content', () {
+    expect(_rangeDigest(generator, 101, 200), 1292427793567499657);
+  });
+
+  test('level 100 remains a 6x6 Gradient when applicable', () {
+    final level100 = generator.generate(100);
+    final level101 = generator.generate(101);
+    expect(level100.puzzleType, JourneyPuzzleType.gradient);
+    expect(level100.boardSize, 6);
+    expect(level100.id, 'level_100');
+    expect(level101.boardSize, level100.boardSize);
+    expect(level101.difficultyScore, greaterThan(level100.difficultyScore));
+  });
+
+  test('levels 101-200 use the approved Gradient size transitions', () {
+    for (final (start, end, size) in const [
+      (101, 120, 6),
+      (121, 180, 7),
+      (181, 200, 8),
+    ]) {
+      for (var number = start; number <= end; number++) {
+        if (generator.puzzleTypeFor(number) == JourneyPuzzleType.gradient) {
+          expect(generator.boardSizeFor(number), size, reason: 'Level $number');
+        }
+      }
+    }
+  });
+
+  test('post-200 Journey stays deterministic, playable, and capped at 8x8', () {
+    for (final number in [201, 500, 1000]) {
+      final first = generator.generate(number);
+      final second = generator.generate(number);
+      expect(_signature(first), _signature(second));
+      expect(first.id, JourneyLevelGenerator.levelId(number));
+      expect(first.initialTileOrder.toSet(), first.solutionTileOrder.toSet());
+      if (first.puzzleType == JourneyPuzzleType.gradient) {
+        expect(first.boardSize, 8);
+        expect(_visuallySolved(first), isFalse);
+      } else {
+        expect(first.pictureTemplateId, isNotNull);
+      }
+    }
+  });
+
+  test('101-200 Gradient difficulty rises across broad windows', () {
+    double averageScore(int start, int end) {
+      final scores = [
+        for (var number = start; number <= end; number++)
+          if (generator.puzzleTypeFor(number) == JourneyPuzzleType.gradient)
+            generator.generate(number).difficultyScore,
+      ];
+      return scores.reduce((a, b) => a + b) / scores.length;
+    }
+
+    expect(averageScore(121, 150), greaterThan(averageScore(101, 120)));
+    expect(averageScore(181, 200), greaterThan(averageScore(151, 180)));
+  });
+
+  test('101-200 profiles narrow gradually without violating readability', () {
+    final first = generator.gradientProfileFor(101);
+    final last = generator.gradientProfileFor(200);
+    expect(
+      first.highLuminance - first.lowLuminance,
+      greaterThan(last.highLuminance - last.lowLuminance),
+    );
+    expect(last.shuffleFraction, greaterThan(first.shuffleFraction));
+    for (var number = 101; number <= 200; number++) {
+      if (generator.puzzleTypeFor(number) != JourneyPuzzleType.gradient) {
+        continue;
+      }
+      final level = generator.generate(number);
+      expect(
+        _minimumDeltaE(level),
+        greaterThanOrEqualTo(
+          JourneyLevelGenerator.perceptualThresholdForLevel(number),
+        ),
+        reason: level.id,
+      );
+    }
   });
 
   test('levels 1-5000 preserve mixed-Journey invariants', () {
@@ -229,7 +314,7 @@ void main() {
                 ? 5
                 : number <= 120
                 ? 6
-                : number <= 200
+                : number <= 180
                 ? 7
                 : 8;
         expect(level.boardSize, expected, reason: level.id);
@@ -246,8 +331,8 @@ void main() {
       (16, 35, 4),
       (36, 70, 5),
       (71, 120, 6),
-      (121, 200, 7),
-      (201, 230, 8),
+      (121, 180, 7),
+      (181, 230, 8),
     ]) {
       for (var number = start; number <= end; number++) {
         if (generator.puzzleTypeFor(number) == JourneyPuzzleType.gradient) {
@@ -318,4 +403,19 @@ List<double> _deltaEs(LevelDefinition level) {
         colors[level.solutionTileOrder[index]]!,
       ),
   ];
+}
+
+int _firstHundredDigest(JourneyLevelGenerator generator) {
+  return _rangeDigest(generator, 1, 100);
+}
+
+int _rangeDigest(JourneyLevelGenerator generator, int start, int end) {
+  var hash = 0xcbf29ce484222325;
+  for (var number = start; number <= end; number++) {
+    for (final unit in _signature(generator.generate(number)).codeUnits) {
+      hash ^= unit;
+      hash = (hash * 0x100000001b3) & 0xffffffffffffffff;
+    }
+  }
+  return hash;
 }

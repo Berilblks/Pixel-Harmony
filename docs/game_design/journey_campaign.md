@@ -12,9 +12,11 @@ Journey mixes two puzzle types:
   later levels become subtler. Adjacent shades use CIELAB Delta E 76 floors of
   6.0 (levels 1–10), 3.0 (11–30), 1.0 (31–70), and 0.25 (71+), while strict
   increasing relative luminance remains mandatory. Gradient boards progress
-  from 2×2 (levels 1–5), through 3×3, 4×4, 5×5, 6×6, and 7×7 tiers, reaching
-  8×8 at level 201 and beyond. Pixel Coloring appearances retain their own
-  canonical template dimensions.
+  from 2×2 (levels 1–5), through 3×3, 4×4, 5×5, and 6×6 tiers. Gradient
+  puzzles remain 6×6 through level 120, use 7×7 from levels 121–180, and reach
+  the mobile-safe 8×8 maximum at level 181. Levels beyond 200 remain 8×8 with
+  a bounded readability floor rather than becoming indefinitely subtler. Pixel
+  Coloring appearances retain their own canonical template dimensions.
 
 Gradient presentation rotates deterministically through 14 named families:
 pink, purple, lavender, blue, turquoise, mint, emerald, yellow, gold, orange,
@@ -46,9 +48,12 @@ difficulty order before deterministic expert reuse begins. Difficulty combines
 matrix area, paintable cells, palette size and similarity, fragmented/small
 color regions, and edge detail; matrix size is never the sole measure. The
 catalog is divided into five smooth 20-art Journey bands from starter through
-expert. After the first pass, Journey cycles deterministically through the 30
-hardest artworks with a full-cycle stride, avoiding a sudden return to starter
-content. Within narrow three-point complexity windows, templates are ordered
+expert. Later appearances use a deterministic, category- and palette-aware selector
+over a 40-art high-difficulty pool. Every member is used before an ID repeats,
+avoiding a sudden return to starter content and reducing repeated subjects.
+The reuse pool grows proportionally when approved templates are added, so the
+selection logic does not depend on a 100-item catalog. Within narrow
+three-point complexity windows, templates are ordered
 to reduce repeated subject categories and similar average palette families;
 this adds visual variety without introducing a meaningful difficulty jump.
 Grid sizes remain between 5×5 and 16×16, while later art contains
@@ -69,21 +74,26 @@ haptic spam. The palette scrolls horizontally when seven colors do not fit.
 Ten-level groups remain an internal generation and progress mechanism only.
 They have no themed names and do not define a finite end to Journey. Level
 selection is one continuous, vertically scrolling path of numbered stops. It
-uses lazy rendering, opens near the first incomplete stop, and can continue
-beyond the cached first 100 definitions without a visual endpoint. Existing
+uses lazy rendering, opens near the first incomplete stop, and extends its
+generated level window in bounded batches as the player approaches the end.
+It can therefore continue beyond the cached first 100 definitions without a
+visual endpoint or creating thousands of widgets at once. Existing
 achievement identifiers remain stable, but their user-facing goals refer to
 Journey level milestones rather than chapters.
 
-Journey progression and completion persistence remain independent from Endless
-and Daily modes. Those modes retain their separate procedural generator and
-generation version.
+Journey progression and completion persistence remain independent from Free
+Play. Removing the Daily Puzzle entry does not delete legacy local Daily data;
+those stored compatibility fields are simply no longer surfaced or updated.
 
 Analytics continues to emit the existing `pixel_picture` puzzle-type value for
 dashboard compatibility even though the user-facing mechanic is now Pixel
 Coloring. No event names or historical dimensions were migrated.
 
-Journey generation version 6 orders the existing 100-art library by measured
+Journey generation version 8 preserves every level 1–100 output from version 6,
+the version-7 Gradient curve, and the first 100 unique Pixel Coloring occurrence
+mappings. It replaces only post-catalog repeated-art selection with the scalable
+repeat-aware selector. The existing 100-art library remains ordered by measured
 Pixel Coloring complexity. It does not alter any artwork, template ID, palette,
-or Gradient seed. Stable level IDs preserve completion and unlock progress;
+or level 1–100 Gradient seed. Stable level IDs preserve completion and unlock progress;
 partial Pixel Coloring state is not persisted, so an unfinished level safely
-resolves to its version-6 deterministic template when reopened.
+resolves to its deterministic template when reopened.

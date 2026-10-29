@@ -49,12 +49,10 @@ void main() {
       'Modes',
       'Journey',
       'Free Play',
-      'Daily Puzzle',
-      'Current Streak',
-      'Best Streak',
     ]) {
       expect(find.text(label), findsWidgets);
     }
+    expect(find.text('Daily Puzzle'), findsNothing);
     expect(find.text('25'), findsOneWidget);
   });
 
@@ -68,8 +66,7 @@ void main() {
 
     expect(find.text('İstatistikler'), findsOneWidget);
     expect(find.text('Toplam Bulmaca'), findsOneWidget);
-    expect(find.text('Mevcut Seri'), findsOneWidget);
-    expect(find.text('En İyi Seri'), findsOneWidget);
+    expect(find.text('Günün Bulmacası'), findsNothing);
   });
 
   testWidgets('Statistics has no overflow on a narrow phone', (tester) async {

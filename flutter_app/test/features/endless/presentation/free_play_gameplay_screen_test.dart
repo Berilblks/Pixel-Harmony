@@ -27,6 +27,7 @@ void main() {
 
     final first = _gameplay(tester);
     expect(first.level!.pictureTemplateId, contains('heart'));
+    expect(find.text('Heart'), findsOneWidget);
     expect(selector.selectionCount, 1);
 
     await tester.pump();
@@ -39,6 +40,8 @@ void main() {
     _gameplay(tester).onNextPuzzle!.call();
     await tester.pump();
     expect(_gameplay(tester).level!.pictureTemplateId, contains('star'));
+    expect(find.text('Star'), findsOneWidget);
+    expect(find.text('Heart'), findsNothing);
     expect(selector.selectionCount, 2);
   });
 
