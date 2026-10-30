@@ -1,0 +1,113 @@
+workflows:
+  ios-readiness:
+    name: Pixel Harmony iOS Readiness
+    working_directory: flutter_app
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    environment:
+      flutter: 3.29.0
+      xcode: latest
+      cocoapods: default
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    scripts:
+      - name: Verify iOS readiness inputs
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          mkdir -p build/ci_logs
+          flutter --version | tee build/ci_logs/flutter-version.log
+          xcodebuild -version | tee build/ci_logs/xcode-version.log
+          pod --version | tee build/ci_logs/cocoapods-version.log
+
+          test -f ios/Podfile
+          test -f ios/Runner/GoogleService-Info.plist
+
+          firebase_bundle_id=$(
+            /usr/libexec/PlistBuddy \
+              -c "Print :BUNDLE_ID" \
+              ios/Runner/GoogleService-Info.plist
+          )
+          test "$firebase_bundle_id" = "com.berilblks.pixelharmony"
+          unset firebase_bundle_id
+
+          project_file=ios/Runner.xcodeproj/project.pbxproj
+          grep -Fq "GoogleService-Info.plist in Resources" "$project_file"
+          grep -Fq "Crashlytics Upload Symbols" "$project_file"
+          grep -Fq "FirebaseCrashlytics/run" "$project_file"
+
+          {
+            echo "iOS Podfile: present"
+            echo "Firebase iOS plist: present"
+            echo "Firebase bundle identifier: verified"
+            echo "Firebase plist Runner resource membership: verified"
+            echo "Crashlytics build phase declaration: verified"
+          } | tee build/ci_logs/ios-readiness-inputs.log
+
+      - name: Get Flutter packages
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter pub get 2>&1 | tee build/ci_logs/flutter-pub-get.log
+
+      - name: Install CocoaPods dependencies
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          pushd ios >/dev/null
+          pod install --repo-update 2>&1 | tee ../build/ci_logs/pod-install.log
+          test -f Podfile.lock
+          popd >/dev/null
+          echo "Podfile.lock generated successfully." \
+            | tee build/ci_logs/podfile-lock-verification.log
+
+      - name: Analyze Flutter application
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter analyze 2>&1 | tee build/ci_logs/flutter-analyze.log
+
+      - name: Run Flutter tests
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter test 2>&1 | tee build/ci_logs/flutter-test.log
+
+      - name: Build unsigned iOS release
+        script: |
+          #!/bin/bash
+          set -uo pipefail
+
+          build_log=build/ci_logs/flutter-build-ios-release.log
+          crashlytics_log=build/ci_logs/crashlytics-readiness.log
+
+          set +e
+          flutter build ios --release --no-codesign >"$build_log" 2>&1
+          build_status=$?
+          set -e
+
+          cat "$build_log"
+          grep -Ei "Crashlytics|upload-symbols|dSYM" "$build_log" \
+            > build/ci_logs/crashlytics-build-lines.log || true
+
+          {
+            echo "Crashlytics build phase is configured in the Runner target."
+            if test -s build/ci_logs/crashlytics-build-lines.log; then
+              echo "Crashlytics-related build output was captured separately."
+            else
+              echo "No explicit Crashlytics or dSYM upload line was emitted."
+            fi
+            echo "This unsigned workflow does not claim successful dSYM upload."
+            echo "Verify dSYM upload later with a signed archive or TestFlight build."
+          } | tee "$crashlytics_log"
+
+          exit "$build_status"
+
+    artifacts:
+      - build/ios/iphoneos/**/*.app
+      - build/ci_logs/**
+      - ios/Podfile.lock
+      - /tmp/xcodebuild_logs/*.log
