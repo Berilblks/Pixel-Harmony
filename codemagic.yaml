@@ -111,3 +111,137 @@ workflows:
       - build/ci_logs/**
       - ios/Podfile.lock
       - /tmp/xcodebuild_logs/*.log
+
+  ios-signed-release:
+    name: Pixel Harmony iOS Signed Release
+    working_directory: flutter_app
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: Pixel Harmony Apple API
+    environment:
+      flutter: 3.29.0
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.berilblks.pixelharmony
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+    scripts:
+      - name: Record build tool versions
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          mkdir -p build/ci_logs
+          flutter --version | tee build/ci_logs/flutter-version.log
+          xcodebuild -version | tee build/ci_logs/xcode-version.log
+          pod --version | tee build/ci_logs/cocoapods-version.log
+
+      - name: Get Flutter packages
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter pub get 2>&1 | tee build/ci_logs/flutter-pub-get.log
+
+      - name: Install CocoaPods dependencies
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          pushd ios >/dev/null
+          pod install --repo-update 2>&1 | tee ../build/ci_logs/pod-install.log
+          test -f Podfile.lock
+          popd >/dev/null
+          echo "Podfile.lock generated successfully." \
+            | tee build/ci_logs/podfile-lock-verification.log
+
+      - name: Analyze Flutter application
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter analyze 2>&1 | tee build/ci_logs/flutter-analyze.log
+
+      - name: Run Flutter tests
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          flutter test 2>&1 | tee build/ci_logs/flutter-test.log
+
+      - name: Verify Firebase and Crashlytics configuration
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          test -f ios/Runner/GoogleService-Info.plist
+          firebase_bundle_id=$(
+            /usr/libexec/PlistBuddy \
+              -c "Print :BUNDLE_ID" \
+              ios/Runner/GoogleService-Info.plist
+          )
+          test "$firebase_bundle_id" = "com.berilblks.pixelharmony"
+          unset firebase_bundle_id
+
+          project_file=ios/Runner.xcodeproj/project.pbxproj
+          grep -Fq "GoogleService-Info.plist in Resources" "$project_file"
+          grep -Fq "Crashlytics Upload Symbols" "$project_file"
+          grep -Fq "FirebaseCrashlytics/run" "$project_file"
+
+          {
+            echo "Firebase iOS plist and bundle identifier: verified"
+            echo "Firebase plist Runner resource membership: verified"
+            echo "Crashlytics dSYM build phase declaration: verified"
+            echo "Firebase configuration values were not printed."
+          } | tee build/ci_logs/firebase-crashlytics-verification.log
+
+      - name: Apply App Store signing profiles
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+          xcode-project use-profiles 2>&1 \
+            | tee build/ci_logs/xcode-use-profiles.log
+          test -f "$HOME/export_options.plist"
+          echo "App Store signing profiles applied." \
+            | tee build/ci_logs/signing-verification.log
+
+      - name: Build signed iOS release IPA
+        script: |
+          #!/bin/bash
+          set -uo pipefail
+
+          build_log=build/ci_logs/flutter-build-ipa-release.log
+          crashlytics_log=build/ci_logs/crashlytics-signed-build.log
+
+          set +e
+          flutter build ipa --release \
+            --export-options-plist="$HOME/export_options.plist" \
+            >"$build_log" 2>&1
+          build_status=$?
+          set -e
+
+          cat "$build_log"
+          grep -Ei "Crashlytics|upload-symbols|dSYM" "$build_log" \
+            > build/ci_logs/crashlytics-build-lines.log || true
+
+          {
+            echo "Crashlytics-related signed archive output was captured when emitted."
+            echo "Confirm actual dSYM upload only from this build's complete logs."
+          } | tee "$crashlytics_log"
+
+          if test "$build_status" -eq 0; then
+            find build/ios/ipa -type f -name "*.ipa" -print -quit \
+              | grep -q .
+            find build/ios/archive -type d -name "*.dSYM" -print -quit \
+              | grep -q .
+          fi
+
+          exit "$build_status"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/archive/**/*.dSYM
+      - build/ci_logs/**
+      - ios/Podfile.lock
+      - /tmp/xcodebuild_logs/*.log
