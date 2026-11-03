@@ -91,11 +91,11 @@ void main() {
 
     for (final entry
         in const {
-          'drawable-mdpi': (200, 230),
-          'drawable-hdpi': (300, 345),
-          'drawable-xhdpi': (400, 460),
-          'drawable-xxhdpi': (600, 690),
-          'drawable-xxxhdpi': (800, 920),
+          'drawable-mdpi': (120, 120),
+          'drawable-hdpi': (180, 180),
+          'drawable-xhdpi': (240, 240),
+          'drawable-xxhdpi': (360, 360),
+          'drawable-xxxhdpi': (480, 480),
         }.entries) {
       final splash = _readPng(
         'android/app/src/main/res/${entry.key}/launch_mark.png',

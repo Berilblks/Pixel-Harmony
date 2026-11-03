@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pixel_harmony/app/app.dart';
 import 'package:pixel_harmony/app/firebase_support.dart';
+import 'package:pixel_harmony/app/startup_splash.dart';
 import 'package:pixel_harmony/core/analytics/analytics_providers.dart';
 import 'package:pixel_harmony/core/analytics/app_analytics_service.dart';
 import 'package:pixel_harmony/core/crash_reporting/app_crash_reporter.dart';
@@ -26,7 +27,7 @@ void bootstrap() {
   runApp(
     ProviderScope(
       overrides: [appAnalyticsServiceProvider.overrideWithValue(analytics)],
-      child: const PixelHarmonyApp(),
+      child: const StartupSplash(child: PixelHarmonyApp()),
     ),
   );
   unawaited(
