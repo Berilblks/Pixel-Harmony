@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4effa" />
+    <meta
+      name="description"
+      content="Official support page for Pixel Harmony, a calm color puzzle game for iOS and Android."
+    />
+    <title>Pixel Harmony Support</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #f7f3fb;
+        --surface: rgba(255, 255, 255, 0.88);
+        --surface-strong: #ffffff;
+        --ink: #28233a;
+        --muted: #676078;
+        --lavender: #7357c7;
+        --lavender-dark: #57409f;
+        --lavender-soft: #e9e0f7;
+        --pink-soft: #f8dceb;
+        --blue-soft: #dceef9;
+        --yellow-soft: #fff0bd;
+        --border: rgba(103, 83, 151, 0.16);
+        --shadow: 0 18px 48px rgba(77, 58, 112, 0.1);
+        --radius-large: 28px;
+        --radius-medium: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-width: 280px;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 7%, var(--pink-soft), transparent 31rem),
+          radial-gradient(circle at 88% 16%, var(--blue-soft), transparent 29rem),
+          linear-gradient(145deg, #fffdfd 0%, var(--background) 54%, #f0eafa 100%);
+        font-family:
+          Inter, ui-rounded, "SF Pro Rounded", "SF Pro Display", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--lavender-dark);
+        font-weight: 700;
+        text-underline-offset: 0.2em;
+      }
+
+      a:hover {
+        color: var(--lavender);
+      }
+
+      a:focus-visible,
+      summary:focus-visible {
+        border-radius: 6px;
+        outline: 3px solid rgba(115, 87, 199, 0.32);
+        outline-offset: 4px;
+      }
+
+      .page-shell {
+        width: min(100% - 32px, 960px);
+        margin-inline: auto;
+        padding: 40px 0 32px;
+      }
+
+      .hero {
+        display: grid;
+        place-items: center;
+        padding: clamp(32px, 7vw, 64px) clamp(20px, 6vw, 56px);
+        overflow: hidden;
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-large);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .logo {
+        width: clamp(112px, 22vw, 168px);
+        height: auto;
+        display: block;
+        margin-bottom: 24px;
+        filter: drop-shadow(0 14px 24px rgba(81, 57, 131, 0.16));
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--lavender-dark);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.2;
+      }
+
+      h1 {
+        max-width: 720px;
+        margin: 0;
+        font-size: clamp(2rem, 7vw, 3.65rem);
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        max-width: 680px;
+        margin: 18px auto 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 2vw, 1.14rem);
+      }
+
+      .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .quick-links a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 16px;
+        text-decoration: none;
+        background: var(--lavender-soft);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+      }
+
+      main {
+        display: grid;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .card {
+        padding: clamp(22px, 5vw, 36px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-large);
+        box-shadow: 0 10px 30px rgba(77, 58, 112, 0.06);
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: clamp(1.35rem, 3vw, 1.8rem);
+        letter-spacing: -0.02em;
+      }
+
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      .feature {
+        min-height: 100%;
+        padding: 18px;
+        background: linear-gradient(145deg, #ffffff, #f8f5fc);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-medium);
+      }
+
+      .feature-mark {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        margin-bottom: 12px;
+        color: var(--lavender-dark);
+        font-weight: 900;
+        background: var(--lavender-soft);
+        border-radius: 12px;
+      }
+
+      .feature strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .feature p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .faq {
+        border-top: 1px solid var(--border);
+      }
+
+      details {
+        padding: 18px 2px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      summary {
+        cursor: pointer;
+        font-weight: 750;
+        line-height: 1.4;
+      }
+
+      details p {
+        margin: 12px 26px 0 0;
+        color: var(--muted);
+      }
+
+      .notice {
+        margin-top: 18px;
+        padding: 18px;
+        background: linear-gradient(135deg, var(--yellow-soft), #fff9e5);
+        border: 1px solid rgba(176, 133, 30, 0.16);
+        border-radius: var(--radius-medium);
+      }
+
+      .steps {
+        padding-left: 1.25rem;
+      }
+
+      .steps li + li {
+        margin-top: 8px;
+      }
+
+      .contact-card {
+        text-align: center;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(240, 233, 250, 0.94));
+      }
+
+      .email-button {
+        min-height: 52px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+        padding: 13px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        background: var(--lavender);
+        border-radius: 14px;
+        box-shadow: 0 10px 20px rgba(92, 67, 163, 0.2);
+      }
+
+      .email-button:hover {
+        color: #ffffff;
+        background: var(--lavender-dark);
+      }
+
+      footer {
+        padding: 26px 12px 0;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.88rem;
+      }
+
+      footer p {
+        margin: 5px 0;
+      }
+
+      @media (max-width: 680px) {
+        .page-shell {
+          width: min(100% - 20px, 960px);
+          padding-top: 10px;
+        }
+
+        .hero,
+        .card {
+          border-radius: 22px;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .quick-links {
+          align-items: stretch;
+          flex-direction: column;
+          width: 100%;
+        }
+
+        .quick-links a {
+          justify-content: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <img
+          class="logo"
+          src="assets/support/pixel-harmony-logo.png"
+          alt="Pixel Harmony four-color logo"
+          width="432"
+          height="432"
+        />
+        <p class="eyebrow">Pixel Harmony</p>
+        <h1>Welcome to Pixel Harmony Support</h1>
+        <p class="intro">
+          Find answers, learn how your progress is stored, or get in touch if
+          something is not working as expected.
+        </p>
+        <nav class="quick-links" aria-label="Support sections">
+          <a href="#about">About the app</a>
+          <a href="#faq">Frequently asked questions</a>
+          <a href="#contact">Contact support</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="card" id="about">
+          <h2>About Pixel Harmony</h2>
+          <p>
+            Pixel Harmony is a calm color puzzle game for iOS and Android. It
+            combines relaxing gradient puzzles and pixel coloring with a
+            steadily growing Journey and Free Play. The core game is designed
+            to remain playable offline.
+          </p>
+          <div class="feature-grid">
+            <article class="feature">
+              <span class="feature-mark" aria-hidden="true">01</span>
+              <strong>Play at your pace</strong>
+              <p>No timer is required to enjoy the core puzzles.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-mark" aria-hidden="true">02</span>
+              <strong>Made for offline play</strong>
+              <p>Journey and Free Play do not require a continuous connection.</p>
+            </article>
+            <article class="feature">
+              <span class="feature-mark" aria-hidden="true">03</span>
+              <strong>Saved on your device</strong>
+              <p>Progress and preferences are stored locally by the app.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="card" id="faq">
+          <h2>Frequently asked questions</h2>
+          <div class="faq">
+            <details>
+              <summary>Can I play Pixel Harmony without internet access?</summary>
+              <p>
+                Yes. Core Journey and Free Play puzzles are designed to work
+                offline. Optional services such as analytics and crash
+                reporting do not control your ability to play.
+              </p>
+            </details>
+            <details>
+              <summary>Where is my game progress stored?</summary>
+              <p>
+                Journey progress, achievements, statistics, and gameplay
+                preferences are stored locally in the app data on your device.
+                Pixel Harmony does not currently offer account-based cloud sync
+                or cross-device progress transfer.
+              </p>
+            </details>
+            <details>
+              <summary>Will deleting the app remove my progress?</summary>
+              <p>
+                It may. Removing the app or clearing its app data can remove
+                locally stored progress and settings. Reinstalling the app is
+                not currently guaranteed to restore that data, so please avoid
+                deleting the app while troubleshooting unless support asks you
+                to do so and you accept that risk.
+              </p>
+            </details>
+            <details>
+              <summary>How do I move or color a tile?</summary>
+              <p>
+                In gradient puzzles, drag one tile over another valid tile to
+                swap them. In pixel coloring puzzles, choose a numbered color
+                from the palette and tap matching cells. You can pinch to zoom
+                and pan larger pixel artwork.
+              </p>
+            </details>
+            <details>
+              <summary>How can I change sound effects or haptics?</summary>
+              <p>
+                Open Settings from the Home screen. Sound effects and haptic
+                feedback can be enabled or disabled independently, and your
+                choices are stored on the device.
+              </p>
+            </details>
+            <details>
+              <summary>What should I do if the app stops responding?</summary>
+              <p>
+                Close and reopen the app first. If the problem continues,
+                restart your device and make sure Pixel Harmony is up to date.
+                If you still need help, contact us with the details listed
+                below. Avoid clearing app data unless you understand that local
+                progress may be lost.
+              </p>
+            </details>
+          </div>
+        </section>
+
+        <section class="card" id="progress">
+          <h2>Game progress and saved data</h2>
+          <p>
+            Pixel Harmony uses local device storage for completed Journey
+            levels, achievements, player statistics, and settings. This keeps
+            core play available offline and does not require an account.
+          </p>
+          <div class="notice">
+            <strong>Please note:</strong> cloud backup, cross-device sync, and
+            restoration after uninstall are not currently promised features.
+            Device backup behavior may also depend on your operating system and
+            device settings.
+          </div>
+        </section>
+
+        <section class="card" id="reporting">
+          <h2>Report a problem</h2>
+          <p>To help us investigate quickly, please include:</p>
+          <ol class="steps">
+            <li>Your device model and operating system version.</li>
+            <li>The Pixel Harmony app version, if available.</li>
+            <li>The game mode and level where the issue occurred.</li>
+            <li>Clear steps that reproduce the problem.</li>
+            <li>A screenshot or short screen recording, when helpful.</li>
+          </ol>
+          <p>
+            Please do not send passwords, payment details, or other sensitive
+            personal information.
+          </p>
+        </section>
+
+        <section class="card contact-card" id="contact">
+          <h2>Contact support</h2>
+          <p>
+            Questions, feedback, and bug reports are welcome. We will review
+            your message as soon as reasonably possible.
+          </p>
+          <a
+            class="email-button"
+            href="mailto:support.berilapps@gmail.com?subject=Pixel%20Harmony%20Support"
+          >
+            support.berilapps@gmail.com
+          </a>
+        </section>
+      </main>
+
+      <footer>
+        <p>Pixel Harmony Support</p>
+        <p>
+          A privacy policy will be published separately before the public App
+          Store release. No unavailable policy link is shown here.
+        </p>
+        <p>This independent app is not endorsed or supported by Apple.</p>
+      </footer>
+    </div>
+  </body>
+</html>
