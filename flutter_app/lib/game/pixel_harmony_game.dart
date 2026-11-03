@@ -9,21 +9,29 @@ import 'package:pixel_harmony/game/coloring/pixel_coloring_session.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_state.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
+import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 import 'package:pixel_harmony/game/state/game_session.dart';
 
 class PixelHarmonyGame extends FlameGame {
   PixelHarmonyGame({
     required LevelDefinition level,
+    PixelPictureTemplate? pixelPictureTemplate,
     this.onCompleted,
     this.onTilePickedUp,
     this.onSwapCompleted,
     this.onColoringStateChanged,
-  }) : session = GameSession(level: level) {
+  }) : assert(
+         pixelPictureTemplate == null ||
+             level.pictureTemplateId == pixelPictureTemplate.id,
+       ),
+       session = GameSession(level: level) {
     coloringSession =
         level.puzzleType == JourneyPuzzleType.pixelPicture
             ? PixelColoringSession(
-              template: PixelPictureCatalog.byId(level.pictureTemplateId!),
+              template:
+                  pixelPictureTemplate ??
+                  PixelPictureCatalog.byId(level.pictureTemplateId!),
             )
             : null;
   }

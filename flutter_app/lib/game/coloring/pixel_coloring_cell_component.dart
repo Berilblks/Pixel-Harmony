@@ -24,6 +24,7 @@ class PixelColoringCellComponent extends PositionComponent with TapCallbacks {
 
   bool painted = false;
   bool matchesSelection = false;
+  bool completionPresentation = false;
   double _fillProgress = 0;
   double _wrongFeedback = 0;
 
@@ -48,16 +49,19 @@ class PixelColoringCellComponent extends PositionComponent with TapCallbacks {
   @override
   void render(Canvas canvas) {
     final rect = size.toRect();
-    final background =
-        paintable
-            ? const Color(0xFFF8F4ED)
-            : targetColor.withValues(alpha: 0.3);
-    canvas.drawRect(rect, Paint()..color = background);
+    if (!paintable) {
+      return;
+    }
+    if (completionPresentation) {
+      canvas.drawRect(rect, Paint()..color = targetColor);
+      return;
+    }
+    canvas.drawRect(rect, Paint()..color = const Color(0xFFF8F4ED));
 
     if (painted) {
       final inset = (1 - _fillProgress) * size.x * 0.28;
       canvas.drawRect(rect.deflate(inset), Paint()..color = targetColor);
-    } else if (paintable) {
+    } else {
       if (matchesSelection) {
         canvas.drawRect(
           rect.deflate(1),

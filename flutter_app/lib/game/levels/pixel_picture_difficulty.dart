@@ -67,16 +67,29 @@ abstract final class PixelPictureDifficultyEvaluator {
     final smallRegionFactor = (smallRegionCount / math.max(1, colorCount * 3))
         .clamp(0.0, 1.0);
 
-    final score = (1 +
-            areaFactor * 14 +
-            paintFactor * 18 +
-            colorFactor * 18 +
-            similarityFactor * 12 +
-            fragmentationFactor * 11 +
-            smallRegionFactor * 9 +
-            detailRatio * 17)
-        .round()
-        .clamp(1, 100);
+    final legacyScore =
+        (1 +
+                areaFactor * 14 +
+                paintFactor * 18 +
+                colorFactor * 18 +
+                similarityFactor * 12 +
+                fragmentationFactor * 11 +
+                smallRegionFactor * 9 +
+                detailRatio * 17)
+            .round();
+    final largeGridBonus =
+        template.rows <= 16
+            ? 0
+            : (_normalize(
+                          template.rows * template.columns,
+                          minimum: 256,
+                          maximum: 1024,
+                        ) *
+                        5 +
+                    _normalize(paintableCells, minimum: 210, maximum: 900) * 5 +
+                    _normalize(colorCount, minimum: 8, maximum: 24) * 4)
+                .round();
+    final score = (legacyScore + largeGridBonus).clamp(1, 100);
 
     return PixelPictureDifficultyAssessment(
       template: template,

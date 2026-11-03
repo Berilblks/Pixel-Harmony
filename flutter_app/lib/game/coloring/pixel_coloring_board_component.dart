@@ -34,7 +34,11 @@ class PixelColoringBoardComponent extends PositionComponent {
   final void Function() onCellPainted;
   final void Function() onCompleted;
   final BoardLayout _layout;
+  late final BoardLayout _completionLayout = BoardLayout(
+    BoardConfig(spacing: 0, screenPadding: config.screenPadding),
+  );
   double _tileExtent = 0;
+  Vector2 _availableSize = Vector2.zero();
   bool _completionNotified = false;
   bool inputBlocked = false;
 
@@ -86,6 +90,14 @@ class PixelColoringBoardComponent extends PositionComponent {
       return;
     }
     _completionNotified = true;
+    for (final cell in children.whereType<PixelColoringCellComponent>()) {
+      cell
+        ..completionPresentation = true
+        ..matchesSelection = false;
+    }
+    if (_availableSize.x > 0 && _availableSize.y > 0) {
+      _layoutCells(_availableSize);
+    }
     onCompleted();
   }
 
@@ -107,9 +119,15 @@ class PixelColoringBoardComponent extends PositionComponent {
   @override
   void onGameResize(Vector2 size) {
     super.onGameResize(size);
+    _availableSize = size.clone();
+    _layoutCells(size);
+  }
+
+  void _layoutCells(Vector2 availableSize) {
     final template = session.state.template;
-    final result = _layout.calculate(
-      availableSize: size,
+    final layout = session.state.completed ? _completionLayout : _layout;
+    final result = layout.calculate(
+      availableSize: availableSize,
       rowCount: template.rows,
       columnCount: template.columns,
     );
@@ -119,27 +137,12 @@ class PixelColoringBoardComponent extends PositionComponent {
     for (final cell in children.whereType<PixelColoringCellComponent>()) {
       cell
         ..size = Vector2.all(_tileExtent)
-        ..position = _layout.tilePosition(
+        ..position = layout.tilePosition(
           row: cell.cellIndex ~/ template.columns,
           column: cell.cellIndex % template.columns,
           tileSize: _tileExtent,
         );
     }
     _syncCells();
-  }
-
-  @override
-  void render(Canvas canvas) {
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        size.toRect().inflate(5),
-        const Radius.circular(8),
-      ),
-      Paint()
-        ..color = const Color(0x22514B45)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1.2,
-    );
-    super.render(canvas);
   }
 }

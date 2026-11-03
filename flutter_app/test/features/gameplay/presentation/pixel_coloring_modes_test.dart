@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/pixel_coloring_viewport.dart';
+import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_board_component.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_cell_component.dart';
 import 'package:pixel_harmony/game/levels/level_definition.dart';
@@ -13,6 +14,8 @@ import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../support/fake_level_progress_repository.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -54,7 +57,7 @@ void main() {
       tester.view.physicalSize = const Size(320, 720);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.view.resetPhysicalSize);
-      final template = PixelPictureCatalog.byId('northern_lights');
+      final template = PixelPictureCatalog.byId('snowy_mountain');
       await tester.pumpWidget(
         _testApp(
           GameplayScreen.endless(
@@ -123,7 +126,7 @@ void main() {
     tester.view.physicalSize = const Size(320, 640);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPhysicalSize);
-    final template = PixelPictureCatalog.byId('northern_lights');
+    final template = PixelPictureCatalog.byId('balloon_landscape');
     await tester.pumpWidget(
       _testApp(
         GameplayScreen.endless(
@@ -141,11 +144,50 @@ void main() {
     expect(find.text(template.turkishName), findsOneWidget);
     final game = _currentGame(tester);
     game.onCompleted!(game.session.boardState.withCompleted(true));
-    await tester.pump(const Duration(milliseconds: 3100));
+    await tester.pump(const Duration(milliseconds: 3600));
 
-    expect(find.byKey(const Key('completionPixelPictureName')), findsOneWidget);
-    expect(find.text(template.turkishName), findsWidgets);
+    expect(find.byKey(const Key('pixelCompletionPanel')), findsOneWidget);
+    expect(find.text('Harika! Tamamladın!'), findsOneWidget);
+    expect(find.text(template.turkishName), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('debug preview completion never writes Journey progress', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository();
+    final template = PixelPictureCatalog.byId('snowy_mountain');
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          levelProgressRepositoryProvider.overrideWithValue(repository),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: GameplayScreen.preview(
+            level: _pictureLevel(template, id: 'debug_preview_test'),
+            pixelPictureTemplateOverride: template,
+            onBackHome: () {},
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    final game = _currentGame(tester);
+    while (!game.coloringSession!.state.completed) {
+      expect(game.requestHint(), isTrue);
+    }
+    await tester.pump(const Duration(milliseconds: 3600));
+
+    expect(find.byKey(const Key('pixelCompletionPanel')), findsOneWidget);
+    expect(repository.markCompletedCallCount, 0);
+    expect(repository.completedLevelIds, isEmpty);
   });
 }
 

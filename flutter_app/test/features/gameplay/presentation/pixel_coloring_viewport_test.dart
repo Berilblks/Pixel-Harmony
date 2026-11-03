@@ -65,12 +65,57 @@ void main() {
     );
     expect(state.transformationController.value.getMaxScaleOnAxis(), 1);
   });
+
+  testWidgets('reviewed 32x32 viewport can opt into a 5x ceiling', (
+    tester,
+  ) async {
+    final controller = TransformationController();
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(_app(controller: controller, maxScale: 5));
+
+    for (var index = 0; index < 4; index++) {
+      await _pinch(tester, outward: true);
+    }
+
+    expect(controller.value.getMaxScaleOnAxis(), closeTo(5, 0.01));
+  });
+
+  testWidgets('completion animates a zoomed viewport back to fit', (
+    tester,
+  ) async {
+    final controller = TransformationController(
+      Matrix4.identity()
+        ..setEntry(0, 0, 3)
+        ..setEntry(1, 1, 3)
+        ..setTranslationRaw(-80, -50, 0),
+    );
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(_app(controller: controller));
+    expect(controller.value.getMaxScaleOnAxis(), closeTo(3, 0.001));
+
+    await tester.pumpWidget(_app(controller: controller, completed: true));
+    await tester.pump(const Duration(milliseconds: 210));
+    expect(controller.value.getMaxScaleOnAxis(), inInclusiveRange(1.0, 3.0));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(controller.value.getMaxScaleOnAxis(), closeTo(1, 0.001));
+    expect(controller.value.getTranslation().x, closeTo(0, 0.001));
+    expect(controller.value.getTranslation().y, closeTo(0, 0.001));
+    final viewer = tester.widget<InteractiveViewer>(
+      find.byKey(const Key('pixelColoringInteractiveViewer')),
+    );
+    expect(viewer.panEnabled, isFalse);
+    expect(viewer.scaleEnabled, isFalse);
+    expect(_resetOpacity(tester), 0);
+  });
 }
 
 Widget _app({
   Key? key,
   TransformationController? controller,
   ValueChanged<bool>? onMultiTouchChanged,
+  double maxScale = 4,
+  bool completed = false,
 }) {
   return MaterialApp(
     home: Scaffold(
@@ -80,6 +125,8 @@ Widget _app({
           controller: controller,
           resetTooltip: 'Reset zoom',
           onMultiTouchChanged: onMultiTouchChanged,
+          maxScale: maxScale,
+          completed: completed,
           child: const ColoredBox(key: Key('pixelCanvas'), color: Colors.blue),
         ),
       ),

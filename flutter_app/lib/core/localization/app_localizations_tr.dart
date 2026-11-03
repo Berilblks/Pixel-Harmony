@@ -108,6 +108,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get completionContinue => 'Devam Et';
 
   @override
+  String get pixelColoringCompletionTitle => 'Harika! Tamamladın!';
+
+  @override
+  String get pixelColoringBackToLevels => 'Bölümlere Dön';
+
+  @override
   String levelLabel(int number) {
     return 'Seviye $number';
   }

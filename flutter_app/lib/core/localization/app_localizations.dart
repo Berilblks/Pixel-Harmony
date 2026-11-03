@@ -278,6 +278,18 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get completionContinue;
 
+  /// No description provided for @pixelColoringCompletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Great! You did it!'**
+  String get pixelColoringCompletionTitle;
+
+  /// No description provided for @pixelColoringBackToLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Levels'**
+  String get pixelColoringBackToLevels;
+
   /// No description provided for @levelLabel.
   ///
   /// In en, this message translates to:

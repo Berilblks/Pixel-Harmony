@@ -41,6 +41,8 @@
     }
   },
   "completionContinue": "Devam Et",
+  "pixelColoringCompletionTitle": "Harika! Tamamladın!",
+  "pixelColoringBackToLevels": "Bölümlere Dön",
   "levelLabel": "Seviye {number}",
   "@levelLabel": {
     "placeholders": {"number": {"type": "int"}}

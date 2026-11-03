@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flame/game.dart';
+import 'package:flame/game.dart' hide Matrix4;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +15,7 @@ import 'package:pixel_harmony/core/feedback/haptic_service.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
+import 'package:pixel_harmony/features/gameplay/presentation/pixel_coloring_viewport.dart';
 import 'package:pixel_harmony/features/gameplay/application/pixel_picture_onboarding_provider.dart';
 import 'package:pixel_harmony/features/gameplay/domain/pixel_picture_onboarding_repository.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
@@ -113,7 +114,7 @@ void main() {
     final game = currentGame(tester);
     game.onCompleted!(game.session.boardState.withCompleted(true));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 3100));
+    await tester.pump(const Duration(milliseconds: 3600));
   }
 
   testWidgets('completion overlay is hidden while puzzle is incomplete', (
@@ -210,45 +211,80 @@ void main() {
     expect(find.byKey(const Key('pixelColorPalette')), findsOneWidget);
   });
 
-  testWidgets('Pixel Picture remains visible before completion overlay', (
-    tester,
-  ) async {
-    final controller = GameplayCompletionController();
-    addTearDown(controller.dispose);
-    final progress = FakeLevelProgressRepository(
-      completedLevelIds:
-          LevelCatalog.levels.take(4).map((level) => level.id).toSet(),
-    );
-    await tester.pumpWidget(
-      buildApp(
-        controller: controller,
-        initialLevelId: 'level_005',
-        repository: progress,
-        onboardingRepository: _FakePixelPictureOnboardingRepository(seen: true),
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 100));
-    final game = currentGame(tester);
-    game.onCompleted!(game.session.boardState.withCompleted(true));
-    await tester.pump(const Duration(milliseconds: 450));
-    expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
-    expect(
-      find.byKey(const Key('completedPixelArtPresentation')),
-      findsNothing,
-    );
-    expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
-    await tester.pump(const Duration(milliseconds: 100));
-    expect(
-      find.byKey(const Key('completedPixelArtPresentation')),
-      findsOneWidget,
-    );
-    expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
-    await tester.pump(const Duration(milliseconds: 2500));
-    expect(find.byKey(const Key('levelCompleteOverlay')), findsOneWidget);
-    expect(find.byKey(const Key('completionPixelPictureName')), findsOneWidget);
-    expect(find.text('Heart'), findsWidgets);
-  });
+  testWidgets(
+    'painted matrix stays visible through checkmark and bottom panel',
+    (tester) async {
+      final progress = FakeLevelProgressRepository(
+        completedLevelIds:
+            LevelCatalog.levels.take(4).map((level) => level.id).toSet(),
+      );
+      await tester.pumpWidget(
+        buildApp(
+          initialLevelId: 'level_005',
+          repository: progress,
+          onboardingRepository: _FakePixelPictureOnboardingRepository(
+            seen: true,
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      final game = currentGame(tester);
+      final session = game.coloringSession!;
+      while (session.state.paintedCount <
+          session.state.template.paintablePixelCount - 1) {
+        expect(game.requestHint(), isTrue);
+      }
+      final viewport = tester.state<PixelColoringViewportState>(
+        find.byType(PixelColoringViewport),
+      );
+      viewport.transformationController.value = Matrix4.diagonal3Values(3, 3, 1)
+        ..setTranslationRaw(-80, -60, 0);
+      expect(viewport.transformationController.value.getMaxScaleOnAxis(), 3);
+      expect(game.requestHint(), isTrue);
+      await tester.pump();
+      expect(find.byKey(const Key('pixelCompletionCheckmark')), findsOneWidget);
+      expect(find.byKey(const Key('pixelCompletionPanel')), findsNothing);
+      expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
+      await tester.pump(const Duration(milliseconds: 450));
+      expect(find.byKey(const Key('pixelCompletionCheckmark')), findsOneWidget);
+      expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
+      expect(currentGame(tester), same(game));
+      expect(find.byKey(const Key('pixelColorPalette')), findsNothing);
+      expect(find.byKey(const Key('hintButton')), findsNothing);
+      expect(find.byKey(const Key('restartLevelButton')), findsNothing);
+      expect(
+        viewport.transformationController.value.getMaxScaleOnAxis(),
+        closeTo(1, 0.001),
+      );
+      await tester.pump(const Duration(milliseconds: 1000));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byKey(const Key('pixelCompletionCheckmark')), findsNothing);
+      expect(find.byKey(const Key('pixelCompletionPanel')), findsNothing);
+      expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 1700));
+      expect(find.byKey(const Key('pixelCompletionPanel')), findsNothing);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(const Key('pixelCompletionPanel')), findsOneWidget);
+      expect(find.byKey(const Key('levelCompleteOverlay')), findsNothing);
+      expect(find.text('Great! You did it!'), findsOneWidget);
+      expect(find.byKey(const Key('nextLevelButton')), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 420));
+      final boardViewport = tester.getRect(
+        find.byKey(const Key('gameplayBoardViewport')),
+      );
+      final panel = tester.getRect(
+        find.byKey(const Key('pixelCompletionPanel')),
+      );
+      expect(boardViewport.bottom, lessThanOrEqualTo(panel.top + 0.1));
+      expect(progress.markCompletedCallCount, 1);
+      await tester.tap(find.byKey(const Key('nextLevelButton')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 350));
+      expect(find.text('Level 6'), findsOneWidget);
+      expect(progress.markCompletedCallCount, 1);
+    },
+  );
 
   testWidgets('Pixel Picture names the target without hidden-picture copy', (
     tester,
@@ -273,10 +309,7 @@ void main() {
     );
     expect(find.textContaining('hidden', findRichText: true), findsNothing);
     expect(find.textContaining('dark to light'), findsNothing);
-    expect(
-      find.byKey(const Key('completedPixelArtPresentation')),
-      findsNothing,
-    );
+    expect(find.byType(GameWidget<PixelHarmonyGame>), findsOneWidget);
   });
 
   testWidgets('Journey tutorial explains the rule without showing the answer', (

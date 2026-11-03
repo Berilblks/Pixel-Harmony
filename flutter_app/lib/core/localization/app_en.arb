@@ -41,6 +41,8 @@
     }
   },
   "completionContinue": "Continue",
+  "pixelColoringCompletionTitle": "Great! You did it!",
+  "pixelColoringBackToLevels": "Back to Levels",
   "levelLabel": "Level {number}",
   "@levelLabel": {
     "placeholders": {"number": {"type": "int"}}

@@ -108,6 +108,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get completionContinue => 'Continue';
 
   @override
+  String get pixelColoringCompletionTitle => 'Great! You did it!';
+
+  @override
+  String get pixelColoringBackToLevels => 'Back to Levels';
+
+  @override
   String levelLabel(int number) {
     return 'Level $number';
   }

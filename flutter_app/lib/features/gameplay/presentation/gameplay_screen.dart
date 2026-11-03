@@ -17,7 +17,6 @@ import 'package:pixel_harmony/core/localization/pixel_picture_localizations.dart
 import 'package:pixel_harmony/core/theme/app_design_tokens.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_completion_controller.dart';
 import 'package:pixel_harmony/features/gameplay/application/pixel_picture_onboarding_provider.dart';
-import 'package:pixel_harmony/features/gameplay/presentation/pixel_art_renderer.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/pixel_coloring_viewport.dart';
 import 'package:pixel_harmony/features/level_progress/application/level_progress_providers.dart';
 import 'package:pixel_harmony/features/settings/application/game_feedback_settings_providers.dart';
@@ -27,11 +26,14 @@ import 'package:pixel_harmony/features/statistics/domain/player_statistics.dart'
 import 'package:pixel_harmony/game/levels/level_definition.dart';
 import 'package:pixel_harmony/game/levels/level_progression.dart';
 import 'package:pixel_harmony/game/levels/pixel_picture_catalog.dart';
+import 'package:pixel_harmony/game/levels/pixel_picture_template.dart';
 import 'package:pixel_harmony/game/coloring/pixel_coloring_state.dart';
 import 'package:pixel_harmony/game/pixel_harmony_game.dart';
 import 'package:pixel_harmony/game/state/board_state.dart';
 
-enum GameplayContentSource { journey, endless }
+enum GameplayContentSource { journey, endless, preview }
+
+enum _PixelCompletionPhase { playing, checkmark, showcase, panel }
 
 class GameplayScreen extends ConsumerStatefulWidget {
   const GameplayScreen({
@@ -42,7 +44,8 @@ class GameplayScreen extends ConsumerStatefulWidget {
        puzzleNumber = null,
        onEndlessCompleted = null,
        onNextPuzzle = null,
-       onBackHome = null;
+       onBackHome = null,
+       pixelPictureTemplateOverride = null;
 
   const GameplayScreen.endless({
     super.key,
@@ -52,7 +55,19 @@ class GameplayScreen extends ConsumerStatefulWidget {
     required this.onNextPuzzle,
     required this.onBackHome,
     this.completionController,
-  }) : contentSource = GameplayContentSource.endless;
+  }) : contentSource = GameplayContentSource.endless,
+       pixelPictureTemplateOverride = null;
+
+  const GameplayScreen.preview({
+    super.key,
+    required this.level,
+    required this.pixelPictureTemplateOverride,
+    required this.onBackHome,
+    this.completionController,
+  }) : contentSource = GameplayContentSource.preview,
+       puzzleNumber = null,
+       onEndlessCompleted = null,
+       onNextPuzzle = null;
 
   final LevelDefinition? level;
   final GameplayCompletionController? completionController;
@@ -61,6 +76,7 @@ class GameplayScreen extends ConsumerStatefulWidget {
   final Future<void> Function(BoardState state)? onEndlessCompleted;
   final VoidCallback? onNextPuzzle;
   final VoidCallback? onBackHome;
+  final PixelPictureTemplate? pixelPictureTemplateOverride;
 
   @override
   ConsumerState<GameplayScreen> createState() => _GameplayScreenState();
@@ -76,9 +92,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   bool _isNavigatingToNextLevel = false;
   bool _startLogged = false;
   bool _reduceMotion = false;
-  bool _showCompletedPixelArt = false;
-  Timer? _completionRevealTimer;
-  Timer? _pictureArtworkTimer;
+  _PixelCompletionPhase _pixelCompletionPhase = _PixelCompletionPhase.playing;
+  Timer? _completionCheckmarkTimer;
+  Timer? _completionPanelTimer;
   PixelColoringState? _coloringState;
   late final TransformationController _pixelColoringTransformController;
 
@@ -99,9 +115,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
           onCompletion:
               level == null
                   ? null
-                  : widget.contentSource == GameplayContentSource.endless
-                  ? widget.onEndlessCompleted
-                  : (state) => _completeJourney(level, state),
+                  : switch (widget.contentSource) {
+                    GameplayContentSource.journey =>
+                      (state) => _completeJourney(level, state),
+                    GameplayContentSource.endless => widget.onEndlessCompleted,
+                    GameplayContentSource.preview => null,
+                  },
         );
   }
 
@@ -147,8 +166,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
 
   @override
   void dispose() {
-    _completionRevealTimer?.cancel();
-    _pictureArtworkTimer?.cancel();
+    _cancelPixelCompletionTimers();
     WidgetsBinding.instance.removeObserver(this);
     _pixelColoringTransformController.dispose();
     if (_ownsCompletionController) {
@@ -165,35 +183,21 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   PixelHarmonyGame _createGame(LevelDefinition level) {
     final game = PixelHarmonyGame(
       level: level,
+      pixelPictureTemplate: widget.pixelPictureTemplateOverride,
       onTilePickedUp: _feedbackController.tilePickedUp,
       onSwapCompleted: _feedbackController.acceptedSwap,
       onColoringStateChanged: (state) {
         if (mounted) setState(() => _coloringState = state);
       },
       onCompleted: (state) {
-        _feedbackController.levelCompleted();
-        _completionRevealTimer?.cancel();
         final isPicture = level.puzzleType == JourneyPuzzleType.pixelPicture;
-        if (isPicture) {
-          final artworkDelay =
-              _reduceMotion ? Duration.zero : const Duration(milliseconds: 500);
-          _pictureArtworkTimer = Timer(artworkDelay, () {
-            if (mounted) setState(() => _showCompletedPixelArt = true);
-          });
+        if (isPicture &&
+            _pixelCompletionPhase != _PixelCompletionPhase.playing) {
+          return;
         }
-        final revealDelay =
-            isPicture
-                ? _reduceMotion
-                    ? const Duration(milliseconds: 1500)
-                    : const Duration(milliseconds: 2500)
-                : Duration.zero;
-        if (revealDelay == Duration.zero) {
-          _completionController.showCompletion(state);
-        } else {
-          _completionRevealTimer = Timer(revealDelay, () {
-            if (mounted) _completionController.showCompletion(state);
-          });
-        }
+        _feedbackController.levelCompleted();
+        _completionController.showCompletion(state);
+        if (isPicture) _beginPixelCompletionSequence();
       },
     );
     if (!_startLogged &&
@@ -221,10 +225,12 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
   String get _analyticsMode => switch (widget.contentSource) {
     GameplayContentSource.journey => AnalyticsValues.journey,
     GameplayContentSource.endless => AnalyticsValues.endless,
+    GameplayContentSource.preview => AnalyticsValues.endless,
   };
 
   void _requestHint(PixelHarmonyGame game) {
     if (!game.requestHint()) return;
+    if (widget.contentSource == GameplayContentSource.preview) return;
     unawaited(
       ref
           .read(appAnalyticsServiceProvider)
@@ -247,8 +253,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     final level = widget.level;
     if (level == null) return;
 
-    _completionRevealTimer?.cancel();
-    _pictureArtworkTimer?.cancel();
+    _cancelPixelCompletionTimers();
     _pixelColoringTransformController.value = Matrix4.identity();
     setState(() {
       _sessionGeneration++;
@@ -256,9 +261,10 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       _completionController.reset();
       _feedbackController.resetSession();
       _isNavigatingToNextLevel = false;
-      _showCompletedPixelArt = false;
+      _pixelCompletionPhase = _PixelCompletionPhase.playing;
       _coloringState = null;
     });
+    if (widget.contentSource == GameplayContentSource.preview) return;
     unawaited(
       ref
           .read(appAnalyticsServiceProvider)
@@ -270,6 +276,35 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
             },
           ),
     );
+  }
+
+  void _beginPixelCompletionSequence() {
+    _cancelPixelCompletionTimers();
+    setState(() => _pixelCompletionPhase = _PixelCompletionPhase.checkmark);
+
+    final checkmarkDuration =
+        _reduceMotion
+            ? const Duration(milliseconds: 700)
+            : const Duration(milliseconds: 1100);
+    final panelDelay =
+        _reduceMotion
+            ? const Duration(milliseconds: 3000)
+            : const Duration(milliseconds: 3500);
+    _completionCheckmarkTimer = Timer(checkmarkDuration, () {
+      if (!mounted) return;
+      setState(() => _pixelCompletionPhase = _PixelCompletionPhase.showcase);
+    });
+    _completionPanelTimer = Timer(panelDelay, () {
+      if (!mounted) return;
+      setState(() => _pixelCompletionPhase = _PixelCompletionPhase.panel);
+    });
+  }
+
+  void _cancelPixelCompletionTimers() {
+    _completionCheckmarkTimer?.cancel();
+    _completionPanelTimer?.cancel();
+    _completionCheckmarkTimer = null;
+    _completionPanelTimer = null;
   }
 
   Future<void> _openNextLevel(LevelDefinition nextLevel) async {
@@ -360,15 +395,26 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     );
     final showPixelPictureHeader =
         level.puzzleType == JourneyPuzzleType.pixelPicture;
-    final pixelPictureCompleted = coloringState?.completed ?? false;
+    final pixelCompletionActive =
+        _pixelCompletionPhase != _PixelCompletionPhase.playing;
+    final pixelPictureCompleted =
+        (coloringState?.completed ?? false) || pixelCompletionActive;
     final isPixelPicture = level.puzzleType == JourneyPuzzleType.pixelPicture;
+    final pixelPictureTemplate =
+        isPixelPicture
+            ? widget.pixelPictureTemplateOverride ??
+                PixelPictureCatalog.byId(level.pictureTemplateId!)
+            : null;
     final showPixelPictureChrome =
         showPixelPictureHeader && !pixelPictureCompleted;
     final showPixelColorPalette =
-        isPixelPicture &&
-        coloringState != null &&
-        !pixelPictureCompleted &&
-        !_showCompletedPixelArt;
+        isPixelPicture && coloringState != null && !pixelPictureCompleted;
+    final showPixelCompletionPanel =
+        isPixelPicture && _pixelCompletionPhase == _PixelCompletionPhase.panel;
+    final completionPanelExtent =
+        (MediaQuery.sizeOf(context).height * 0.23)
+            .clamp(168.0, 220.0)
+            .toDouble();
     Widget gameSurface = SizedBox.expand(
       key: const Key('gameplayGameWidget'),
       child: GameWidget<PixelHarmonyGame>(
@@ -382,6 +428,9 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         controller: _pixelColoringTransformController,
         resetTooltip: localizations.resetZoom,
         onMultiTouchChanged: game.setColoringInteractionBlocked,
+        maxScale: (pixelPictureTemplate?.size ?? 0) >= 32 ? 5 : 4,
+        completed: pixelCompletionActive,
+        reduceMotion: reduceMotion,
         child: gameSurface,
       );
     }
@@ -390,9 +439,19 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
         title: Semantics(
           header: true,
           child: Text(
-            widget.contentSource == GameplayContentSource.endless
-                ? localizations.puzzleLabel(widget.puzzleNumber!)
-                : localizedLevelName(localizations, level),
+            switch (widget.contentSource) {
+              GameplayContentSource.endless => localizations.puzzleLabel(
+                widget.puzzleNumber!,
+              ),
+              GameplayContentSource.preview => localizedPixelFigureName(
+                localizations,
+                pixelPictureTemplate!,
+              ),
+              GameplayContentSource.journey => localizedLevelName(
+                localizations,
+                level,
+              ),
+            },
             key: const Key('gameplayLevelTitle'),
             style: Theme.of(
               context,
@@ -445,19 +504,27 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
       ),
       body: Stack(
         children: [
-          if (showGradientTutorial ||
-              showPixelPictureHeader ||
-              showPixelColorPalette)
-            Positioned.fill(
-              top:
-                  showGradientTutorial
-                      ? 112
-                      : showPixelPictureHeader
-                      ? 86
+          if (isPixelPicture)
+            AnimatedPositioned(
+              key: const Key('gameplayBoardViewport'),
+              duration:
+                  reduceMotion
+                      ? Duration.zero
+                      : const Duration(milliseconds: 420),
+              curve: Curves.easeInOutCubic,
+              top: showPixelPictureHeader ? 86 : 0,
+              bottom:
+                  showPixelColorPalette
+                      ? 108
+                      : showPixelCompletionPanel
+                      ? completionPanelExtent
                       : 0,
-              bottom: showPixelColorPalette ? 108 : 0,
+              left: 0,
+              right: 0,
               child: gameSurface,
             )
+          else if (showGradientTutorial)
+            Positioned.fill(top: 112, child: gameSurface)
           else
             gameSurface,
           if (showGradientTutorial)
@@ -475,7 +542,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
           if (showPixelPictureChrome)
             Align(
               alignment: Alignment.topCenter,
-              child: _PixelPictureGoalHeader(level: level),
+              child: _PixelPictureGoalHeader(template: pixelPictureTemplate!),
             ),
           if (showPixelColorPalette)
             Align(
@@ -485,86 +552,102 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                 onSelected: game.selectColor,
               ),
             ),
-          IgnorePointer(
-            child: AnimatedSwitcher(
-              duration:
-                  reduceMotion
-                      ? Duration.zero
-                      : const Duration(milliseconds: 800),
-              switchInCurve: Curves.easeOutCubic,
-              transitionBuilder:
-                  (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: ScaleTransition(
-                      scale: Tween(begin: 0.92, end: 1.0).animate(animation),
-                      child: child,
-                    ),
-                  ),
-              child:
-                  _showCompletedPixelArt && level.pictureTemplateId != null
-                      ? SizedBox.expand(
-                        key: const Key('completedPixelArtPresentation'),
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppSpacing.xl),
-                          child: PixelArtRenderer(
-                            data: PixelArtRenderData.fromTemplate(
-                              PixelPictureCatalog.byId(
-                                level.pictureTemplateId!,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                      : const SizedBox.shrink(),
+          if (isPixelPicture)
+            IgnorePointer(
+              child: Center(
+                child: AnimatedSwitcher(
+                  duration:
+                      reduceMotion
+                          ? Duration.zero
+                          : const Duration(milliseconds: 220),
+                  reverseDuration:
+                      reduceMotion
+                          ? Duration.zero
+                          : const Duration(milliseconds: 260),
+                  child:
+                      _pixelCompletionPhase == _PixelCompletionPhase.checkmark
+                          ? _PixelCompletionCheckmark(
+                            key: const Key('pixelCompletionCheckmark'),
+                            reduceMotion: reduceMotion,
+                          )
+                          : const SizedBox.shrink(),
+                ),
+              ),
             ),
-          ),
-          AnimatedBuilder(
-            animation: _completionController,
-            builder: (context, child) {
-              final completion = _completionController.completion;
-              return AnimatedSwitcher(
-                duration: reduceMotion ? Duration.zero : AppMotion.gentle,
-                switchInCurve: Curves.easeInOut,
-                child:
-                    completion == null
-                        ? const SizedBox.shrink()
-                        : _LevelCompleteOverlay(
-                          key: const Key('levelCompleteOverlay'),
-                          moveCount: completion.moveCount,
-                          puzzleNumber: widget.puzzleNumber,
-                          isEndless:
-                              widget.contentSource ==
-                              GameplayContentSource.endless,
-                          pixelFigureName:
-                              level.puzzleType == JourneyPuzzleType.pixelPicture
-                                  ? localizedPixelFigureName(
-                                    localizations,
-                                    PixelPictureCatalog.byId(
-                                      level.pictureTemplateId!,
-                                    ),
-                                  )
-                                  : null,
-                          isFinalLevel: nextLevel == null,
-                          onNextLevel:
-                              widget.contentSource ==
-                                      GameplayContentSource.endless
-                                  ? _isNavigatingToNextLevel
-                                      ? null
-                                      : _openNextPuzzle
-                                  : nextLevel == null ||
-                                      _isNavigatingToNextLevel
-                                  ? null
-                                  : () => _openNextLevel(nextLevel),
-                          onBackToLevels:
-                              widget.contentSource !=
-                                      GameplayContentSource.journey
-                                  ? widget.onBackHome!
-                                  : () =>
-                                      context.goNamed(AppRoutes.levelSelect),
-                        ),
-              );
-            },
-          ),
+          if (isPixelPicture)
+            AnimatedBuilder(
+              animation: _completionController,
+              builder: (context, child) {
+                final completion = _completionController.completion;
+                if (!showPixelCompletionPanel || completion == null) {
+                  return const SizedBox.shrink();
+                }
+                return _PixelCompletionPanel(
+                  key: const Key('pixelCompletionPanel'),
+                  extent: completionPanelExtent,
+                  reduceMotion: reduceMotion,
+                  isEndless:
+                      widget.contentSource == GameplayContentSource.endless,
+                  isFinalLevel: nextLevel == null,
+                  pixelFigureName: localizedPixelFigureName(
+                    localizations,
+                    pixelPictureTemplate!,
+                  ),
+                  onNextLevel:
+                      widget.contentSource == GameplayContentSource.endless
+                          ? _isNavigatingToNextLevel
+                              ? null
+                              : _openNextPuzzle
+                          : nextLevel == null || _isNavigatingToNextLevel
+                          ? null
+                          : () => _openNextLevel(nextLevel),
+                  onBackToLevels:
+                      widget.contentSource != GameplayContentSource.journey
+                          ? widget.onBackHome!
+                          : () => context.goNamed(AppRoutes.levelSelect),
+                );
+              },
+            )
+          else
+            AnimatedBuilder(
+              animation: _completionController,
+              builder: (context, child) {
+                final completion = _completionController.completion;
+                return AnimatedSwitcher(
+                  duration: reduceMotion ? Duration.zero : AppMotion.gentle,
+                  switchInCurve: Curves.easeInOut,
+                  child:
+                      completion == null
+                          ? const SizedBox.shrink()
+                          : _LevelCompleteOverlay(
+                            key: const Key('levelCompleteOverlay'),
+                            moveCount: completion.moveCount,
+                            puzzleNumber: widget.puzzleNumber,
+                            isEndless:
+                                widget.contentSource ==
+                                GameplayContentSource.endless,
+                            pixelFigureName: null,
+                            isFinalLevel: nextLevel == null,
+                            onNextLevel:
+                                widget.contentSource ==
+                                        GameplayContentSource.endless
+                                    ? _isNavigatingToNextLevel
+                                        ? null
+                                        : _openNextPuzzle
+                                    : nextLevel == null ||
+                                        _isNavigatingToNextLevel
+                                    ? null
+                                    : () => _openNextLevel(nextLevel),
+                            onBackToLevels:
+                                widget.contentSource !=
+                                        GameplayContentSource.journey
+                                    ? widget.onBackHome!
+                                    : () =>
+                                        context.goNamed(AppRoutes.levelSelect),
+                          ),
+                );
+              },
+            ),
         ],
       ),
     );
@@ -572,14 +655,13 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
 }
 
 class _PixelPictureGoalHeader extends StatelessWidget {
-  const _PixelPictureGoalHeader({required this.level});
+  const _PixelPictureGoalHeader({required this.template});
 
-  final LevelDefinition level;
+  final PixelPictureTemplate template;
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    final template = PixelPictureCatalog.byId(level.pictureTemplateId!);
     final figure = localizedPixelFigureName(localizations, template);
     return SafeArea(
       bottom: false,
@@ -931,6 +1013,196 @@ class _LevelNotFoundView extends StatelessWidget {
                 child: Text(localizations.backToLevels),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PixelCompletionCheckmark extends StatelessWidget {
+  const _PixelCompletionCheckmark({super.key, required this.reduceMotion});
+
+  final bool reduceMotion;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: reduceMotion ? 1 : 0.72, end: 1),
+      duration:
+          reduceMotion ? Duration.zero : const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+      builder:
+          (context, scale, child) =>
+              Transform.scale(scale: scale, child: child),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppPalette.surface.withValues(alpha: 0.94),
+          shape: BoxShape.circle,
+          boxShadow: AppShadows.floating,
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(AppSpacing.sm),
+          child: Icon(
+            Icons.check_circle_rounded,
+            color: AppPalette.completed,
+            size: 68,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PixelCompletionPanel extends StatelessWidget {
+  const _PixelCompletionPanel({
+    super.key,
+    required this.extent,
+    required this.reduceMotion,
+    required this.isEndless,
+    required this.isFinalLevel,
+    required this.pixelFigureName,
+    required this.onNextLevel,
+    required this.onBackToLevels,
+  });
+
+  final double extent;
+  final bool reduceMotion;
+  final bool isEndless;
+  final bool isFinalLevel;
+  final String pixelFigureName;
+  final VoidCallback? onNextLevel;
+  final VoidCallback onBackToLevels;
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: extent,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: reduceMotion ? 1 : 0, end: 1),
+        duration:
+            reduceMotion ? Duration.zero : const Duration(milliseconds: 340),
+        curve: Curves.easeOutCubic,
+        builder:
+            (context, value, child) => Opacity(
+              opacity: value,
+              child: Transform.translate(
+                offset: Offset(0, (1 - value) * 36),
+                child: child,
+              ),
+            ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              4,
+              AppSpacing.md,
+              4,
+            ),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 480),
+                child: Material(
+                  color: AppPalette.surface.withValues(alpha: 0.98),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppRadii.xl),
+                    bottom: Radius.circular(AppRadii.lg),
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(AppRadii.xl),
+                        bottom: Radius.circular(AppRadii.lg),
+                      ),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.55,
+                        ),
+                      ),
+                      boxShadow: AppShadows.floating,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          localizations.pixelColoringCompletionTitle,
+                          key: const Key('pixelCompletionTitle'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          pixelFigureName,
+                          key: const Key('completionPixelPictureName'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: AppPalette.mutedInk),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 42,
+                          child: FilledButton(
+                            key: Key(
+                              isEndless
+                                  ? 'nextPuzzleButton'
+                                  : isFinalLevel
+                                  ? 'finalBackToLevelsButton'
+                                  : 'nextLevelButton',
+                            ),
+                            onPressed:
+                                !isEndless && isFinalLevel
+                                    ? onBackToLevels
+                                    : onNextLevel,
+                            child: Text(
+                              isEndless
+                                  ? localizations.nextPuzzle
+                                  : isFinalLevel
+                                  ? localizations.pixelColoringBackToLevels
+                                  : localizations.nextLevel,
+                            ),
+                          ),
+                        ),
+                        if (isEndless || !isFinalLevel)
+                          SizedBox(
+                            height: 36,
+                            child: TextButton(
+                              key: Key(
+                                isEndless
+                                    ? 'endlessBackHomeButton'
+                                    : 'completionBackToLevelsButton',
+                              ),
+                              onPressed: onBackToLevels,
+                              child: Text(
+                                isEndless
+                                    ? localizations.backHome
+                                    : localizations.pixelColoringBackToLevels,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

@@ -1,4 +1,7 @@
 class PixelPictureTemplate {
+  static const minimumSupportedGridSize = 5;
+  static const maximumSupportedGridSize = 32;
+
   const PixelPictureTemplate({
     required this.id,
     required this.familyId,
@@ -56,10 +59,10 @@ class PixelPictureTemplate {
       throw StateError('Pixel Picture metadata cannot be empty.');
     }
     if (minimumJourneyLevel < 1 ||
-        rows < 5 ||
-        rows > 16 ||
-        columns < 5 ||
-        columns > 16 ||
+        rows < minimumSupportedGridSize ||
+        rows > maximumSupportedGridSize ||
+        columns < minimumSupportedGridSize ||
+        columns > maximumSupportedGridSize ||
         rows != columns ||
         pixels.length != rows * columns) {
       throw StateError('Invalid dimensions for Pixel Picture $id.');
