@@ -64,6 +64,25 @@ workflows:
           echo "Podfile.lock generated successfully." \
             | tee build/ci_logs/podfile-lock-verification.log
 
+      - name: Verify Analytics excludes advertising identifier support
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          lockfile=ios/Podfile.lock
+          test -f "$lockfile"
+          grep -Fq "Firebase/AnalyticsWithoutAdIdSupport" "$lockfile"
+
+          if grep -Eq 'FirebaseAnalytics/AdIdSupport|GoogleAppMeasurementIdentitySupport' "$lockfile"; then
+            echo "Unexpected advertising identifier support pod found." >&2
+            exit 1
+          fi
+
+          {
+            echo "Firebase Analytics no-IDFA CocoaPods variant: verified"
+            echo "Advertising identifier support pods: absent"
+          } | tee build/ci_logs/firebase-analytics-no-idfa-verification.log
+
       - name: Analyze Flutter application
         script: |
           #!/bin/bash
@@ -158,6 +177,25 @@ workflows:
           echo "Podfile.lock generated successfully." \
             | tee build/ci_logs/podfile-lock-verification.log
 
+      - name: Verify Analytics excludes advertising identifier support
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          lockfile=ios/Podfile.lock
+          test -f "$lockfile"
+          grep -Fq "Firebase/AnalyticsWithoutAdIdSupport" "$lockfile"
+
+          if grep -Eq 'FirebaseAnalytics/AdIdSupport|GoogleAppMeasurementIdentitySupport' "$lockfile"; then
+            echo "Unexpected advertising identifier support pod found." >&2
+            exit 1
+          fi
+
+          {
+            echo "Firebase Analytics no-IDFA CocoaPods variant: verified"
+            echo "Advertising identifier support pods: absent"
+          } | tee build/ci_logs/firebase-analytics-no-idfa-verification.log
+
       - name: Analyze Flutter application
         script: |
           #!/bin/bash
@@ -239,6 +277,66 @@ workflows:
 
           exit "$build_status"
 
+      - name: Audit signed IPA for advertising identifier support
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          audit_log=build/ci_logs/ipa-no-idfa-audit.log
+          ipa=$(find build/ios/ipa -maxdepth 1 -type f -name "*.ipa" -print -quit)
+          test -n "$ipa"
+
+          audit_dir=$(mktemp -d)
+          trap 'rm -rf "$audit_dir"' EXIT
+          unzip -q "$ipa" -d "$audit_dir"
+
+          app=$(find "$audit_dir/Payload" -maxdepth 1 -type d -name "*.app" -print -quit)
+          test -n "$app"
+          executable_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")
+          binary="$app/$executable_name"
+          test -f "$binary"
+
+          linked_libraries=$(otool -L "$binary")
+          if printf '%s\n' "$linked_libraries" | grep -Eq 'AdSupport|AppTrackingTransparency'; then
+            echo "Advertising or tracking framework linked into the app binary." >&2
+            exit 1
+          fi
+
+          if grep -Eq 'ASIdentifierManager|ATTrackingManager|advertisingIdentifier' \
+            < <(nm -u "$binary" 2>/dev/null); then
+            echo "Advertising identifier or tracking symbol found in the app binary." >&2
+            exit 1
+          fi
+
+          if grep -Eq 'ASIdentifierManager|ATTrackingManager|advertisingIdentifier' \
+            < <(strings "$binary"); then
+            echo "Advertising identifier or tracking code trace found in the app binary." >&2
+            exit 1
+          fi
+
+          if /usr/libexec/PlistBuddy -c 'Print :NSUserTrackingUsageDescription' "$app/Info.plist" >/dev/null 2>&1; then
+            echo "Unexpected NSUserTrackingUsageDescription found." >&2
+            exit 1
+          fi
+
+          manifest_count=0
+          while IFS= read -r manifest; do
+            manifest_count=$((manifest_count + 1))
+            tracking=$(plutil -extract NSPrivacyTracking raw -o - "$manifest" 2>/dev/null || echo false)
+            if test "$tracking" = "true"; then
+              echo "Privacy manifest declares tracking: $manifest" >&2
+              exit 1
+            fi
+          done < <(find "$app" -type f -name 'PrivacyInfo.xcprivacy' -print)
+
+          {
+            echo "AdSupport/AppTrackingTransparency linkage: absent"
+            echo "IDFA/ATT undefined symbols: absent"
+            echo "NSUserTrackingUsageDescription: absent"
+            echo "Privacy manifests declaring tracking: absent"
+            echo "Privacy manifests inspected: $manifest_count"
+          } | tee "$audit_log"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - build/ios/archive/**/*.dSYM
@@ -291,6 +389,25 @@ workflows:
           popd >/dev/null
           echo "Podfile.lock generated successfully." \
             | tee build/ci_logs/podfile-lock-verification.log
+
+      - name: Verify Analytics excludes advertising identifier support
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          lockfile=ios/Podfile.lock
+          test -f "$lockfile"
+          grep -Fq "Firebase/AnalyticsWithoutAdIdSupport" "$lockfile"
+
+          if grep -Eq 'FirebaseAnalytics/AdIdSupport|GoogleAppMeasurementIdentitySupport' "$lockfile"; then
+            echo "Unexpected advertising identifier support pod found." >&2
+            exit 1
+          fi
+
+          {
+            echo "Firebase Analytics no-IDFA CocoaPods variant: verified"
+            echo "Advertising identifier support pods: absent"
+          } | tee build/ci_logs/firebase-analytics-no-idfa-verification.log
 
       - name: Analyze Flutter application
         script: |
@@ -377,6 +494,66 @@ workflows:
           fi
 
           exit "$build_status"
+
+      - name: Audit TestFlight IPA for advertising identifier support
+        script: |
+          #!/bin/bash
+          set -euo pipefail
+
+          audit_log=build/ci_logs/ipa-no-idfa-audit.log
+          ipa=$(find build/ios/ipa -maxdepth 1 -type f -name "*.ipa" -print -quit)
+          test -n "$ipa"
+
+          audit_dir=$(mktemp -d)
+          trap 'rm -rf "$audit_dir"' EXIT
+          unzip -q "$ipa" -d "$audit_dir"
+
+          app=$(find "$audit_dir/Payload" -maxdepth 1 -type d -name "*.app" -print -quit)
+          test -n "$app"
+          executable_name=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$app/Info.plist")
+          binary="$app/$executable_name"
+          test -f "$binary"
+
+          linked_libraries=$(otool -L "$binary")
+          if printf '%s\n' "$linked_libraries" | grep -Eq 'AdSupport|AppTrackingTransparency'; then
+            echo "Advertising or tracking framework linked into the app binary." >&2
+            exit 1
+          fi
+
+          if grep -Eq 'ASIdentifierManager|ATTrackingManager|advertisingIdentifier' \
+            < <(nm -u "$binary" 2>/dev/null); then
+            echo "Advertising identifier or tracking symbol found in the app binary." >&2
+            exit 1
+          fi
+
+          if grep -Eq 'ASIdentifierManager|ATTrackingManager|advertisingIdentifier' \
+            < <(strings "$binary"); then
+            echo "Advertising identifier or tracking code trace found in the app binary." >&2
+            exit 1
+          fi
+
+          if /usr/libexec/PlistBuddy -c 'Print :NSUserTrackingUsageDescription' "$app/Info.plist" >/dev/null 2>&1; then
+            echo "Unexpected NSUserTrackingUsageDescription found." >&2
+            exit 1
+          fi
+
+          manifest_count=0
+          while IFS= read -r manifest; do
+            manifest_count=$((manifest_count + 1))
+            tracking=$(plutil -extract NSPrivacyTracking raw -o - "$manifest" 2>/dev/null || echo false)
+            if test "$tracking" = "true"; then
+              echo "Privacy manifest declares tracking: $manifest" >&2
+              exit 1
+            fi
+          done < <(find "$app" -type f -name 'PrivacyInfo.xcprivacy' -print)
+
+          {
+            echo "AdSupport/AppTrackingTransparency linkage: absent"
+            echo "IDFA/ATT undefined symbols: absent"
+            echo "NSUserTrackingUsageDescription: absent"
+            echo "Privacy manifests declaring tracking: absent"
+            echo "Privacy manifests inspected: $manifest_count"
+          } | tee "$audit_log"
 
     artifacts:
       - build/ios/ipa/*.ipa

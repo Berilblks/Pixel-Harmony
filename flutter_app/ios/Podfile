@@ -1,5 +1,10 @@
 platform :ios, '13.0'
 
+# Pixel Harmony does not use advertising attribution or IDFA. FlutterFire reads
+# this flag while resolving firebase_analytics and selects Firebase's Analytics
+# CocoaPods variant without advertising identifier support.
+$FirebaseAnalyticsWithoutAdIdSupport = true
+
 # CocoaPods analytics sends network stats synchronously affecting Flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
