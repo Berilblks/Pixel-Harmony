@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4effa" />
+    <meta
+      name="description"
+      content="Privacy Policy for Pixel Harmony, a color puzzle game for iOS and Android."
+    />
+    <title>Pixel Harmony Privacy Policy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --background: #f7f3fb;
+        --surface: rgba(255, 255, 255, 0.9);
+        --ink: #28233a;
+        --muted: #676078;
+        --lavender: #7357c7;
+        --lavender-dark: #57409f;
+        --lavender-soft: #e9e0f7;
+        --pink-soft: #f8dceb;
+        --blue-soft: #dceef9;
+        --yellow-soft: #fff0bd;
+        --border: rgba(103, 83, 151, 0.16);
+        --shadow: 0 18px 48px rgba(77, 58, 112, 0.1);
+        --radius-large: 28px;
+        --radius-medium: 18px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-width: 280px;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 7%, var(--pink-soft), transparent 31rem),
+          radial-gradient(circle at 88% 16%, var(--blue-soft), transparent 29rem),
+          linear-gradient(145deg, #fffdfd 0%, var(--background) 54%, #f0eafa 100%);
+        font-family:
+          Inter, ui-rounded, "SF Pro Rounded", "SF Pro Display", -apple-system,
+          BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.7;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: var(--lavender-dark);
+        font-weight: 700;
+        overflow-wrap: anywhere;
+        text-underline-offset: 0.2em;
+      }
+
+      a:hover {
+        color: var(--lavender);
+      }
+
+      a:focus-visible {
+        border-radius: 6px;
+        outline: 3px solid rgba(115, 87, 199, 0.32);
+        outline-offset: 4px;
+      }
+
+      .page-shell {
+        width: min(100% - 32px, 960px);
+        margin-inline: auto;
+        padding: 40px 0 32px;
+      }
+
+      .hero {
+        display: grid;
+        place-items: center;
+        padding: clamp(32px, 7vw, 64px) clamp(20px, 6vw, 56px);
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-large);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .logo {
+        width: clamp(96px, 18vw, 144px);
+        height: auto;
+        display: block;
+        margin-bottom: 22px;
+        filter: drop-shadow(0 14px 24px rgba(81, 57, 131, 0.16));
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--lavender-dark);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.25;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 7vw, 3.55rem);
+        letter-spacing: -0.04em;
+      }
+
+      .intro {
+        max-width: 700px;
+        margin: 18px auto 0;
+        color: var(--muted);
+        font-size: clamp(1rem, 2vw, 1.14rem);
+      }
+
+      .updated {
+        display: inline-flex;
+        margin-top: 24px;
+        padding: 7px 13px;
+        color: var(--lavender-dark);
+        font-size: 0.86rem;
+        font-weight: 750;
+        background: var(--lavender-soft);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+      }
+
+      main {
+        display: grid;
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .card {
+        padding: clamp(22px, 5vw, 36px);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-large);
+        box-shadow: 0 10px 30px rgba(77, 58, 112, 0.06);
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: clamp(1.35rem, 3vw, 1.8rem);
+        letter-spacing: -0.02em;
+      }
+
+      .card h3 {
+        margin: 24px 0 8px;
+        font-size: 1.08rem;
+      }
+
+      .card p:first-of-type {
+        margin-top: 0;
+      }
+
+      .card p:last-child,
+      .card ul:last-child {
+        margin-bottom: 0;
+      }
+
+      ul {
+        padding-left: 1.25rem;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      .notice {
+        margin-top: 18px;
+        padding: 18px;
+        background: linear-gradient(135deg, var(--yellow-soft), #fff9e5);
+        border: 1px solid rgba(176, 133, 30, 0.16);
+        border-radius: var(--radius-medium);
+      }
+
+      .privacy-summary {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-top: 22px;
+      }
+
+      .summary-item {
+        padding: 18px;
+        background: linear-gradient(145deg, #ffffff, #f8f5fc);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-medium);
+      }
+
+      .summary-item strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .summary-item p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.94rem;
+      }
+
+      .contact-card {
+        text-align: center;
+        background:
+          linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(240, 233, 250, 0.94));
+      }
+
+      .email-button {
+        min-height: 52px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
+        padding: 13px 20px;
+        color: #ffffff;
+        text-decoration: none;
+        background: var(--lavender);
+        border-radius: 14px;
+        box-shadow: 0 10px 20px rgba(92, 67, 163, 0.2);
+      }
+
+      .email-button:hover {
+        color: #ffffff;
+        background: var(--lavender-dark);
+      }
+
+      footer {
+        padding: 26px 12px 0;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.88rem;
+      }
+
+      footer p {
+        margin: 5px 0;
+      }
+
+      @media (max-width: 680px) {
+        .page-shell {
+          width: min(100% - 20px, 960px);
+          padding-top: 10px;
+        }
+
+        .hero,
+        .card {
+          border-radius: 22px;
+        }
+
+        .privacy-summary {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <img
+          class="logo"
+          src="assets/support/pixel-harmony-logo.png"
+          alt="Pixel Harmony four-color logo"
+          width="432"
+          height="432"
+        />
+        <p class="eyebrow">Pixel Harmony</p>
+        <h1>Privacy Policy</h1>
+        <p class="intro">
+          This Privacy Policy explains what information Pixel Harmony processes,
+          why it is used, when it may leave your device, and the choices
+          currently available to you.
+        </p>
+        <span class="updated">Last updated: November 3, 2026</span>
+      </header>
+
+      <main>
+        <section class="card" id="overview">
+          <h2>Overview</h2>
+          <p>
+            Pixel Harmony is a color puzzle game for iOS and Android. Core
+            Journey and Free Play gameplay can work without a continuous
+            internet connection. The app does not currently provide user
+            accounts, advertising, or in-app purchases.
+          </p>
+          <div class="privacy-summary">
+            <article class="summary-item">
+              <strong>Local game data</strong>
+              <p>Progress, achievements, statistics, and settings are stored on your device.</p>
+            </article>
+            <article class="summary-item">
+              <strong>Usage analytics</strong>
+              <p>Firebase Analytics helps us understand how game features are used.</p>
+            </article>
+            <article class="summary-item">
+              <strong>Crash diagnostics</strong>
+              <p>Firebase Crashlytics helps us investigate crashes and technical errors.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="card" id="collection">
+          <h2>Information we process</h2>
+
+          <h3>Usage and interaction data</h3>
+          <p>
+            We use Google Analytics for Firebase to receive information about
+            how the app is used. This can include app opens, session-related
+            information, level or puzzle starts and completions, board size,
+            difficulty, number of moves, puzzle type, hint use, level restarts,
+            achievement identifiers, and changes to sound or haptic settings.
+          </p>
+          <p>
+            Firebase Analytics may also process automatically collected
+            technical and usage information such as app version, operating
+            system, device model or class, language, session information, and
+            first launch or update events.
+          </p>
+
+          <h3>Device and installation identifiers</h3>
+          <p>
+            Firebase services may create or use pseudonymous identifiers tied
+            to an app installation, including an Analytics app-instance
+            identifier, a Firebase installation identifier, and a Crashlytics
+            installation identifier. Depending on platform availability and
+            SDK configuration, Firebase Analytics documentation also describes
+            the possible use of device-level identifiers such as the vendor or
+            advertising identifier. Pixel Harmony does not use these
+            identifiers to create a player account or ask for your name.
+          </p>
+
+          <h3>Approximate location</h3>
+          <p>
+            Google Analytics may derive broad geographic information from
+            technical connection information. Detailed location and device
+            data collection has been disabled in the current Analytics
+            property settings. Pixel Harmony does not request GPS or precise
+            location permission. These settings do not mean that Firebase
+            processes no general technical metadata or coarse geographic
+            information at all.
+          </p>
+
+          <h3>Crash and diagnostic data</h3>
+          <p>
+            In release builds, Firebase Crashlytics may receive crash logs,
+            stack traces, exception details, app state associated with an
+            error, app and OS versions, device model and architecture,
+            timestamps, session or installation identifiers, and whether the
+            app was in the foreground or background. When Analytics and
+            Crashlytics are both active, recent app interaction breadcrumbs may
+            be associated with a crash report.
+          </p>
+
+          <div class="notice">
+            We do not intentionally send names, email addresses, passwords,
+            puzzle artwork contents, or payment details through our custom
+            Analytics events. Please avoid including sensitive personal
+            information in a support message or screenshot.
+          </div>
+        </section>
+
+        <section class="card" id="local-storage">
+          <h2>Information stored on your device</h2>
+          <p>The app stores the following information locally:</p>
+          <ul>
+            <li>completed Journey levels and progression state;</li>
+            <li>Free Play puzzle state and progression;</li>
+            <li>unlocked achievements and related timestamps;</li>
+            <li>gameplay statistics, such as completed puzzles and moves;</li>
+            <li>sound effect and haptic preferences; and</li>
+            <li>whether gameplay tutorials have already been shown.</li>
+          </ul>
+          <p>
+            This information supports offline gameplay and is not uploaded as
+            a cloud save. Pixel Harmony does not currently provide an account,
+            cross-device synchronization, or a guaranteed restoration service
+            after reinstalling the app. Some summarized gameplay interactions
+            may still be transmitted separately as Analytics events as
+            described above.
+          </p>
+        </section>
+
+        <section class="card" id="services">
+          <h2>Third-party services</h2>
+          <p>
+            Pixel Harmony uses Google Firebase as a service provider for
+            Analytics and Crashlytics. Information processed by these services
+            is handled under Google's terms and privacy practices and may be
+            processed on infrastructure outside your country or region.
+          </p>
+          <p>The following official resources provide additional detail:</p>
+          <ul>
+            <li>
+              <a
+                href="https://firebase.google.com/support/privacy"
+                rel="noopener noreferrer"
+                target="_blank"
+              >Firebase Privacy and Security</a>
+            </li>
+            <li>
+              <a
+                href="https://firebase.google.com/docs/ios/app-store-data-collection"
+                rel="noopener noreferrer"
+                target="_blank"
+              >Firebase Apple platform data collection disclosures</a>
+            </li>
+            <li>
+              <a
+                href="https://support.google.com/firebase/answer/6318039"
+                rel="noopener noreferrer"
+                target="_blank"
+              >Google Analytics for Firebase data collection</a>
+            </li>
+            <li>
+              <a
+                href="https://policies.google.com/privacy"
+                rel="noopener noreferrer"
+                target="_blank"
+              >Google Privacy Policy</a>
+            </li>
+          </ul>
+
+          <h3>Advertising-related settings</h3>
+          <p>
+            Pixel Harmony does not contain an advertising SDK or display ads.
+            At the time of this policy, Google Signals is disabled, advertising
+            personalization is disabled in all 307 available regions, and no
+            Google Ads or AdMob link is shown in the project's Analytics
+            configuration. We use Analytics for product understanding, not to
+            show personalized advertisements. These settings may be reviewed
+            and updated if the app's services change; any material change will
+            also require this policy and applicable store disclosures to be
+            updated.
+          </p>
+        </section>
+
+        <section class="card" id="purposes">
+          <h2>How we use information</h2>
+          <p>Information described in this policy is used to:</p>
+          <ul>
+            <li>operate the app and preserve local gameplay preferences;</li>
+            <li>understand which game modes and features are used;</li>
+            <li>measure general engagement and progression patterns;</li>
+            <li>identify crashes, technical errors, and stability problems;</li>
+            <li>improve gameplay quality, accessibility, and reliability; and</li>
+            <li>respond to support requests.</li>
+          </ul>
+        </section>
+
+        <section class="card" id="retention">
+          <h2>Data retention</h2>
+          <p>
+            Local game data generally remains in the app's storage until it is
+            reset by an available feature, removed by the operating system, or
+            removed when the app is uninstalled. Device backup and restoration
+            behavior is controlled by the operating system and your device
+            settings, so uninstalling does not provide a universal restoration
+            or deletion guarantee across every device configuration.
+          </p>
+          <p>
+            Analytics and Crashlytics information is retained according to the
+            applicable Firebase or Google service settings and policies. The
+            exact period can vary by data type, service configuration, and
+            legal requirements. We do not state a single fixed retention period
+            for all Firebase data.
+          </p>
+          <p>
+            If you contact support, we may keep your correspondence for as long
+            as reasonably necessary to answer the request, maintain support
+            records, protect the service, or meet legal obligations.
+          </p>
+        </section>
+
+        <section class="card" id="choices">
+          <h2>Your choices and deletion requests</h2>
+          <p>
+            Pixel Harmony does not currently include a single control that
+            deletes all local data, and it does not include an in-app switch to
+            disable Firebase Analytics. Some individual game modes may provide
+            their own reset control.
+          </p>
+          <p>
+            You can remove local app data using your operating system's app
+            management features or by uninstalling the app. This may permanently
+            remove progress and settings, and Pixel Harmony cannot currently
+            restore them through a player account.
+          </p>
+          <p>
+            To ask a privacy question or request deletion of information that
+            may be under our control, email us at the address below. Because the
+            app has no account system and Firebase data is associated primarily
+            with pseudonymous installation identifiers, we may not be able to
+            identify or retrieve a particular person's Analytics or Crashlytics
+            records from an email address alone. Some requests may also be
+            subject to Google/Firebase processes and legal retention duties.
+          </p>
+        </section>
+
+        <section class="card" id="children">
+          <h2>Children's privacy</h2>
+          <p>
+            Pixel Harmony does not currently ask users to create an account or
+            provide their age, name, or contact information inside the app. The
+            app's final audience and age-rating decisions are handled through
+            the relevant app store processes and may vary by region.
+          </p>
+          <p>
+            If you are a parent or guardian and believe that a child has sent
+            personal information to us, including through a support request,
+            please contact us so we can review the situation and take
+            appropriate action.
+          </p>
+        </section>
+
+        <section class="card" id="changes">
+          <h2>Changes to this policy</h2>
+          <p>
+            We may update this Privacy Policy when the app, its service
+            providers, legal requirements, or data practices change. The
+            revised policy will be posted on this page with an updated date. If
+            a change materially affects how information is processed, we will
+            take additional notice or consent steps when required by applicable
+            law or platform rules.
+          </p>
+        </section>
+
+        <section class="card contact-card" id="contact">
+          <h2>Contact us</h2>
+          <p>
+            For privacy questions, requests, or concerns, contact Pixel Harmony
+            support:
+          </p>
+          <a
+            class="email-button"
+            href="mailto:support.berilapps@gmail.com?subject=Pixel%20Harmony%20Privacy"
+          >
+            support.berilapps@gmail.com
+          </a>
+        </section>
+      </main>
+
+      <footer>
+        <p><a href="support.html">Pixel Harmony Support</a></p>
+        <p>This independent app is not endorsed or supported by Apple.</p>
+      </footer>
+    </div>
+  </body>
+</html>
