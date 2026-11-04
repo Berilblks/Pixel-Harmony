@@ -345,7 +345,7 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
 
   ios-testflight:
-    name: Pixel Harmony iOS TestFlight
+    name: Pixel Harmony iOS TestFlight & App Store Candidate
     working_directory: flutter_app
     instance_type: mac_mini_m2
     max_build_duration: 120
@@ -447,16 +447,28 @@ workflows:
             echo "Firebase configuration values were not printed."
           } | tee build/ci_logs/firebase-crashlytics-verification.log
 
-      - name: Apply internal TestFlight signing profiles
+      - name: Apply App Store distribution profiles
         script: |
           #!/bin/bash
           set -euo pipefail
-          xcode-project use-profiles \
-            --custom-export-options='{"testFlightInternalTestingOnly": true}' \
-            2>&1 | tee build/ci_logs/xcode-use-profiles.log
+          xcode-project use-profiles 2>&1 \
+            | tee build/ci_logs/xcode-use-profiles.log
           test -f "$HOME/export_options.plist"
-          echo "App Store signing profiles applied for internal TestFlight." \
-            | tee build/ci_logs/signing-verification.log
+
+          internal_only=$(
+            plutil -extract testFlightInternalTestingOnly raw -o - \
+              "$HOME/export_options.plist" 2>/dev/null || echo false
+          )
+          if test "$internal_only" = "true"; then
+            echo "Export options unexpectedly restrict the build to internal TestFlight." >&2
+            exit 1
+          fi
+
+          {
+            echo "App Store distribution profiles applied."
+            echo "TestFlight Internal Only restriction: absent"
+            echo "The resulting IPA is eligible for TestFlight and App Store review."
+          } | tee build/ci_logs/signing-verification.log
 
       - name: Build signed TestFlight IPA
         script: |
@@ -469,7 +481,7 @@ workflows:
           set +e
           flutter build ipa --release \
             --build-name=1.0.0 \
-            --build-number="$BUILD_NUMBER" \
+            --build-number=7 \
             --export-options-plist="$HOME/export_options.plist" \
             >"$build_log" 2>&1
           build_status=$?
