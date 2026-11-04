@@ -11,10 +11,40 @@ void main() {
 
   test('delegating analytics swallows backend failures', () async {
     final service =
-        DelegatingAppAnalyticsService()..attach(_FailingAnalyticsService());
+        DelegatingAppAnalyticsService()
+          ..attach(_FailingAnalyticsService())
+          ..setEnabled(true);
 
     await expectLater(service.logEvent('hint_used'), completes);
   });
+
+  test(
+    'delegating analytics suppresses events until consent is enabled',
+    () async {
+      final backend = _RecordingAnalyticsService();
+      final service = DelegatingAppAnalyticsService()..attach(backend);
+
+      await service.logEvent('before_consent');
+      expect(backend.events, isEmpty);
+
+      service.setEnabled(true);
+      await service.logEvent('after_consent');
+      expect(backend.events, ['after_consent']);
+
+      service.setEnabled(false);
+      await service.logEvent('after_withdrawal');
+      expect(backend.events, ['after_consent']);
+    },
+  );
+}
+
+class _RecordingAnalyticsService implements AppAnalyticsService {
+  final events = <String>[];
+
+  @override
+  Future<void> logEvent(String name, {Map<String, Object>? parameters}) async {
+    events.add(name);
+  }
 }
 
 class _FailingAnalyticsService implements AppAnalyticsService {

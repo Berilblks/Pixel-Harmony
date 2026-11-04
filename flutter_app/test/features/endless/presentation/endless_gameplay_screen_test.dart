@@ -23,7 +23,11 @@ import '../../../support/fake_level_progress_repository.dart';
 import '../../../support/fake_player_statistics_repository.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      'privacy.analytics_consent': false,
+    }),
+  );
 
   Widget buildApp({
     required FakeEndlessProgressRepository endlessRepository,

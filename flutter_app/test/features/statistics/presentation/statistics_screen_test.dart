@@ -10,7 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../support/fake_player_statistics_repository.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      'privacy.analytics_consent': false,
+    }),
+  );
 
   Widget buildApp(FakePlayerStatisticsRepository repository) {
     return ProviderScope(

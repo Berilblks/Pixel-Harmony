@@ -481,7 +481,7 @@ workflows:
           set +e
           flutter build ipa --release \
             --build-name=1.0.0 \
-            --build-number=7 \
+            --build-number=8 \
             --export-options-plist="$HOME/export_options.plist" \
             >"$build_log" 2>&1
           build_status=$?

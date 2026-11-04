@@ -7,13 +7,20 @@ is unavailable.
 
 ## Initialization
 
-The Flutter app starts immediately with no-op analytics and crash-reporting
-services. Firebase initialization runs asynchronously. On success, the service
-delegates switch to Firebase implementations; on failure they remain no-op and
-only a safe debug message is written. Release builds enable Crashlytics
-collection. Uncaught Flutter framework and asynchronous Dart errors are routed
-through the crash-reporting abstraction. Expected validation and persistence
-failures are not reported as crashes.
+The Flutter app starts with Analytics collection disabled at the native
+platform level. On first use, the player is asked whether usage
+Analytics may be enabled. The decision is stored locally and can be changed at
+any time from Settings. Custom Analytics events are gated in the application as
+well as by Firebase collection state, so they are not sent before consent or
+after consent is withdrawn.
+
+Firebase initialization runs asynchronously. On success, the service delegates
+switch to Firebase implementations; on failure they remain no-op and only a
+safe debug message is written. Release builds enable Crashlytics collection.
+Crashlytics is disclosed separately from the optional Analytics choice.
+Uncaught Flutter framework and asynchronous Dart errors are routed through the
+crash-reporting abstraction. Expected validation and persistence failures are
+not reported as crashes.
 
 ## Event taxonomy
 
@@ -25,7 +32,7 @@ failures are not reported as crashes.
 - `achievement_unlocked`, `settings_changed`
 
 Event and parameter names are centralized in `AnalyticsEvents` and
-`AnalyticsParameters`. Parameters are limited to anonymous gameplay metadata:
+`AnalyticsParameters`. Parameters are limited to non-profile gameplay metadata:
 level/puzzle number, chapter ID, board size, difficulty, generation version,
 moves, current Daily streak, mode, achievement ID, and changed setting.
 
@@ -40,16 +47,10 @@ client configuration and may be tracked; they contain identifiers, not signing
 credentials. Upload keystores, `key.properties`, passwords, and service-account
 credentials must never be tracked.
 
-iOS still requires platform setup before an iOS Firebase build:
-
-1. Create or select a Firebase project and enable Google Analytics.
-2. Register iOS app `com.berilblks.pixelharmony` and place the downloaded
-   `GoogleService-Info.plist` at
-   `flutter_app/ios/Runner/GoogleService-Info.plist`.
-3. Re-run `flutterfire configure --platforms=ios` from `flutter_app/` after the
-   iOS app is registered.
-4. Revalidate debug/release builds and confirm events in Analytics DebugView and
-   non-production Crashlytics testing before release.
+iOS is registered as `com.berilblks.pixelharmony`. Its Firebase plist is part of
+the Runner target, and the Podfile selects Firebase Analytics without advertising
+identifier support. Each release IPA must still pass the Codemagic binary and
+privacy-manifest audits before submission.
 
 ## Android verification
 
@@ -82,4 +83,6 @@ crash production builds.
 Before public distribution, the privacy policy and Google Play Data Safety / App
 Store privacy disclosures must accurately describe Firebase Analytics and
 Crashlytics collection. Consent requirements must be reviewed for each launch
-region. This integration does not add consent UI or identity tracking.
+region. The in-app Analytics choice is not an App Tracking Transparency prompt
+and must not be described as one; Pixel Harmony does not use it to request
+tracking permission.

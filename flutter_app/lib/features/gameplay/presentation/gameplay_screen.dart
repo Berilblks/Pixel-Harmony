@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flame/game.dart' hide Matrix4;
 import 'package:flutter/material.dart';
@@ -1236,141 +1237,153 @@ class _LevelCompleteOverlay extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return SafeArea(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: AppPalette.surface.withValues(alpha: 0.98),
-                borderRadius: BorderRadius.circular(AppRadii.xl),
-                border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.65),
-                ),
-                boxShadow: AppShadows.floating,
-              ),
+      child: LayoutBuilder(
+        builder:
+            (context, constraints) => Align(
+              alignment: Alignment.bottomCenter,
               child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    DecoratedBox(
-                      decoration: const BoxDecoration(
-                        color: AppPalette.surfaceCompleted,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(AppSpacing.sm),
-                        child: Icon(
-                          Icons.check_rounded,
-                          size: 24,
-                          color: AppPalette.completed,
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 400,
+                    maxHeight: math.max(
+                      0,
+                      constraints.maxHeight - (AppSpacing.md * 2),
+                    ),
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppPalette.surface.withValues(alpha: 0.98),
+                      borderRadius: BorderRadius.circular(AppRadii.xl),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.65,
                         ),
+                      ),
+                      boxShadow: AppShadows.floating,
+                    ),
+                    child: SingleChildScrollView(
+                      key: const Key('levelCompleteScrollView'),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DecoratedBox(
+                            decoration: const BoxDecoration(
+                              color: AppPalette.surfaceCompleted,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(AppSpacing.sm),
+                              child: Icon(
+                                Icons.check_rounded,
+                                size: 24,
+                                color: AppPalette.completed,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.compact),
+                          Text(
+                            isEndless
+                                ? localizations.completionTitle
+                                : isFinalLevel
+                                ? localizations.allLevelsCompleteTitle
+                                : localizations.completionTitle,
+                            style: Theme.of(context).textTheme.headlineSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            isEndless
+                                ? localizations.completionSubtitle
+                                : isFinalLevel
+                                ? localizations.allLevelsCompleteSubtitle
+                                : localizations.completionSubtitle,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          if (pixelFigureName != null) ...[
+                            Text(
+                              pixelFigureName!,
+                              key: const Key('completionPixelPictureName'),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                          ],
+                          if (isEndless) ...[
+                            Text(
+                              localizations.puzzleLabel(puzzleNumber!),
+                              key: const Key('endlessCompletionPuzzleLabel'),
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                          ],
+                          DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppPalette.surfaceMuted,
+                              borderRadius: BorderRadius.circular(AppRadii.sm),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                localizations.completionMoves(moveCount),
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          SizedBox(
+                            width: double.infinity,
+                            child: FilledButton(
+                              key: Key(
+                                isEndless
+                                    ? 'nextPuzzleButton'
+                                    : isFinalLevel
+                                    ? 'finalBackToLevelsButton'
+                                    : 'nextLevelButton',
+                              ),
+                              onPressed:
+                                  !isEndless && isFinalLevel
+                                      ? onBackToLevels
+                                      : onNextLevel,
+                              child: Text(
+                                isEndless
+                                    ? localizations.nextPuzzle
+                                    : isFinalLevel
+                                    ? localizations.backToLevels
+                                    : localizations.nextLevel,
+                              ),
+                            ),
+                          ),
+                          if (isEndless || !isFinalLevel) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            TextButton(
+                              key: Key(
+                                isEndless
+                                    ? 'endlessBackHomeButton'
+                                    : 'completionBackToLevelsButton',
+                              ),
+                              onPressed: onBackToLevels,
+                              child: Text(
+                                isEndless
+                                    ? localizations.backHome
+                                    : localizations.backToLevels,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.compact),
-                    Text(
-                      isEndless
-                          ? localizations.completionTitle
-                          : isFinalLevel
-                          ? localizations.allLevelsCompleteTitle
-                          : localizations.completionTitle,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      isEndless
-                          ? localizations.completionSubtitle
-                          : isFinalLevel
-                          ? localizations.allLevelsCompleteSubtitle
-                          : localizations.completionSubtitle,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    if (pixelFigureName != null) ...[
-                      Text(
-                        pixelFigureName!,
-                        key: const Key('completionPixelPictureName'),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                    if (isEndless) ...[
-                      Text(
-                        localizations.puzzleLabel(puzzleNumber!),
-                        key: const Key('endlessCompletionPuzzleLabel'),
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                    ],
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppPalette.surfaceMuted,
-                        borderRadius: BorderRadius.circular(AppRadii.sm),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.md,
-                          vertical: AppSpacing.sm,
-                        ),
-                        child: Text(
-                          localizations.completionMoves(moveCount),
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton(
-                        key: Key(
-                          isEndless
-                              ? 'nextPuzzleButton'
-                              : isFinalLevel
-                              ? 'finalBackToLevelsButton'
-                              : 'nextLevelButton',
-                        ),
-                        onPressed:
-                            !isEndless && isFinalLevel
-                                ? onBackToLevels
-                                : onNextLevel,
-                        child: Text(
-                          isEndless
-                              ? localizations.nextPuzzle
-                              : isFinalLevel
-                              ? localizations.backToLevels
-                              : localizations.nextLevel,
-                        ),
-                      ),
-                    ),
-                    if (isEndless || !isFinalLevel) ...[
-                      const SizedBox(height: AppSpacing.sm),
-                      TextButton(
-                        key: Key(
-                          isEndless
-                              ? 'endlessBackHomeButton'
-                              : 'completionBackToLevelsButton',
-                        ),
-                        onPressed: onBackToLevels,
-                        child: Text(
-                          isEndless
-                              ? localizations.backHome
-                              : localizations.backToLevels,
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
       ),
     );
   }

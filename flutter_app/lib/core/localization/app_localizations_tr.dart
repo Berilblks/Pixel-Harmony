@@ -341,6 +341,37 @@ class AppLocalizationsTr extends AppLocalizations {
   String get soundEffectsLabel => 'Ses Efektleri';
 
   @override
+  String get analyticsConsentTitle =>
+      'Pixel Harmony\'yi geliştirmemize yardımcı olur musun?';
+
+  @override
+  String get analyticsConsentDescription =>
+      'Hangi özelliklerin iyi çalıştığını anlamamıza ve oyunu geliştirmemize yardımcı olmak için kullanım analizine izin ver. Analiz, takma adlı bir uygulama kurulum tanımlayıcısı kullanabilir. Bu tercihi Ayarlar\'dan istediğin zaman değiştirebilirsin. Bu, reklam takibi değildir.';
+
+  @override
+  String get analyticsConsentAccept => 'Analize İzin Ver';
+
+  @override
+  String get analyticsConsentDecline => 'Şimdi Değil';
+
+  @override
+  String get analyticsSettingsTitle => 'Kullanım Analizi';
+
+  @override
+  String get analyticsSettingsDescription =>
+      'Pixel Harmony\'yi geliştirmemize yardımcı olmak için uygulama kullanım bilgilerini paylaş.';
+
+  @override
+  String get privacyPolicyTitle => 'Gizlilik Politikası';
+
+  @override
+  String get supportTitle => 'Destek';
+
+  @override
+  String get linkOpenError =>
+      'Bağlantı açılamadı. Lütfen daha sonra tekrar dene.';
+
+  @override
   String get hapticsLabel => 'Titreşim';
 
   @override

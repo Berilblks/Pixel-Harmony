@@ -704,6 +704,60 @@ abstract class AppLocalizations {
   /// **'Sound Effects'**
   String get soundEffectsLabel;
 
+  /// No description provided for @analyticsConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help improve Pixel Harmony?'**
+  String get analyticsConsentTitle;
+
+  /// No description provided for @analyticsConsentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow usage analytics to help us understand which features work well and improve the game. Analytics may use a pseudonymous app installation identifier. You can change this choice anytime in Settings. This is not advertising tracking.'**
+  String get analyticsConsentDescription;
+
+  /// No description provided for @analyticsConsentAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Analytics'**
+  String get analyticsConsentAccept;
+
+  /// No description provided for @analyticsConsentDecline.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Now'**
+  String get analyticsConsentDecline;
+
+  /// No description provided for @analyticsSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage Analytics'**
+  String get analyticsSettingsTitle;
+
+  /// No description provided for @analyticsSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Share app usage information to help improve Pixel Harmony.'**
+  String get analyticsSettingsDescription;
+
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @supportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get supportTitle;
+
+  /// No description provided for @linkOpenError.
+  ///
+  /// In en, this message translates to:
+  /// **'The link could not be opened. Please try again later.'**
+  String get linkOpenError;
+
   /// No description provided for @hapticsLabel.
   ///
   /// In en, this message translates to:

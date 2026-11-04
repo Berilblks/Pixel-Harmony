@@ -554,6 +554,36 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'gradient completion actions remain accessible at 200% text on small iPhone',
+    (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(320, 568);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final controller = GameplayCompletionController();
+      addTearDown(controller.dispose);
+
+      await tester.pumpWidget(buildApp(controller: controller));
+      await tester.pump();
+      controller.showCompletion(completedState(moveCount: 3));
+      await tester.pump(const Duration(milliseconds: 350));
+
+      expect(find.byKey(const Key('levelCompleteScrollView')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+
+      final next = find.byKey(const Key('nextLevelButton'));
+      final back = find.byKey(const Key('completionBackToLevelsButton'));
+      await tester.ensureVisible(next);
+      expect(next.hitTestable(), findsOneWidget);
+      await tester.ensureVisible(back);
+      expect(back.hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('restart preserves persisted completion', (tester) async {
     final repository = FakeLevelProgressRepository(
       completedLevelIds: const {'level_001'},

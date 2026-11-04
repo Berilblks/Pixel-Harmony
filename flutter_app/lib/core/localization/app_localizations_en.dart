@@ -341,6 +341,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundEffectsLabel => 'Sound Effects';
 
   @override
+  String get analyticsConsentTitle => 'Help improve Pixel Harmony?';
+
+  @override
+  String get analyticsConsentDescription =>
+      'Allow usage analytics to help us understand which features work well and improve the game. Analytics may use a pseudonymous app installation identifier. You can change this choice anytime in Settings. This is not advertising tracking.';
+
+  @override
+  String get analyticsConsentAccept => 'Allow Analytics';
+
+  @override
+  String get analyticsConsentDecline => 'Not Now';
+
+  @override
+  String get analyticsSettingsTitle => 'Usage Analytics';
+
+  @override
+  String get analyticsSettingsDescription =>
+      'Share app usage information to help improve Pixel Harmony.';
+
+  @override
+  String get privacyPolicyTitle => 'Privacy Policy';
+
+  @override
+  String get supportTitle => 'Support';
+
+  @override
+  String get linkOpenError =>
+      'The link could not be opened. Please try again later.';
+
+  @override
   String get hapticsLabel => 'Haptics';
 
   @override
