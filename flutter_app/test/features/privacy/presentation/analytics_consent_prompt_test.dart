@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/core/analytics/analytics_privacy_runtime.dart';
 import 'package:pixel_harmony/core/localization/app_localizations.dart';
 import 'package:pixel_harmony/features/privacy/application/analytics_consent_providers.dart';
@@ -10,6 +13,73 @@ import 'package:pixel_harmony/features/privacy/domain/analytics_consent_reposito
 import 'package:pixel_harmony/features/privacy/presentation/analytics_consent_prompt.dart';
 
 void main() {
+  testWidgets('production router shows consent on a clean install', (
+    tester,
+  ) async {
+    final repository = _FakeConsentRepository();
+    final runtime = _FakePrivacyRuntime();
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const Scaffold(body: Text('Home')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appRouterProvider.overrideWithValue(router),
+          analyticsConsentRepositoryProvider.overrideWithValue(repository),
+          analyticsPrivacyRuntimeProvider.overrideWithValue(runtime),
+        ],
+        child: const PixelHarmonyApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('analyticsConsentDialog')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    expect(runtime.values, isEmpty);
+  });
+
+  for (final consent in [AnalyticsConsent.enabled, AnalyticsConsent.disabled]) {
+    testWidgets(
+      'production router respects an existing ${consent.name} choice',
+      (tester) async {
+        final repository = _FakeConsentRepository(consent);
+        final runtime = _FakePrivacyRuntime();
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const Scaffold(body: Text('Home')),
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              appRouterProvider.overrideWithValue(router),
+              analyticsConsentRepositoryProvider.overrideWithValue(repository),
+              analyticsPrivacyRuntimeProvider.overrideWithValue(runtime),
+            ],
+            child: const PixelHarmonyApp(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('analyticsConsentDialog')), findsNothing);
+        expect(tester.takeException(), isNull);
+        expect(runtime.values, isEmpty);
+      },
+    );
+  }
+
   testWidgets('first use asks before enabling analytics', (tester) async {
     final repository = _FakeConsentRepository();
     final runtime = _FakePrivacyRuntime();
@@ -96,7 +166,9 @@ void main() {
 }
 
 class _FakeConsentRepository implements AnalyticsConsentRepository {
-  AnalyticsConsent consent = AnalyticsConsent.undecided;
+  _FakeConsentRepository([this.consent = AnalyticsConsent.undecided]);
+
+  AnalyticsConsent consent;
 
   @override
   Future<AnalyticsConsent> read() async => consent;
