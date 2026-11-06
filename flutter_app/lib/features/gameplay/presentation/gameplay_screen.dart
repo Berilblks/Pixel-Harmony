@@ -337,6 +337,14 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
     widget.onNextPuzzle?.call();
   }
 
+  void _returnToJourneyLevels() {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.goNamed(AppRoutes.levelSelect);
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(achievementControllerProvider);
@@ -605,7 +613,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                   onBackToLevels:
                       widget.contentSource != GameplayContentSource.journey
                           ? widget.onBackHome!
-                          : () => context.goNamed(AppRoutes.levelSelect),
+                          : _returnToJourneyLevels,
                 );
               },
             )
@@ -643,8 +651,7 @@ class _GameplayScreenState extends ConsumerState<GameplayScreen>
                                 widget.contentSource !=
                                         GameplayContentSource.journey
                                     ? widget.onBackHome!
-                                    : () =>
-                                        context.goNamed(AppRoutes.levelSelect),
+                                    : _returnToJourneyLevels,
                           ),
                 );
               },

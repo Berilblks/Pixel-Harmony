@@ -61,7 +61,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
     );
     _positionNearCurrentLevel(currentLevel);
 
-    return Scaffold(
+    final scaffold = Scaffold(
       backgroundColor: const Color(0xFFFFFBF7),
       body: Stack(
         children: [
@@ -78,7 +78,7 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
               children: [
                 _LevelSelectHeader(
                   title: localizations.chooseLevel,
-                  onBack: () => context.pop(),
+                  onBack: _leaveJourney,
                 ),
                 if (progress.isLoading)
                   const LinearProgressIndicator(minHeight: 2),
@@ -156,6 +156,23 @@ class _LevelSelectScreenState extends ConsumerState<LevelSelectScreen>
         ],
       ),
     );
+    return PopScope(
+      canPop: context.canPop(),
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.goNamed(AppRoutes.home);
+        }
+      },
+      child: scaffold,
+    );
+  }
+
+  void _leaveJourney() {
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.goNamed(AppRoutes.home);
   }
 
   int _firstIncompleteLevel(Set<String> completedLevelIds) {

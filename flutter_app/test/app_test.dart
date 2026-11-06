@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pixel_harmony/app/app.dart';
+import 'package:pixel_harmony/app/router/app_router.dart';
 import 'package:pixel_harmony/features/gameplay/presentation/gameplay_screen.dart';
 import 'package:pixel_harmony/features/achievements/application/achievement_providers.dart';
 import 'package:pixel_harmony/features/achievements/domain/achievement_repository.dart';
@@ -245,6 +246,37 @@ void main() {
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.byType(GameplayScreen), findsNothing);
     expect(find.byKey(const Key('currentLevel_level_003')), findsOneWidget);
+  });
+
+  testWidgets('Journey map top back returns to Home', (tester) async {
+    await openLevelSelect(tester, repository: FakeLevelProgressRepository());
+
+    await tester.tap(find.byKey(const Key('levelSelectBackButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(LevelSelectScreen), findsNothing);
+  });
+
+  testWidgets('system back from a root Journey map returns to Home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildApp(repository: FakeLevelProgressRepository()),
+    );
+    await tester.pump();
+    final context = tester.element(find.byType(HomeScreen));
+    GoRouter.of(context).goNamed(AppRoutes.levelSelect);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(LevelSelectScreen), findsNothing);
   });
 
   testWidgets('Free Play opens setup with puzzle types and difficulties', (
@@ -691,6 +723,57 @@ void main() {
     expect(find.byType(LevelSelectScreen), findsOneWidget);
     expect(find.byKey(const Key('levelCompleted_level_001')), findsOneWidget);
     expect(find.byKey(const Key('levelLocked_level_002')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('levelSelectBackButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(LevelSelectScreen), findsNothing);
+  });
+
+  testWidgets('multiple played levels preserve the Journey back stack', (
+    tester,
+  ) async {
+    final repository = FakeLevelProgressRepository(
+      completedLevelIds: const {'level_001'},
+    );
+    await openLevelSelect(tester, repository: repository);
+    await tester.tap(find.byKey(const Key('levelCard_level_001')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final gameplayContext = tester.element(find.byType(GameplayScreen));
+    gameplayContext.pushReplacementNamed(
+      AppRoutes.gameplay,
+      pathParameters: const {'levelId': 'level_002'},
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      tester.widget<GameplayScreen>(find.byType(GameplayScreen)).level?.id,
+      'level_002',
+    );
+    final game =
+        tester
+            .widget<GameWidget<PixelHarmonyGame>>(
+              find.byType(GameWidget<PixelHarmonyGame>),
+            )
+            .game!;
+    game.onCompleted!(game.session.boardState.withCompleted(true));
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.byKey(const Key('completionBackToLevelsButton')));
+    await tester.pump(const Duration(milliseconds: 350));
+
+    expect(find.byType(LevelSelectScreen), findsOneWidget);
+    await tester.tap(find.byKey(const Key('levelSelectBackButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(
+      repository.completedLevelIds,
+      containsAll(['level_001', 'level_002']),
+    );
   });
 
   testWidgets('statistics failure does not block Journey progression', (
